@@ -1638,7 +1638,8 @@ def validate_cart():
     receipt_items = None
     receipt_amounts = None
     receipt_pmID = None
-
+    checkin_status = None
+    checkin_message = None
 
     #If no customerID; just make receipt and update stock
     #if customerID; Make order, deliver order, add payment to invoice created by deliver order
@@ -1696,6 +1697,8 @@ def validate_cart():
             result = validate_cart_create_order(cuID, pmID, items)
             invoice = result['invoice']
             receipt = result['receipt']
+            checkin_status = result['checkin_status'],
+            checkin_message = result['checkin_message'],
         else:
             # Create receipt for products and custom items manually
             print('create receipt directly')
@@ -1724,7 +1727,9 @@ def validate_cart():
         receipt_link=receipt_link,
         receipt_items=receipt_items,
         receipt_amounts=receipt_amounts,
-        receipt_payment_methods_id=receipt_pmID
+        receipt_payment_methods_id=receipt_pmID,
+        checkin_status=checkin_status,
+        checkin_message=checkin_message
     )
 
 
