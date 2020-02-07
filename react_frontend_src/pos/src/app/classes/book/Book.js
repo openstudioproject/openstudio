@@ -117,6 +117,7 @@ class Book extends Component {
                     id: v4(),
                     item_type: 'classcard',
                     quantity: 1,
+                    checkin_classes_id: clsID,
                     data: option
                 }
                 // customer needs to pay
@@ -150,6 +151,7 @@ class Book extends Component {
                     id: v4(),
                     item_type: 'subscription',
                     quantity: 1,
+                    checkin_classes_id: clsID,
                     data: option
                 }
                 // customer needs to pay

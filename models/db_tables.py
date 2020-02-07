@@ -5699,8 +5699,12 @@ def define_customers_orders_items():
     ac_query = (db.accounting_costcenters.Archived == False)
     ag_query = (db.accounting_glaccounts.Archived == False)
 
-    types = [ (1,T("Trial class")),
-              (2,T("Drop In")) ]
+    types = [
+        (None,T("Subscription")),
+        (1,T("Trial class")),
+        (2,T("Drop In")),
+        (3,T("Class card")),
+    ]
 
     db.define_table('customers_orders_items',
         Field('customers_orders_id', db.customers_orders,

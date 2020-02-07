@@ -2,6 +2,7 @@ import React, { Component } from "react"
 import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 import { v4 } from "uuid"
+import { toast } from 'react-toastify'
 
 import PageTemplate from "../../../components/PageTemplate"
 import Box from "../../../components/ui/Box"
@@ -150,14 +151,26 @@ class Validation extends Component {
                                             </div>
                                             <ValidationList app={app}
                                                             data={app.cart_validation_data} />
+                                            { (app.cart_validation_data.checkin_did) ?
+                                                (app.cart_validation_data.checkin_status == "ok") ?
+                                                    <span className="text-green">
+                                                        Customer checked in to class
+                                                    </span> : 
+                                                    <span className="text-red">
+                                                        Class checkin failed <br />
+                                                        {app.cart_validation_data.checkin_message}
+                                                    </span>
+                                                : ""
+                                            }
+                                            <hr />
+                                            <a href={app.cart_validation_data.receipt_link} 
+                                               target="_blank"
+                                               className="btn btn-default pull-right">
+                                                <i className="fa fa-print"></i> Print receipt
+                                            </a>
                                             <span className="text-green">
                                                 <i className="fa fa-leaf"></i> Please consider the environment before printing!
                                             </span><br /><br />
-                                            <a href={app.cart_validation_data.receipt_link} 
-                                               target="_blank"
-                                               className="btn btn-default">
-                                                <i className="fa fa-print"></i> Print receipt
-                                            </a>
                                         </BoxBody>
                                     </Box>
                                 </div>

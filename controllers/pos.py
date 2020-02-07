@@ -1638,7 +1638,9 @@ def validate_cart():
     receipt_items = None
     receipt_amounts = None
     receipt_pmID = None
-
+    checkin_did = None
+    checkin_status = None
+    checkin_message = None
 
     #If no customerID; just make receipt and update stock
     #if customerID; Make order, deliver order, add payment to invoice created by deliver order
@@ -1696,6 +1698,9 @@ def validate_cart():
             result = validate_cart_create_order(cuID, pmID, items)
             invoice = result['invoice']
             receipt = result['receipt']
+            checkin_did = result['checkin_did'],
+            checkin_status = result['checkin_status'],
+            checkin_message = result['checkin_message'],
         else:
             # Create receipt for products and custom items manually
             print('create receipt directly')
@@ -1724,7 +1729,10 @@ def validate_cart():
         receipt_link=receipt_link,
         receipt_items=receipt_items,
         receipt_amounts=receipt_amounts,
-        receipt_payment_methods_id=receipt_pmID
+        receipt_payment_methods_id=receipt_pmID,
+        checkin_did=checkin_did,
+        checkin_status=checkin_status,
+        checkin_message=checkin_message
     )
 
 
@@ -1745,14 +1753,30 @@ def validate_cart_create_order(cuID, pmID, items):
 
     # Add items
     for item in items:
+        checkin_classes_id = None
+
         if item['item_type'] == 'product':
             order.order_item_add_product_variant(item['data']['id'], item['quantity'])
         elif item['item_type'] == 'classcard':
-             order.order_item_add_classcard(item['data']['id'])
+            if item['checkin_classes_id']:
+                order.order_item_add_classcard(
+                    item['data']['id'],
+                    classes_id = item['checkin_classes_id'],
+                    class_date = TODAY_LOCAL
+                )
+            else:
+                order.order_item_add_classcard(item['data']['id'])
         elif item['item_type'] == 'subscription':
-            order.order_item_add_subscription(
-                item['data']['id']
-            )
+            if item['checkin_classes_id']:
+                order.order_item_add_subscription(
+                    item['data']['id'],
+                    classes_id = item['checkin_classes_id'],
+                    class_date = TODAY_LOCAL
+                )
+            else:
+                order.order_item_add_subscription(
+                    item['data']['id']
+                )
         elif item['item_type'] == 'membership':
             order.order_item_add_membership(
                 item['data']['id'],

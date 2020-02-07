@@ -25,11 +25,16 @@ class ValidationList extends Component {
         const app = this.props.app
         const data = this.props.data
 
+        console.log("app.cart_validation_data.receipt_payment_methods_id")
+        console.log(app.cart_validation_data.receipt_payment_methods_id)
+
         return (
             !(app.loaded) || !(app.cart_validated) ? 
                 "Loading" :
             <div>
-                Payment Method: <PaymentMethodName /> <br /><br />
+                Payment Method: <PaymentMethodName 
+                                    methods={app.payment_methods}
+                                    payment_method_id={app.cart_validation_data.receipt_payment_methods_id}/> <br /><br />
                 <ValidationListItems items={app.cart_validation_data.receipt_items}
                                      total={app.cart_validation_data.receipt_amounts.TotalPriceVAT} />
 
