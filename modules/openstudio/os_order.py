@@ -93,7 +93,10 @@ class Order:
         return coiID
 
 
-    def order_item_add_classcard(self, school_classcards_id):
+    def order_item_add_classcard(self,
+                                 school_classcards_id,
+                                 class_date=None,
+                                 classes_id=None):
         """
             :param school_classcards_id: db.school_classcards.id
             :return : db.customers_orders_items.id of inserted item
@@ -105,6 +108,8 @@ class Order:
 
         coiID = db.customers_orders_items.insert(
             customers_orders_id  = self.coID,
+            ClassDate=class_date,
+            classes_id=classes_id,
             school_classcards_id = school_classcards_id,
             ProductName = T('Classcard'),
             Description = school_classcard.Name,
@@ -120,7 +125,11 @@ class Order:
         return coiID
 
 
-    def order_item_add_subscription(self, school_subscriptions_id, dummy_subscription=False):
+    def order_item_add_subscription(self,
+                                    school_subscriptions_id,
+                                    dummy_subscription=False,
+                                    class_date=None,
+                                    classes_id=None):
         """
             :param school_subscriptions_id: db.school_subscriptions.id
             :return : db.customers_orders_items.id of inserted item
@@ -141,6 +150,8 @@ class Order:
         coiID = db.customers_orders_items.insert(
             customers_orders_id  = self.coID,
             DummySubscription = dummy_subscription,
+            ClassDate = class_date,
+            classes_id = classes_id,
             school_subscriptions_id = school_subscriptions_id if not dummy_subscription else None,
             ProductName = T('Subscription'),
             Description = ssu.get_name(),
