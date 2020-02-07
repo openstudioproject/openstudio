@@ -543,6 +543,7 @@ class Order:
         ocm = OsCacheManager()
         db = current.db
         T = current.T
+        checkin_did = None
         checkin_status = None
         checkin_message = None
 
@@ -750,6 +751,7 @@ class Order:
                     )
 
                 if result:
+                    checkin_did = True
                     checkin_status = result['status']
                     checkin_message = result['message']
 
@@ -799,6 +801,7 @@ class Order:
             iID=iID,
             invoice=invoice,
             receipt=receipt,
+            checkin_did=checkin_did,
             checkin_status=checkin_status,
             checkin_message=checkin_message,
         )

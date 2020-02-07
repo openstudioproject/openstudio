@@ -150,14 +150,15 @@ class Validation extends Component {
                                             </div>
                                             <ValidationList app={app}
                                                             data={app.cart_validation_data} />
+                                            <hr />
+                                            <a href={app.cart_validation_data.receipt_link} 
+                                               target="_blank"
+                                               className="btn btn-default pull-right">
+                                                <i className="fa fa-print"></i> Print receipt
+                                            </a>
                                             <span className="text-green">
                                                 <i className="fa fa-leaf"></i> Please consider the environment before printing!
                                             </span><br /><br />
-                                            <a href={app.cart_validation_data.receipt_link} 
-                                               target="_blank"
-                                               className="btn btn-default">
-                                                <i className="fa fa-print"></i> Print receipt
-                                            </a>
                                         </BoxBody>
                                     </Box>
                                 </div>
