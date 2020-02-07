@@ -706,7 +706,8 @@ class Order:
             if row.customers_orders_items.classes_id:
                 # Deliver class
                 ah = AttendanceHelper()
-                if row.customers_orders_items.AttendanceType == 1:
+                attendance_type = row.customers_orders_items.AttendanceType
+                if attendance_type == 1:
                     result = ah.attendance_sign_in_trialclass(
                         self.order.auth_customer_id,
                         row.customers_orders_items.classes_id,
@@ -715,7 +716,7 @@ class Order:
                         invoice=False,
                         booking_status=class_booking_status
                     )
-                elif row.customers_orders_items.AttendanceType == 2:
+                elif attendance_type == 2:
                     result = ah.attendance_sign_in_dropin(
                         self.order.auth_customer_id,
                         row.customers_orders_items.classes_id,
@@ -725,7 +726,8 @@ class Order:
                         booking_status=class_booking_status,
                     )
 
-                if create_invoice:
+                if create_invoice and (attendance_type == 1 or attendance_type == 2):
+                    # Only add checkins for trial and dropin classes to the invoice separately
                     invoice.item_add_class_from_order(row, result['caID'])
 
                 # Clear api cache to update available spaces
