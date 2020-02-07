@@ -2,6 +2,7 @@ import React, { Component } from "react"
 import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 import { v4 } from "uuid"
+import { toast } from 'react-toastify'
 
 import PageTemplate from "../../../components/PageTemplate"
 import Box from "../../../components/ui/Box"
@@ -151,17 +152,17 @@ class Validation extends Component {
                                             <ValidationList app={app}
                                                             data={app.cart_validation_data} />
                                             <hr />
-                                            { (app.cart_validation_data.checkin_did) ?
-                                                (app.cart_validation_data.checkin_status == "ok") ?
-                                                    <span className="text-green">
-                                                        Checked into class
-                                                    </span> : 
-                                                    <span className="text-red">
-                                                        checkin failed <br />
-                                                        {app.cart_validation_data.checkin_message}
-                                                    </span>
-                                                : ""
-                                            }
+                                                { (app.cart_validation_data.checkin_did) ?
+                                                    (app.cart_validation_data.checkin_status == "ok") ?
+                                                        <span className="text-green">
+                                                            Customer checked in to class
+                                                        </span> : 
+                                                        <span className="text-red">
+                                                            Class checkin failed <br />
+                                                            {app.cart_validation_data.checkin_message}
+                                                        </span>
+                                                    : ""
+                                                }
                                             <hr />
                                             <a href={app.cart_validation_data.receipt_link} 
                                                target="_blank"
