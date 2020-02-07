@@ -1638,6 +1638,7 @@ def validate_cart():
     receipt_items = None
     receipt_amounts = None
     receipt_pmID = None
+    checkin_did = None
     checkin_status = None
     checkin_message = None
 
@@ -1697,6 +1698,7 @@ def validate_cart():
             result = validate_cart_create_order(cuID, pmID, items)
             invoice = result['invoice']
             receipt = result['receipt']
+            checkin_did = result['checkin_did'],
             checkin_status = result['checkin_status'],
             checkin_message = result['checkin_message'],
         else:
@@ -1728,6 +1730,7 @@ def validate_cart():
         receipt_items=receipt_items,
         receipt_amounts=receipt_amounts,
         receipt_payment_methods_id=receipt_pmID,
+        checkin_did=checkin_did,
         checkin_status=checkin_status,
         checkin_message=checkin_message
     )
