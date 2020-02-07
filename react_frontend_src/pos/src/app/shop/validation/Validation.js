@@ -151,6 +151,18 @@ class Validation extends Component {
                                             <ValidationList app={app}
                                                             data={app.cart_validation_data} />
                                             <hr />
+                                            { (app.cart_validation_data.checkin_did) ?
+                                                (app.cart_validation_data.checkin_status == "ok") ?
+                                                    <span className="text-green">
+                                                        Checked into class
+                                                    </span> : 
+                                                    <span className="text-red">
+                                                        checkin failed <br />
+                                                        {app.cart_validation_data.checkin_message}
+                                                    </span>
+                                                : ""
+                                            }
+                                            <hr />
                                             <a href={app.cart_validation_data.receipt_link} 
                                                target="_blank"
                                                className="btn btn-default pull-right">
