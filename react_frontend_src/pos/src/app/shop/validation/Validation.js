@@ -151,18 +151,17 @@ class Validation extends Component {
                                             </div>
                                             <ValidationList app={app}
                                                             data={app.cart_validation_data} />
-                                            <hr />
-                                                { (app.cart_validation_data.checkin_did) ?
-                                                    (app.cart_validation_data.checkin_status == "ok") ?
-                                                        <span className="text-green">
-                                                            Customer checked in to class
-                                                        </span> : 
-                                                        <span className="text-red">
-                                                            Class checkin failed <br />
-                                                            {app.cart_validation_data.checkin_message}
-                                                        </span>
-                                                    : ""
-                                                }
+                                            { (app.cart_validation_data.checkin_did) ?
+                                                (app.cart_validation_data.checkin_status == "ok") ?
+                                                    <span className="text-green">
+                                                        Customer checked in to class
+                                                    </span> : 
+                                                    <span className="text-red">
+                                                        Class checkin failed <br />
+                                                        {app.cart_validation_data.checkin_message}
+                                                    </span>
+                                                : ""
+                                            }
                                             <hr />
                                             <a href={app.cart_validation_data.receipt_link} 
                                                target="_blank"
