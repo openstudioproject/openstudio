@@ -1759,9 +1759,16 @@ def validate_cart_create_order(cuID, pmID, items):
             else:
                 order.order_item_add_classcard(item['data']['id'])
         elif item['item_type'] == 'subscription':
-            order.order_item_add_subscription(
-                item['data']['id']
-            )
+            if item['checkin_classes_id']:
+                order.order_item_add_subscription(
+                    item['data']['id'],
+                    classes_id = item['checkin_classes_id'],
+                    class_date = TODAY_LOCAL
+                )
+            else:
+                order.order_item_add_subscription(
+                    item['data']['id']
+                )
         elif item['item_type'] == 'membership':
             order.order_item_add_membership(
                 item['data']['id'],
