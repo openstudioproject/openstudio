@@ -706,6 +706,7 @@ class Order:
             # Check for classes
             if row.customers_orders_items.classes_id:
                 # Deliver class
+                result = None
                 ah = AttendanceHelper()
                 attendance_type = row.customers_orders_items.AttendanceType
                 if attendance_type == 1:
@@ -726,6 +727,31 @@ class Order:
                         invoice=False,
                         booking_status=class_booking_status,
                     )
+                elif attendance_type is None and csID:
+                    # subscription checkin
+                    result = ah.attendance_sign_in_subscription(
+                        self.order.auth_customer_id,
+                        row.customers_orders_items.classes_id,
+                        csID,
+                        row.customers_orders_items.ClassDate,
+                        online_booking=False,
+                        credits_hard_limit=False,
+                        booking_status="attending"
+                    )
+                elif attendance_type == 3 and ccdID:
+                    # classcard checkin
+                    result = ah.attendance_sign_in_classcard(
+                        self.order.auth_customer_id,
+                        row.customers_orders_items.classes_id,
+                        ccdID,
+                        row.customers_orders_items.ClassDate,
+                        online_booking=False,
+                        booking_status="attending"
+                    )
+
+                if result:
+                    checkin_status = result['status']
+                    checkin_message = result['message']
 
                 if create_invoice and (attendance_type == 1 or attendance_type == 2):
                     # Only add checkins for trial and dropin classes to the invoice separately
