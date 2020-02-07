@@ -192,9 +192,10 @@ def webhook_order_paid_get_bank_info_from_mollie(cuID, payment):
     account_number = details['consumerAccount']
     account_bic = details['consumerBic']
 
+
     # Insert payment details if none are found yet
-    cpiID = web2py.db.customers_payment_info.insert(
-        auth_customer_id = cuID,
+    cpiID = db.customers_payment_info.update_or_insert(
+        db.customers_payment_info.auth_customer_id == cuID,
         payment_methods_id = 3, # Direct debit
         AccountNumber = account_number,
         AccountHolder = account_holder,
@@ -202,7 +203,7 @@ def webhook_order_paid_get_bank_info_from_mollie(cuID, payment):
     )
 
     # Insert mandate
-    web2py.db.customers_payment_info_mandates.insert(
+    db.customers_payment_info_mandates.insert(
         customers_payment_info_id = cpiID,
         MandateText = T("Mandate through mollie"),
     )
