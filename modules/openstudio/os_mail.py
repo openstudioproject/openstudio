@@ -504,49 +504,48 @@ class OsMail:
             description=description
         )
 
-    def _render_email_trial_follow_up(self, classes_attendance_id=None, customers_classcards_id=None):
+    def _render_email_trial_follow_up(self,
+                                      template_content,
+                                      classes_attendance_id=None,
+                                      customers_classcards_id=None):
         """
         :param template_content: Mail content
         :param workshops_products_id: db.workshops_products.id
         :return: mail body for workshop
         """
+        from .os_class_attendance import ClassAttendance
         from .os_customer import Customer
+        from .os_customer_classcard import CustomerClasscard
+
 
         db = current.db
         T = current.T
         DATE_FORMAT = current.DATE_FORMAT
         TIME_FORMAT = current.TIME_FORMAT
-        customer = Customer(wspc.auth_customer_id)
+        # customer = Customer(.auth_customer_id)
 
-        try:
-            time_info = TR(TH(T('Date')),
-                           TD(ws.Startdate.strftime(DATE_FORMAT), ' ', ws.Starttime.strftime(TIME_FORMAT), ' - ',
-                              ws.Enddate.strftime(DATE_FORMAT), ' ', ws.Endtime.strftime(TIME_FORMAT),
-                              _align="left"))
-        except AttributeError:
-            time_info = ''
+        cla = None
+        if classes_attendance_id:
+            cla = ClassAttendance(claID)
 
-        description = TABLE(TR(TH(T('Ticket')),
-                               TD(wsp.Name, _align="left")),
-                            time_info,
-                            _cellspacing="0", _cellpadding='5px', _width='100%', border="0")
+        ccd = None
+        if customers_classcards_id:
+            ccd = CustomerClasscard(ccdID)
 
-        wsm = db.workshops_mail(workshops_id=ws.id)
-        try:
-            content = wsm.MailContent
-        except AttributeError:
-            content = ''
+        if cla:
+            customer = Customer(cla.row.auth_customer_id)
 
+        if ccd:
+            customer = Customer(ccd.classcard.auth_customer_id)
 
-        image = IMG(_src=URL('default', 'download', ws.picture, scheme=True, host=True),
-                    _style="max-width:500px")
+        customer_name = customer.row.display_name
+
+        content = template_content.format(customer_name=customer_name)
 
         return dict(
             content=DIV(
-                image, BR(), BR(),
                 XML(content)
-            ),
-            description=description
+            )
         )
 
 
@@ -664,6 +663,15 @@ class OsMail:
             )
             title = T("Thank you for teaching this class")
             description = result['description']
+            content = result['content']
+
+        elif email_template == "trial_follow_up":
+            result = self._render_email_trial_follow_up(
+                template_content,
+                classes_attendance_id=classes_attendance_id,
+                customers_classcards_id=customers_classcards_id,
+            )
+
             content = result['content']
 
         elif email_template == 'workshops_info_mail':
