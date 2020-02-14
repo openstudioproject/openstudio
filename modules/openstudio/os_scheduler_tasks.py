@@ -472,7 +472,7 @@ class OsSchedulerTasks:
 
         left = [
             db.school_classcards.on(
-                db.customers_classcards.school_classcards.id ==
+                db.customers_classcards.school_classcards_id ==
                 db.school_classcards.id
             ),
             db.auth_user.on(
