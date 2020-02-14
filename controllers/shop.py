@@ -1721,6 +1721,8 @@ def subscription_direct_debit():
     # Set min end date
     cs = CustomerSubscription(csID)
     cs.set_min_enddate()
+    # Send customer notification of the new subscription
+    cs.send_mail_created()
 
     # Add accepted terms
     customer = Customer(auth.user.id)

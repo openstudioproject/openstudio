@@ -405,3 +405,109 @@ class OsSchedulerTasks:
 
         return "Sent mails: %s" % mails_sent
 
+
+    def email_trailclass_follow_up(self):
+        """
+        Send teachers reminders when a sub for their class hasn't been found yet.
+        :return:
+        """
+        from openstudio.os_mail import OsMail
+
+        T = current.T
+        db = current.db
+        os_mail = OsMail()
+        TODAY_LOCAL = current.TODAY_LOCAL
+        yesterday = TODAY_LOCAL - datetime.timedelta(days=1)
+
+        left = [
+            db.auth_user.on(
+                db.classes_attendance.auth_customer_id ==
+                db.auth_user.id
+            )
+        ]
+
+        query = (db.classes_attendance.ClassDate == yesterday) & \
+                (db.classes_attendance.AttendanceType == 1) # Trial
+
+        rows = db(query).select(db.classes_attendance.ALL,
+                                db.auth_user.display_name,
+                                left=left)
+
+        mails_sent = 0
+
+        for row in rows:
+            print(row)
+
+            result = os_mail.render_email_template(
+                'trial_follow_up',
+                classes_attendance_id = row.classes_attendance.id,
+                return_html = True
+            )
+
+            # print(result)
+
+            os_mail.send(
+                message_html = result['html_message'],
+                message_subject = result['msg_subject'],
+                auth_user_id = row.classes_attendance.auth_customer_id
+            )
+
+            mails_sent += 1
+
+        return "Sent trial class follow up mails: %s" % mails_sent
+
+
+    def email_trailcard_follow_up(self):
+        """
+        Send teachers reminders when a sub for their class hasn't been found yet.
+        :return:
+        """
+        from openstudio.os_mail import OsMail
+
+        T = current.T
+        db = current.db
+        os_mail = OsMail()
+        TODAY_LOCAL = current.TODAY_LOCAL
+        yesterday = TODAY_LOCAL - datetime.timedelta(days=1)
+
+        left = [
+            db.school_classcards.on(
+                db.customers_classcards.school_classcards_id ==
+                db.school_classcards.id
+            ),
+            db.auth_user.on(
+                db.customers_classcards.auth_customer_id ==
+                db.auth_user.id
+            )
+        ]
+
+        query = (db.school_classcards.Trialcard == True) & \
+                (db.customers_classcards.Enddate == yesterday)
+
+        rows = db(query).select(db.customers_classcards.ALL,
+                                db.auth_user.display_name,
+                                left=left)
+
+        mails_sent = 0
+
+        for row in rows:
+            print(row)
+
+            result = os_mail.render_email_template(
+                'trial_follow_up',
+                customers_classcards_id = row.customers_classcards.id,
+                return_html = True
+            )
+
+            # print(result)
+
+            os_mail.send(
+                message_html = result['html_message'],
+                message_subject = result['msg_subject'],
+                auth_user_id = row.customers_classcards.auth_customer_id
+            )
+
+            mails_sent += 1
+
+        return "Sent trial card follow up mails: %s" % mails_sent
+

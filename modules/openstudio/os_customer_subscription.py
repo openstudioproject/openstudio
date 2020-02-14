@@ -589,3 +589,31 @@ class CustomerSubscription:
 
         self.cs.update_record()
 
+
+    def send_mail_created(self):
+        """
+        Send "subscription created" email to customer
+        :return: Send result
+        """
+        from .os_mail import OsMail
+
+        T = current.T
+
+        osmail = OsMail()
+        result = osmail.render_email_template(
+            'subscription_created',
+            customer_subscriptions_id=self.csID,
+            return_html=True
+        )
+
+        subject = result['msg_subject']
+        html = result['html_message']
+
+        result = osmail.send(
+            message_html=html,
+            message_subject=subject,
+            auth_user_id=self.auth_customer_id
+        )
+
+        return result
+

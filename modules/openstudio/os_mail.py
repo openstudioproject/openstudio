@@ -142,6 +142,38 @@ class OsMail:
         return emails
 
 
+    def _render_email_template_subscription_created(self, template_content, customer_subscriptions_id):
+        """
+        :param template_content: base html template to be rendered
+        :param customer_subscription_id: db.customers_subscriptions.id
+        :return: Mail body for subscription created mail
+        """
+        from .os_customer_subscription import CustomerSubscription
+
+        T = current.T
+        db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
+
+        cs = CustomerSubscription(customer_subscriptions_id)
+
+        subscription_name = cs.name
+        subscription_start = cs.startdate.strftime(DATE_FORMAT)
+
+        description = DIV(
+            SPAN(T("Subscription:") , " ",  subscription_name), BR(),
+            SPAN(T("Start:"), " ", subscription_start)
+        )
+
+        content =  XML(template_content.format(
+            link_profile_subscriptions=URL('profile', 'index', scheme=True, host=True)
+        ))
+
+        return dict(
+            content=content,
+            description=description
+        )
+
+
     def _render_email_template_order(self, template_content, customers_orders_id):
         """
             :param customers_orders_id:
@@ -472,6 +504,50 @@ class OsMail:
             description=description
         )
 
+    def _render_email_trial_follow_up(self,
+                                      template_content,
+                                      classes_attendance_id=None,
+                                      customers_classcards_id=None):
+        """
+        :param template_content: Mail content
+        :param workshops_products_id: db.workshops_products.id
+        :return: mail body for workshop
+        """
+        from .os_class_attendance import ClassAttendance
+        from .os_customer import Customer
+        from .os_customer_classcard import CustomerClasscard
+
+
+        db = current.db
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
+        # customer = Customer(.auth_customer_id)
+
+        cla = None
+        if classes_attendance_id:
+            cla = ClassAttendance(classes_attendance_id)
+
+        ccd = None
+        if customers_classcards_id:
+            ccd = CustomerClasscard(customers_classcards_id)
+
+        if cla:
+            customer = Customer(cla.row.auth_customer_id)
+
+        if ccd:
+            customer = Customer(ccd.classcard.auth_customer_id)
+
+        customer_name = customer.row.display_name
+
+        content = template_content.format(customer_name=customer_name)
+
+        return dict(
+            content=DIV(
+                XML(content)
+            )
+        )
+
 
     def render_email_template(self,
                               email_template,
@@ -482,8 +558,11 @@ class OsMail:
                               template_content=None,
                               auth_user_id=None,
                               customers_orders_id=None,
+                              customer_subscriptions_id=None,
+                              customers_classcards_id=None,
                               invoices_id=None,
                               invoices_payments_id=None,
+                              classes_attendance_id=None,
                               classes_otc_id=None,
                               classes_otc_sub_avail_id=None,
                               workshops_products_customers_id=None,
@@ -538,6 +617,16 @@ class OsMail:
             subject = T('Recurring payment failed')
             content = self._render_email_template_payment_recurring_failed(template_content)
 
+        elif email_template == "subscription_created":
+            subject = T("Subscription activated")
+            result = self._render_email_template_subscription_created(
+                template_content,
+                customer_subscriptions_id
+            )
+            title = T("Your subscription has been activated!")
+            description = result['description']
+            content = result['content']
+
         elif email_template == 'teacher_sub_requests_daily_summary':
             result = self._render_email_template_teacher_sub_requests_daily_summary(
                 template_content,
@@ -576,6 +665,16 @@ class OsMail:
             )
             title = T("Thank you for teaching this class")
             description = result['description']
+            content = result['content']
+
+        elif email_template == "trial_follow_up":
+            result = self._render_email_trial_follow_up(
+                template_content,
+                classes_attendance_id=classes_attendance_id,
+                customers_classcards_id=customers_classcards_id,
+            )
+
+            subject = T("Trial follow up")
             content = result['content']
 
         elif email_template == 'workshops_info_mail':
@@ -624,6 +723,7 @@ class OsMail:
 
         if return_html:
             return dict(
+                msg_subject = subject or "",
                 html_message = html_message,
                 error = error,
                 error_msg = error_msg

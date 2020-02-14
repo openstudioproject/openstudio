@@ -6222,6 +6222,21 @@ def setup_set_email_templates():
             T("Teacher sub request open reminder"),
             """<p>Dear {teacher_name},<br /><br /></p>
 <p>Using this email we'd like to remind you that a substitute teacher for the class above hasn't been found yet.</p>"""
+        ],
+        [
+            'subscription_created',
+            T("Subscription Created"),
+            """<h3>Your subscription has been activated!</h3>
+<p>&nbsp;</p>
+<p>To view the active subscriptions in your profile, please click&nbsp;<a href="{link_profile_subscriptions}">here</a>.</p>"""
+        ],
+        [
+            'trial_follow_up',
+            T("Trial follow up"),
+            """Dear {customer_name},
+
+-- Please replace this text with your own to follow up on trial products. --
+            """
         ]
 
     ]
