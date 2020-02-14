@@ -433,13 +433,11 @@ class OsSchedulerTasks:
         rows = db(query).select(db.classes_attendance.ALL,
                                 db.auth_user.display_name,
                                 left=left)
-        print(rows)
 
-
+        mails_sent = 0
 
         for row in rows:
             print(row)
-
 
             result = os_mail.render_email_template(
                 'trial_follow_up',
@@ -454,6 +452,10 @@ class OsSchedulerTasks:
                 message_subject = result['msg_subject'],
                 auth_user_id = row.classes_attendance.auth_customer_id
             )
+
+            mails_sent += 1
+
+        return "Sent trial class follow up mails: %s" % mails_sent
 
 
         # # Check if reminders configured
