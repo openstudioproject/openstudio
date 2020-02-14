@@ -436,15 +436,11 @@ class OsSchedulerTasks:
         mails_sent = 0
 
         for row in rows:
-            print(row)
-
             result = os_mail.render_email_template(
                 'trial_follow_up',
                 classes_attendance_id = row.classes_attendance.id,
                 return_html = True
             )
-
-            # print(result)
 
             os_mail.send(
                 message_html = result['html_message'],
@@ -491,15 +487,11 @@ class OsSchedulerTasks:
         mails_sent = 0
 
         for row in rows:
-            print(row)
-
             result = os_mail.render_email_template(
                 'trial_follow_up',
                 customers_classcards_id = row.customers_classcards.id,
                 return_html = True
             )
-
-            # print(result)
 
             os_mail.send(
                 message_html = result['html_message'],
