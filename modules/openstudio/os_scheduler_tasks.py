@@ -447,8 +447,13 @@ class OsSchedulerTasks:
                 return_html = True
             )
 
-            print(result)
+            # print(result)
 
+            os_mail.send(
+                message_html = result['html_message'],
+                message_subject = result['msg_subject'],
+                auth_user_id = row.classes_attendance.auth_customer_id
+            )
 
 
         # # Check if reminders configured
