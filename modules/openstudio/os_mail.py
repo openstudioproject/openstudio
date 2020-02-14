@@ -674,6 +674,7 @@ class OsMail:
                 customers_classcards_id=customers_classcards_id,
             )
 
+            subject = T("Trial follow up")
             content = result['content']
 
         elif email_template == 'workshops_info_mail':
