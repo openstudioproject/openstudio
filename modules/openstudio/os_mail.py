@@ -526,11 +526,11 @@ class OsMail:
 
         cla = None
         if classes_attendance_id:
-            cla = ClassAttendance(claID)
+            cla = ClassAttendance(classes_attendance_id)
 
         ccd = None
         if customers_classcards_id:
-            ccd = CustomerClasscard(ccdID)
+            ccd = CustomerClasscard(customers_classcards_id)
 
         if cla:
             customer = Customer(cla.row.auth_customer_id)
@@ -559,8 +559,10 @@ class OsMail:
                               auth_user_id=None,
                               customers_orders_id=None,
                               customer_subscriptions_id=None,
+                              customers_classcards_id=None,
                               invoices_id=None,
                               invoices_payments_id=None,
+                              classes_attendance_id=None,
                               classes_otc_id=None,
                               classes_otc_sub_avail_id=None,
                               workshops_products_customers_id=None,

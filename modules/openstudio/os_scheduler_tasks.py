@@ -439,10 +439,15 @@ class OsSchedulerTasks:
 
         for row in rows:
             print(row)
-            # result = os_mail.render_email_template(
-            #     'trial_follow_up',
-            #     classes_attendance_id = row.classes_attendance.id,
-            # )
+
+
+            result = os_mail.render_email_template(
+                'trial_follow_up',
+                classes_attendance_id = row.classes_attendance.id,
+                return_html = True
+            )
+
+            print(result)
 
 
 
