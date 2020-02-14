@@ -74,7 +74,7 @@ def upgrade_to_202002():
         Upgrade operations to 2020.02
     """
     db.sys_email_templates.update_or_insert(
-        (Name == 'subscription_created'),
+        (db.sys_email_templates.Name == 'subscription_created'),
         Name = 'subscription_created',
         Title = T("Subscription created"),
         TemplateContent = """<h3>Your subscription has been activated!</h3>
@@ -83,7 +83,7 @@ def upgrade_to_202002():
     )
 
     db.sys_email_templates.update_or_insert(
-        (Name == 'trial_follow_up'),
+        (db.sys_email_templates.Name == 'trial_follow_up'),
         Name = 'trial_follow_up',
         Title = T("Trial follow up"),
         TemplateContent = """Dear {customer_name},
