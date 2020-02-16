@@ -31,3 +31,31 @@ def email_reminders_teachers_sub_request_open():
 
     ost = OsSchedulerTasks()
     return ost.email_reminders_teachers_sub_request_open()
+
+
+@auth.requires(auth.has_membership(group_id='Admins'))
+def email_trailclass_follow_up():
+    """
+    Function to test sending follow up emails the day after a trial class
+    :return:
+    """
+    if ( not web2pytest.is_running_under_test(request, request.application)
+         and not auth.has_membership(group_id='Admins') ):
+        redirect(URL('default', 'user', args=['not_authorized']))
+
+    ost = OsSchedulerTasks()
+    return ost.email_trailclass_follow_up()
+
+
+@auth.requires(auth.has_membership(group_id='Admins'))
+def email_trailcard_follow_up():
+    """
+    Function to test sending follow up emails the day after a trial class
+    :return:
+    """
+    if ( not web2pytest.is_running_under_test(request, request.application)
+         and not auth.has_membership(group_id='Admins') ):
+        redirect(URL('default', 'user', args=['not_authorized']))
+
+    ost = OsSchedulerTasks()
+    return ost.email_trailcard_follow_up()

@@ -2832,7 +2832,7 @@ def define_customers_payment_info_mandates():
                                    minimum=datetime.date(1900, 1, 1),
                                    maximum=datetime.date(2999, 1, 1))
               ),
-              default=TODAY_LOCAL ,
+              default=TODAY_LOCAL,
               represent=represent_date,
               label=T("Mandate signature date"),
               widget=os_datepicker_widget),
@@ -5699,13 +5699,21 @@ def define_customers_orders_items():
     ac_query = (db.accounting_costcenters.Archived == False)
     ag_query = (db.accounting_glaccounts.Archived == False)
 
-    types = [ (1,T("Trial class")),
-              (2,T("Drop In")) ]
+    types = [
+        (None,T("Subscription")),
+        (1,T("Trial class")),
+        (2,T("Drop In")),
+        (3,T("Class card")),
+    ]
 
     db.define_table('customers_orders_items',
         Field('customers_orders_id', db.customers_orders,
             readable=False,
             writable=False),
+        Field('DummySubscription', 'boolean', # Used to hold display for 2nd month (not processed, added to invoice based on system settings
+              default=False,
+              readable=False,
+              writable=False),
         Field('Custom', 'boolean',
             default=False,
             readable=False,
@@ -6214,6 +6222,21 @@ def setup_set_email_templates():
             T("Teacher sub request open reminder"),
             """<p>Dear {teacher_name},<br /><br /></p>
 <p>Using this email we'd like to remind you that a substitute teacher for the class above hasn't been found yet.</p>"""
+        ],
+        [
+            'subscription_created',
+            T("Subscription Created"),
+            """<h3>Your subscription has been activated!</h3>
+<p>&nbsp;</p>
+<p>To view the active subscriptions in your profile, please click&nbsp;<a href="{link_profile_subscriptions}">here</a>.</p>"""
+        ],
+        [
+            'trial_follow_up',
+            T("Trial follow up"),
+            """Dear {customer_name},
+
+-- Please replace this text with your own to follow up on trial products. --
+            """
         ]
 
     ]

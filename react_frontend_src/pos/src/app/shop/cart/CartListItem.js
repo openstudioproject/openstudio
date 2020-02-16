@@ -7,7 +7,6 @@ import { injectIntl } from 'react-intl'
 import Currency from '../../../components/ui/Currency'
 import ClassNameDisplay from '../../../components/ui/ClassNameDisplay'
 
-
 const CartListItemSelected = ({children, item, selected_item}) => 
     (item.id === selected_item) ? 
         <div className="bg-purple text-white">
@@ -22,6 +21,12 @@ const CartListItemQuantity = ({qty, price}) =>
     <span className="text-muted">
         <span className="pull-right"><Currency amount={qty*price} /></span>
         {qty} Item(s) at <Currency amount={price} /> each 
+    </span>
+
+
+const CartListItemDetails = ({description}) => 
+    <span className="text-muted">
+        <br />( { description } )
     </span>
 
 
@@ -78,13 +83,21 @@ const CartListProduct = ({item, selected_item}) =>
     </CartListItemSelected>
 
 
-const CartListClasscard = ({item, selected_item}) => 
+const CartListClasscard = ({item, selected_item, classes}) => 
     <CartListItemSelected item={item}
                           selected_item={selected_item} >
         <div className="bold">Classcard - {item.data.Name}</div>
         <CartListItemQuantity qty={item.quantity}
-                              price={item.data.Price}
-        />
+                              price={item.data.Price} />
+        {
+            ((classes) && (item.checkin_classes_id)) ? 
+                <CartListItemDetails description={
+                    <span>
+                        Checkin to <ClassNameDisplay classes={classes} clsID={item.checkin_classes_id} />
+                    </span>
+                } />
+            : ""
+        }                     
     </CartListItemSelected>
 
 
@@ -98,13 +111,22 @@ const CartListMembership = ({item, selected_item}) =>
     </CartListItemSelected>
 
 
-const CartListSubscription = ({item, selected_item}) => 
+const CartListSubscription = ({item, selected_item, classes=null}) => 
     <CartListItemSelected item={item}
                           selected_item={selected_item} >
         <div className="bold">Subscription - {item.data.Name}</div>
         <CartListItemQuantity qty={item.quantity}
                               price={item.data.Price}
         />
+        {
+            ((classes) && (item.checkin_classes_id)) ? 
+                <CartListItemDetails description={
+                    <span>
+                        Checkin to <ClassNameDisplay classes={classes} clsID={item.checkin_classes_id} />
+                    </span>
+                } />
+            : ""
+        }
     </CartListItemSelected>
 
 
@@ -139,13 +161,15 @@ const CartListItem = injectIntl(({classes, item, selected_item, intl, onClick=f=
                              selected_item={selected_item} /> : '' }
         { (item.item_type == 'classcard') ?
             <CartListClasscard item={item}
-                               selected_item={selected_item} /> : '' }
+                               selected_item={selected_item}
+                               classes={classes} /> : '' }
         { (item.item_type == 'membership') ?
             <CartListMembership item={item}
                                 selected_item={selected_item} /> : '' }
         { (item.item_type == 'subscription') ?
             <CartListSubscription item={item}
-                                  selected_item={selected_item} /> : '' }
+                                  selected_item={selected_item}
+                                  classes={classes} /> : '' }
         { (item.item_type == 'custom') ?
             <CartListCustom item={item}
                             selected_item={selected_item} /> : '' }

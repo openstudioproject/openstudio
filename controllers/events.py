@@ -1516,7 +1516,8 @@ def tickets_export_excel():
     def add_ticket_sheet(wspID):
         wsp = WorkshopProduct(wspID)
         # add sheet
-        ws = wb.create_sheet(title=wsp.name)
+        title = re.sub('[^a-zA-Z0-9 \n\.]', '', wsp.name)
+        ws = wb.create_sheet(title=title)
         if export_type == 'attendancelist':
             add_ws_attendance_list_header(ws)
         # get db info

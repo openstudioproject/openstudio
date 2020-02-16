@@ -181,6 +181,24 @@ def get_last_day_month(date):
                          calendar.monthrange(date.year,date.month)[1])
 
 
+def get_first_day_next_month(date):
+    """
+    Returns the first day of the next month
+    :param date: datetime.date
+    :return: datetime.date
+    """
+    return get_last_day_month(date) + datetime.timedelta(days=1)
+
+
+def get_last_day_next_month(date):
+    """
+    Returns the last day of the next month
+    :param date: datetime.date
+    :return: datetime.date
+    """
+    return get_last_day_month(get_first_day_next_month(date))
+
+
 def get_lastweek_year(year):
     """
         The 28th of December is always in the last week...

@@ -474,7 +474,7 @@ def get_school_classcards():
 @auth.requires_login(otherwise=return_json_login_error)
 def get_school_subscriptions():
     """
-    List of not archived school classcards
+    List of not archived school subscriptions
     Sorted by Name
     """
     set_headers()
@@ -482,6 +482,7 @@ def get_school_subscriptions():
     if not permission_result['permission']:
         return return_json_permissions_error()
 
+    from general_helpers import get_last_day_month
     from openstudio.os_school_subscription import SchoolSubscription
 
     query = """
@@ -523,6 +524,9 @@ def get_school_subscriptions():
 
     rows = db.executesql(query, fields=fields)
 
+    ## Check if we should bill the first 2 months
+    subscription_first_invoice_two_terms = get_sys_property('subscription_first_invoice_two_terms')
+
     data = []
     for row in rows:
         ssu = SchoolSubscription(row.school_subscriptions.id)
@@ -535,7 +539,7 @@ def get_school_subscriptions():
             'Classes': row.school_subscriptions.Classes,
             'SubscriptionUnit': row.school_subscriptions.SubscriptionUnit,
             'Unlimited': row.school_subscriptions.Unlimited,
-            'Price': ssu.get_price_today(formatted=False),
+            'Price': ssu.get_price_today_display(formatted=False),
             'PriceMonth': row.school_subscriptions_price.Price or 0,
             'RegistrationFee': row.school_subscriptions.RegistrationFee or 0,
             'school_memberships_id': row.school_subscriptions.school_memberships_id
@@ -1634,7 +1638,9 @@ def validate_cart():
     receipt_items = None
     receipt_amounts = None
     receipt_pmID = None
-
+    checkin_did = None
+    checkin_status = None
+    checkin_message = None
 
     #If no customerID; just make receipt and update stock
     #if customerID; Make order, deliver order, add payment to invoice created by deliver order
@@ -1692,6 +1698,9 @@ def validate_cart():
             result = validate_cart_create_order(cuID, pmID, items)
             invoice = result['invoice']
             receipt = result['receipt']
+            checkin_did = result['checkin_did'],
+            checkin_status = result['checkin_status'],
+            checkin_message = result['checkin_message'],
         else:
             # Create receipt for products and custom items manually
             print('create receipt directly')
@@ -1720,7 +1729,10 @@ def validate_cart():
         receipt_link=receipt_link,
         receipt_items=receipt_items,
         receipt_amounts=receipt_amounts,
-        receipt_payment_methods_id=receipt_pmID
+        receipt_payment_methods_id=receipt_pmID,
+        checkin_did=checkin_did,
+        checkin_status=checkin_status,
+        checkin_message=checkin_message
     )
 
 
@@ -1741,14 +1753,30 @@ def validate_cart_create_order(cuID, pmID, items):
 
     # Add items
     for item in items:
+        checkin_classes_id = None
+
         if item['item_type'] == 'product':
             order.order_item_add_product_variant(item['data']['id'], item['quantity'])
         elif item['item_type'] == 'classcard':
-             order.order_item_add_classcard(item['data']['id'])
+            if item['checkin_classes_id']:
+                order.order_item_add_classcard(
+                    item['data']['id'],
+                    classes_id = item['checkin_classes_id'],
+                    class_date = TODAY_LOCAL
+                )
+            else:
+                order.order_item_add_classcard(item['data']['id'])
         elif item['item_type'] == 'subscription':
-            order.order_item_add_subscription(
-                item['data']['id']
-            )
+            if item['checkin_classes_id']:
+                order.order_item_add_subscription(
+                    item['data']['id'],
+                    classes_id = item['checkin_classes_id'],
+                    class_date = TODAY_LOCAL
+                )
+            else:
+                order.order_item_add_subscription(
+                    item['data']['id']
+                )
         elif item['item_type'] == 'membership':
             order.order_item_add_membership(
                 item['data']['id'],

@@ -93,7 +93,10 @@ class Order:
         return coiID
 
 
-    def order_item_add_classcard(self, school_classcards_id):
+    def order_item_add_classcard(self,
+                                 school_classcards_id,
+                                 class_date=None,
+                                 classes_id=None):
         """
             :param school_classcards_id: db.school_classcards.id
             :return : db.customers_orders_items.id of inserted item
@@ -105,6 +108,9 @@ class Order:
 
         coiID = db.customers_orders_items.insert(
             customers_orders_id  = self.coID,
+            ClassDate=class_date,
+            classes_id=classes_id,
+            AttendanceType=3 if classes_id else None,
             school_classcards_id = school_classcards_id,
             ProductName = T('Classcard'),
             Description = school_classcard.Name,
@@ -120,11 +126,16 @@ class Order:
         return coiID
 
 
-    def order_item_add_subscription(self, school_subscriptions_id):
+    def order_item_add_subscription(self,
+                                    school_subscriptions_id,
+                                    dummy_subscription=False,
+                                    class_date=None,
+                                    classes_id=None):
         """
             :param school_subscriptions_id: db.school_subscriptions.id
             :return : db.customers_orders_items.id of inserted item
         """
+        from general_helpers import get_first_day_next_month
         from .os_school_subscription import SchoolSubscription
 
         db = current.db
@@ -133,14 +144,20 @@ class Order:
 
         ssu = SchoolSubscription(school_subscriptions_id)
         ssu_tax_rates = ssu.get_tax_rates_on_date(TODAY_LOCAL)
+        price = ssu.get_price_today(formatted=False)
+        if dummy_subscription:
+            price = ssu.get_price_on_date(get_first_day_next_month(TODAY_LOCAL), formatted=False)
 
         coiID = db.customers_orders_items.insert(
             customers_orders_id  = self.coID,
-            school_subscriptions_id = school_subscriptions_id,
+            DummySubscription = dummy_subscription,
+            ClassDate = class_date,
+            classes_id = classes_id,
+            school_subscriptions_id = school_subscriptions_id if not dummy_subscription else None,
             ProductName = T('Subscription'),
             Description = ssu.get_name(),
             Quantity = 1,
-            Price = ssu.get_price_today(formatted=False),
+            Price = price,
             tax_rates_id = ssu_tax_rates.tax_rates.id,
             accounting_glaccounts_id = ssu.get_glaccount_on_date(TODAY_LOCAL),
             accounting_costcenters_id = ssu.get_costcenter_on_date(TODAY_LOCAL),
@@ -526,6 +543,9 @@ class Order:
         ocm = OsCacheManager()
         db = current.db
         T = current.T
+        checkin_did = None
+        checkin_status = None
+        checkin_message = None
 
         if self.order.Status == 'delivered':
             return
@@ -575,6 +595,9 @@ class Order:
             # Only rows where school_classcards_id, workshops_products_id , classes_id or Donation are set
             # are put on the invoice
             ##
+            if row.customers_orders_items.DummySubscription:
+                # Don't process dummy items
+                continue
 
             # Check for product:
             if row.customers_orders_items.ProductVariant:
@@ -684,8 +707,10 @@ class Order:
             # Check for classes
             if row.customers_orders_items.classes_id:
                 # Deliver class
+                result = None
                 ah = AttendanceHelper()
-                if row.customers_orders_items.AttendanceType == 1:
+                attendance_type = row.customers_orders_items.AttendanceType
+                if attendance_type == 1:
                     result = ah.attendance_sign_in_trialclass(
                         self.order.auth_customer_id,
                         row.customers_orders_items.classes_id,
@@ -694,7 +719,7 @@ class Order:
                         invoice=False,
                         booking_status=class_booking_status
                     )
-                elif row.customers_orders_items.AttendanceType == 2:
+                elif attendance_type == 2:
                     result = ah.attendance_sign_in_dropin(
                         self.order.auth_customer_id,
                         row.customers_orders_items.classes_id,
@@ -703,8 +728,35 @@ class Order:
                         invoice=False,
                         booking_status=class_booking_status,
                     )
+                elif attendance_type is None and csID:
+                    # subscription checkin
+                    result = ah.attendance_sign_in_subscription(
+                        self.order.auth_customer_id,
+                        row.customers_orders_items.classes_id,
+                        csID,
+                        row.customers_orders_items.ClassDate,
+                        online_booking=False,
+                        credits_hard_limit=False,
+                        booking_status="attending"
+                    )
+                elif attendance_type == 3 and ccdID:
+                    # classcard checkin
+                    result = ah.attendance_sign_in_classcard(
+                        self.order.auth_customer_id,
+                        row.customers_orders_items.classes_id,
+                        ccdID,
+                        row.customers_orders_items.ClassDate,
+                        online_booking=False,
+                        booking_status="attending"
+                    )
 
-                if create_invoice:
+                if result:
+                    checkin_did = True
+                    checkin_status = result['status']
+                    checkin_message = result['message']
+
+                if create_invoice and (attendance_type == 1 or attendance_type == 2):
+                    # Only add checkins for trial and dropin classes to the invoice separately
                     invoice.item_add_class_from_order(row, result['caID'])
 
                 # Clear api cache to update available spaces
@@ -745,7 +797,14 @@ class Order:
         # Notify customer of order delivery
         self._deliver_mail_customer()
 
-        return dict(iID=iID, invoice=invoice, receipt=receipt)
+        return dict(
+            iID=iID,
+            invoice=invoice,
+            receipt=receipt,
+            checkin_did=checkin_did,
+            checkin_status=checkin_status,
+            checkin_message=checkin_message,
+        )
 
 
     def _deliver_mail_customer(self):
