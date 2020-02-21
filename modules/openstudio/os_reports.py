@@ -947,6 +947,44 @@ ORDER BY ag.Name
 
         return rows
 
+    def shop_sales_mollie_summary(self, date_from, date_until):
+        """
+
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return:
+        """
+        db = current.db
+
+        if date_from == date_until:
+            # This is required because we're comparing to a date time field
+            # For a DT field, the format becomes yyyy-mm-dd 00:00:00 when only supplying a date
+            date_until = date_until + datetime.timedelta(days=1)
+
+        sum_paid_using_mollie = 0
+
+        left = [
+            db.payment_methods.on(
+                db.invoices_payments.payment_methods_id ==
+                db.payment_methods.id
+            )
+        ]
+
+        query = (db.invoices_payments.PaymentDate >= date_from) & \
+                (db.invoices_payments.PaymentDate <= date_until) & \
+                (db.invoices_payments.payment_methods_id == 100) # method 100 = Mollie
+
+        sum = db.invoices_payments.Amount.sum()
+        rows = db(query).select(sum, left=left)
+
+        print(rows)
+
+        if rows:
+            row = rows.first()
+            sum_paid_using_mollie = row[sum]
+
+        return sum_paid_using_mollie or 0
+
 
     def classes_attendance_classcards_quickstats_summary(self, date_from, date_until):
         """
