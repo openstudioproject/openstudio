@@ -924,6 +924,10 @@ ORDER BY ag.Name
             db.receipts_amounts.on(
                 db.receipts_amounts.receipts_id ==
                 db.receipts.id
+            ),
+            db.payment_methods.on(
+                db.receipts.payment_methods_id ==
+                db.payment_methods.id
             )
         ]
 
@@ -932,12 +936,18 @@ ORDER BY ag.Name
                 (db.receipts.payment_methods_id != 1) # method 1 == cash
 
         sum = db.receipts_amounts.TotalPriceVAT.sum()
-        rows = db(query).select(sum, left=left)
-        if rows:
-            row = rows.first()
-            sum_not_paid_using_cash = row[sum]
+        rows = db(query).select(
+            db.payment_methods.id,
+            db.payment_methods.Name,
+            sum,
+            left=left,
+            groupby=db.receipts.payment_methods_id,
+            orderby=db.payment_methods.Name
+        )
 
-        return sum_not_paid_using_cash or 0
+        print(rows)
+
+        return rows
 
 
     def classes_attendance_classcards_quickstats_summary(self, date_from, date_until):
