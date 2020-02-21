@@ -1228,9 +1228,14 @@ def get_credit_shop_sales_not_paid_with_cash(date):
         total += amount
 
         table.append(TR(
-            TD(T(row.payment_methods.Name)),
+            TD(row.payment_methods.Name),
             TD(represent_decimal_as_amount(amount)),
         ))
+
+    table.append(TFOOT(TR(
+        TH(T("Total")),
+        TH(represent_decimal_as_amount(total)),
+    )))
 
     box = DIV(
         DIV(H3(T("Non cash sales payments"), _class='box-title'),
