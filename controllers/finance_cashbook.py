@@ -1206,8 +1206,8 @@ def get_credit_shop_sales_not_paid_with_cash(date):
 
     total = 0
     # count = db.school_subscriptions.id.count()
-    amount = reports.shop_sales_not_paid_with_cash_summary(date, date)
-    total += amount
+    rows = reports.shop_sales_not_paid_with_cash_summary(date, date)
+    sum = db.receipts_amounts.TotalPriceVAT.sum()
 
     header = THEAD(TR(
         TH(T("Sales")),
@@ -1215,11 +1215,15 @@ def get_credit_shop_sales_not_paid_with_cash(date):
     ))
 
     table = TABLE(header, _class='table table-striped table-hover')
-    table.append(TR(
-        TD(T("Paid not using cash")),
-        TD(represent_decimal_as_amount(amount)),
-    ))
 
+    for row in rows:
+        amount = row[sum]
+        total += amount
+
+        table.append(TR(
+            TD(T(row.payment_methods.Name)),
+            TD(represent_decimal_as_amount(amount)),
+        ))
 
     box = DIV(
         DIV(H3(T("Non cash sales payments"), _class='box-title'),

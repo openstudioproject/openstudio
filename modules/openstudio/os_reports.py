@@ -945,8 +945,6 @@ ORDER BY ag.Name
             orderby=db.payment_methods.Name
         )
 
-        print(rows)
-
         return rows
 
 
