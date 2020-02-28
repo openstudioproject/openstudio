@@ -155,6 +155,7 @@ class OsMail:
         DATE_FORMAT = current.DATE_FORMAT
 
         cs = CustomerSubscription(customer_subscriptions_id)
+        auth_user = db.auth_user(cs.auth_customer_id)
 
         subscription_name = cs.name
         subscription_start = cs.startdate.strftime(DATE_FORMAT)
@@ -165,6 +166,7 @@ class OsMail:
         )
 
         content =  XML(template_content.format(
+            customer_first_name=auth_user.first_name,
             link_profile_subscriptions=URL('profile', 'index', scheme=True, host=True)
         ))
 
