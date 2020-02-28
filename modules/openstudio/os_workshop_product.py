@@ -31,7 +31,20 @@ class WorkshopProduct:
 
 
     def get_price(self):
-        return self.workshop_product.Price
+        """
+        :return: price for event ticket
+        """
+        TODAY_LOCAL = current.TODAY_LOCAL
+
+        price = self.workshop_product.Price
+        # Check regular early bird
+        if self.workshop_product.PriceEarlybird:
+            if (not self.workshop_product.EarlybirdUntil or
+                TODAY_LOCAL <= self.workshop_product.EarlybirdUntil):
+                # No early bird end or before end date; use early bird price
+                price = self.workshop_product.PriceEarlybird
+
+        return price
 
 
     def get_price_for_customer(self, cuID=None):
@@ -42,10 +55,10 @@ class WorkshopProduct:
         from .os_customer import Customer
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
 
-        price = self.workshop_product.Price
+        # get regular price | early bird price
+        price = self.get_price()
         if not cuID:
             return price
-
 
         customer = Customer(cuID)
         # Check subscription
@@ -53,21 +66,12 @@ class WorkshopProduct:
             if self.workshop_product.PriceSubscription:
                 price = self.workshop_product.PriceSubscription
 
-            # Check subscription earlybird
+            # Check subscription early bird
             if ( self.workshop_product.PriceSubscriptionEarlybird
-                 and TODAY_LOCAL <= self.workshop_product.EarlybirdUntil ):
+                 and ( not self.workshop_product.EarlybirdUntil or
+                       TODAY_LOCAL <= self.workshop_product.EarlybirdUntil )):
+                # No early bird end or before end date; use early bird price
                 price = self.workshop_product.PriceSubscriptionEarlybird
-
-            return price
-
-        # Check earlybird
-        if self.workshop_product.PriceEarlybird:
-            if not self.workshop_product.EarlybirdUntil:
-                # There is no end date set for the earlybird price, use it indefinitely
-                price = self.workshop_product.PriceEarlybird
-            elif TODAY_LOCAL <= self.workshop_product.EarlybirdUntil:
-                # Enddate for the earlybird price is set, use it until the end date
-                price = self.workshop_product.PriceEarlybird
 
         return price
 

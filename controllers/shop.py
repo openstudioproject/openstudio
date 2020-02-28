@@ -693,7 +693,7 @@ def event_get_products_filter_prices_book_buttons(workshop):
         if auth.user:
             price = wsp.get_price_for_customer(auth.user.id)
         else:
-            price = product.Price
+            price = wsp.get_price()
 
         if product.FullWorkshop:
             products_filter.append(
