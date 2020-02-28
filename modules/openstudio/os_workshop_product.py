@@ -61,9 +61,13 @@ class WorkshopProduct:
             return price
 
         # Check earlybird
-        if ( self.workshop_product.PriceEarlybird and
-             TODAY_LOCAL <= self.workshop_product.EarlybirdUntil ):
-            price = self.workshop_product.PriceEarlybird
+        if self.workshop_product.PriceEarlybird:
+            if not self.workshop_product.EarlybirdUntil:
+                # There is no end date set for the earlybird price, use it indefinitely
+                price = self.workshop_product.PriceEarlybird
+            elif TODAY_LOCAL <= self.workshop_product.EarlybirdUntil:
+                # Enddate for the earlybird price is set, use it until the end date
+                price = self.workshop_product.PriceEarlybird
 
         return price
 
