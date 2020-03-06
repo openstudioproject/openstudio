@@ -6260,6 +6260,10 @@ def setup_set_shop_workflow_values():
         Property="shop_classes_trial_limit",
         PropertyValue="1"
     )
+    db.sys_properties.insert(
+        Property="subscription_first_invoice_two_terms_from_day",
+        PropertyValue="15"
+    )
 
 
 def setup():
