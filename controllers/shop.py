@@ -324,8 +324,11 @@ def checkout_order_subscription(ssuID, order):
 
         subscription_first_invoice_two_terms = get_sys_property(
             'subscription_first_invoice_two_terms')
+        subscription_first_invoice_two_terms_from_day = \
+            int(get_sys_property('subscription_first_invoice_two_terms_from_day') or 1)
 
-        if subscription_first_invoice_two_terms == "on":
+        if subscription_first_invoice_two_terms == "on" and \
+           TODAY_LOCAL.day >= subscription_first_invoice_two_terms_from_day:
             # add 2nd month as a dummy item
             order.order_item_add_subscription(ssuID, dummy_subscription=True)
 
@@ -1646,18 +1649,21 @@ def subscription_order():
 
     subscription_first_invoice_two_terms = get_sys_property(
         'subscription_first_invoice_two_terms')
+    subscription_first_invoice_two_terms_from_day = \
+        int(os_tools.get_sys_property('subscription_first_invoice_two_terms_from_day') or 1)
 
-    fist_period_end = TODAY_LOCAL
-    if subscription_first_invoice_two_terms == "on":
+    period_end = TODAY_LOCAL
+    if subscription_first_invoice_two_terms == "on" and \
+       TODAY_LOCAL.day >= subscription_first_invoice_two_terms_from_day:
         first_day_next_month = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
-        first_period_end = get_last_day_month(first_day_next_month)
+        period_end = get_last_day_month(first_day_next_month)
 
     content = DIV(
         DIV(H4(T('We have received your order')),
             T("The items in your order will be delivered as soon as we've received the payment for this order."), BR(),
             T("Click 'Pay now' to complete the payment."), BR(), BR(),
             T("The first payment will be for the period of"), ' ', TODAY_LOCAL.strftime(DATE_FORMAT), ' ',
-            T("until"), ' ', get_last_day_month(fist_period_end).strftime(DATE_FORMAT), '.', BR(),
+            T("until"), ' ', get_last_day_month(period_end).strftime(DATE_FORMAT), '.', BR(),
             T("The regular monthly fee is:"), ' ',
             SPAN(ssu.get_price_on_date(TODAY_LOCAL, formatted=True), _class='bold'), BR(),
             BR(), BR(),
