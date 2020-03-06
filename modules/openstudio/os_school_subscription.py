@@ -143,8 +143,11 @@ class SchoolSubscription:
 
         subscription_first_invoice_two_terms = os_tools.get_sys_property(
             'subscription_first_invoice_two_terms')
+        subscription_first_invoice_two_terms_from_day = \
+            int(os_tools.get_sys_property('subscription_first_invoice_two_terms_from_day') or 1)
 
-        if subscription_first_invoice_two_terms == "on":
+        if subscription_first_invoice_two_terms == "on" \
+           and TODAY_LOCAL.day >= subscription_first_invoice_two_terms_from_day:
             first_next_month = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
             price_today += self.get_price_on_date(first_next_month, formatted = False)
 

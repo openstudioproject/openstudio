@@ -348,7 +348,12 @@ class Receipt:
             )
 
             subscription_first_invoice_two_terms = os_tools.get_sys_property('subscription_first_invoice_two_terms')
-            if subscription_first_invoice_two_terms == "on" and item.customers_orders_items.school_subscriptions_id:
+            subscription_first_invoice_two_terms_from_day = \
+                int(os_tools.get_sys_property('subscription_first_invoice_two_terms_from_day') or 1)
+
+            if subscription_first_invoice_two_terms == "on" \
+               and item.customers_orders_items.school_subscriptions_id \
+               and TODAY_LOCAL.day >= subscription_first_invoice_two_terms_from_day:
                 # Add second item, with full price
                 ssu = SchoolSubscription(item.customers_orders_items.school_subscriptions_id)
                 first_next_month = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)

@@ -36,6 +36,10 @@ def index():
             print(version)
             upgrade_to_202002()
             session.flash = T("Upgraded db to 2020.02")
+        if version < 2020.03:
+            print(version)
+            upgrade_to_202003()
+            session.flash = T("Upgraded db to 2020.03")
         else:
             session.flash = T('Already up to date')
 
@@ -89,5 +93,18 @@ def upgrade_to_202002():
         TemplateContent = """Dear {customer_name},
 
 -- Please replace this text with your own to follow up on trial products. --"""
+    )
+
+
+def upgrade_to_202003():
+    """
+        Upgrade operations to 2020.03
+    """
+    ###
+    # Add default value for subscription_first_invoice_two_terms_from_day
+    ###
+    db.sys_email_templates.insert(
+        Property = 'subscription_first_invoice_two_terms_from_day',
+        PropertyValue = 15
     )
 

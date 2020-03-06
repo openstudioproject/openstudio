@@ -543,7 +543,7 @@ class Order:
         ocm = OsCacheManager()
         db = current.db
         T = current.T
-        checkin_did = None
+        checkin_did = False
         checkin_status = None
         checkin_message = None
 
