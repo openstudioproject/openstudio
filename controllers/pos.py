@@ -1767,7 +1767,7 @@ def validate_cart_create_order(cuID, pmID, items):
             else:
                 order.order_item_add_classcard(item['data']['id'])
         elif item['item_type'] == 'subscription':
-            if item['checkin_classes_id']:
+            if item.get('checkin_classes_id', None):
                 order.order_item_add_subscription(
                     item['data']['id'],
                     classes_id = item['checkin_classes_id'],
