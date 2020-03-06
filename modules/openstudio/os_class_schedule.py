@@ -623,7 +623,7 @@ class ClassSchedule:
         if available_spaces < 1:
             available_spaces = 0
 
-        #
+        ## Enable code below for debugging
         # print '### clsID' + unicode(row.classes.id)
         # print spaces
         # print enrollment_spaces_left
