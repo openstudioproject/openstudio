@@ -865,6 +865,8 @@ class Invoice:
 
         ## Check if we should bill the first 2 months
         subscription_first_invoice_two_terms = os_tools.get_sys_property('subscription_first_invoice_two_terms')
+        subscription_first_invoice_two_terms_from_day = \
+            int(os_tools.get_sys_property('subscription_first_invoice_two_terms_from_day') or 0)
         if subscription_first_invoice_two_terms == "on":
             # Check if this is the first invoice for this subscription
             # AND we're on or past the 15th of the month
@@ -873,7 +875,7 @@ class Invoice:
             count = db(query).count()
 
             start_day = cs.startdate.day
-            if not count and start_day >= 15:
+            if not count and start_day >= subscription_first_invoice_two_terms_from_day:
                 # first invoice for this subscription... let's add the 2nd month as well.
                 period_start = get_last_day_month(date) + datetime.timedelta(days=1)
                 second_month_price = ssu.get_price_on_date(period_start, False)
