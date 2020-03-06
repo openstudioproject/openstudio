@@ -1650,7 +1650,7 @@ def subscription_order():
     subscription_first_invoice_two_terms = get_sys_property(
         'subscription_first_invoice_two_terms')
     subscription_first_invoice_two_terms_from_day = \
-        int(os_tools.get_sys_property('subscription_first_invoice_two_terms_from_day') or 1)
+        int(get_sys_property('subscription_first_invoice_two_terms_from_day') or 1)
 
     period_end = TODAY_LOCAL
     if subscription_first_invoice_two_terms == "on" and \
