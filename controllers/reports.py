@@ -6486,13 +6486,26 @@ def memberships():
     total = result['button']
     modals = DIV(result['modal'])
 
-    # menu = classcards_get_menu(request.function)
+    menu = memberships_get_menu(request.function)
 
     return dict(form=form,
-                menu="",
+                menu=menu,
                 total=total,
                 content=memberships,
                 month_chooser=month_chooser,
                 current_month=current_month,
                 modals=modals,
                 submit=submit)
+
+
+def memberships_get_menu(page=None):
+    pages = [
+        (['memberships_sold', T('Sold'), URL("reports", "memberships")]),
+        ]
+
+    horizontal = True
+
+    return get_submenu(pages,
+                       page,
+                       horizontal=horizontal,
+                       htype='tabs')
