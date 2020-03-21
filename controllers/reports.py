@@ -1060,6 +1060,12 @@ def overview_get_month_chooser(page):
 
          link = 'subscriptions_set_month'
 
+    if page == "memberships_sold":
+        year = session.reports_memberships_year
+        month = session.reports_memberships_month
+
+        link = "memberships_set_month"
+
     if page == 'dropinclasses':
         year  = session.reports_dic_year
         month = session.reports_dic_month
@@ -6379,7 +6385,7 @@ def customers_inactive_delete():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'reports_memberships'))
-def memberships():
+def memberships_sold():
     response.title = T("Reports")
     session.customers_back = 'reports_memberships'
     response.view = 'reports/subscriptions.html'
@@ -6391,6 +6397,7 @@ def memberships():
         year = session.reports_memberships_year
     else:
         year = today.year
+
     session.reports_memberships_year = year
     if 'month' in request.vars:
         month = int(request.vars['month'])
@@ -6513,9 +6520,26 @@ def memberships_get_menu(page=None):
                        htype='tabs')
 
 
-@auth.requires_login()
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'reports_memberships'))
 def memberships_show_current():
     session.reports_memberships_year = None
     session.reports_memberships_month = None
 
-    redirect(URL('classcards'))
+    redirect(URL('memberships'))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'reports_memberships'))
+def classcards_set_month():
+    """
+        Sets the session variables for classcards year and month
+    """
+    year  = request.vars['year']
+    month = request.vars['month']
+    back  = request.vars['back']
+
+    session.reports_memberships_year = int(year)
+    session.reports_memberships_month = int(month)
+
+    redirect(URL(back))
