@@ -1270,6 +1270,7 @@ def access_group_permissions():
             ['reports_customers-read', T("View customers reports")],
             ['reports_classcards-read', T("View class cards reports")],
             ['reports_subscriptions-read', T("View subscriptions reports")],
+            ['reports_memberships-read', T("View memberships report(s)")],
             ['reports_dropinclasses-read', T("View drop in classes reports")],
             ['reports_trial-read', T("View trial classes & trial cards reports")],
             ['reports_attendance-read', T("View attendance reports")],
