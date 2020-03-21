@@ -175,6 +175,8 @@ def get_form_subtitle(month=None,
             function == 'subscriptions_overview_customers' or \
             function == 'subscriptions_alt_prices':
         url_current_month = URL('subscriptions_show_current')
+    elif function == 'memberships_sold':
+        url_current_month = URL('memberships_show_current')
     elif function == 'dropinclasses':
         url_current_month = URL('dropinclasses_show_current')
     elif function == 'trialclasses':
@@ -6385,18 +6387,18 @@ def memberships():
     today = datetime.date.today()
     if 'year' in request.vars:
         year = int(request.vars['year'])
-    elif not session.reports_cc_year is None:
-        year = session.reports_cc_year
+    elif not session.reports_memberships_year is None:
+        year = session.reports_memberships_year
     else:
         year = today.year
-    session.reports_cc_year = year
+    session.reports_memberships_year = year
     if 'month' in request.vars:
         month = int(request.vars['month'])
-    elif not session.reports_cc_month is None:
-        month = session.reports_cc_month
+    elif not session.reports_memberships_month is None:
+        month = session.reports_memberships_month
     else:
         month = today.month
-    session.reports_cc_month = month
+    session.reports_memberships_month = month
 
     date = datetime.date(year,month,1)
     firstdaythismonth = date
@@ -6509,3 +6511,11 @@ def memberships_get_menu(page=None):
                        page,
                        horizontal=horizontal,
                        htype='tabs')
+
+
+@auth.requires_login()
+def memberships_show_current():
+    session.reports_memberships_year = None
+    session.reports_memberships_month = None
+
+    redirect(URL('classcards'))
