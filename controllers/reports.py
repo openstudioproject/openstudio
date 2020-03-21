@@ -6373,3 +6373,126 @@ def customers_inactive_delete():
 
     session.flash = SPAN(T("Deleted"), ' ', nr_deleted, ' ', T('customers'))
     redirect(URL('customers_inactive'))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+                auth.has_permission('read', 'reports_memberships'))
+def memberships():
+    response.title = T("Reports")
+    session.customers_back = 'reports_memberships'
+    response.view = 'reports/subscriptions.html'
+
+    today = datetime.date.today()
+    if 'year' in request.vars:
+        year = int(request.vars['year'])
+    elif not session.reports_cc_year is None:
+        year = session.reports_cc_year
+    else:
+        year = today.year
+    session.reports_cc_year = year
+    if 'month' in request.vars:
+        month = int(request.vars['month'])
+    elif not session.reports_cc_month is None:
+        month = session.reports_cc_month
+    else:
+        month = today.month
+    session.reports_cc_month = month
+
+    date = datetime.date(year,month,1)
+    firstdaythismonth = date
+    next_month = date.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
+    lastdaythismonth = next_month - datetime.timedelta(days=next_month.day)
+
+    result = get_form_subtitle(month, year, request.function)
+    response.subtitle = T('Memberships') + ' - ' + result['subtitle']
+    form = result['form']
+    month_chooser = result['month_chooser']
+    current_month = result['current_month']
+    submit = result['submit']
+
+
+    query = (db.customers_memberships.Startdate >= firstdaythismonth) & \
+            (db.customers_memberships.Startdate <= lastdaythismonth)
+
+    rows = db(query).select(db.auth_user.id,
+                            db.auth_user.trashed,
+                            db.auth_user.thumbsmall,
+                            db.auth_user.birthday,
+                            db.auth_user.display_name,
+                            db.auth_user.date_of_birth,
+                            db.customers_memberships.id,
+                            db.customers_memberships.Startdate,
+                            db.customers_memberships.Enddate,
+                            db.customers_memberships.school_classcards_id,
+                            db.school_memberships.Name,
+                            db.school_memberships.Price,
+        left=[db.auth_user.on(db.auth_user.id ==
+                              db.customers_memberships.auth_customer_id),
+              db.school_memberships.on(
+                db.customers_memberships.school_memberships_id ==\
+                db.school_memberships.id)],
+        orderby=db.customers_memberships.Startdate|~db.auth_user.display_name)
+
+    total_price = 0
+    for row in rows:
+        total_price += row.school_memberships.Price
+
+
+    table = TABLE(_class="table table-striped table-hover")
+    table.append(THEAD(TR(TH(), # image
+                    TH(T('Customer')), # name,
+                    TH(T("Membership")),
+                    TH(db.customers_memberships.Startdate.label),
+                    TH(db.customers_memberships.Enddate.label),
+                    TH(db.school_memberships.Price.label),
+                    TH(),
+                    _class='header')))
+
+    for row in rows.render():
+        edit = os_gui.get_button('edit_notext', URL('customers', 'memberships',
+                                             vars={'cuID' : row.auth_user.id}))
+        table.append(TR(TD(row.auth_user.thumbsmall,
+                           _class='os-customer_image_td'),
+                        TD(DIV(row.auth_user.display_name),
+                           SPAN(T("Membership"), ' ',
+                                 str(row.customers_memberships.id),
+                                 _class='small_font grey'),
+                           _class="os-customer_name"),
+                        TD(row.customers_memberships.school_memberships_id),
+                        TD(row.customers_memberships.Startdate),
+                        TD(row.customers_memberships.Enddate),
+                        TD(row.school_memberships.Price),
+                        TD(DIV(DIV(edit),
+                               _class='btn-group pull-right'),
+                           _class='td-icons table-vertical-align-middle'),
+                     _id=row.auth_user.id))
+
+    memberships = table
+
+    totals_table = TABLE(
+        THEAD(TR(TH(T("Counter")),
+                 TH(T("Value")))),
+        TR(TD(T('Total revenue')),
+           TD(CURRSYM, ' ', format(total_price, '.2f'))),
+        TR(TD(T('Memberships sold')), TD(len(rows))),
+        _class='table')
+
+    button_text = XML(T("Totals"))
+    result = os_gui.get_modal(button_text=button_text,
+                              modal_title=T('Totals'),
+                              modal_content=totals_table,
+                              modal_class=generate_password())
+
+    total = result['button']
+    modals = DIV(result['modal'])
+
+    # menu = classcards_get_menu(request.function)
+
+    return dict(form=form,
+                menu="",
+                total=total,
+                content=memberships,
+                month_chooser=month_chooser,
+                current_month=current_month,
+                modals=modals,
+                submit=submit)
