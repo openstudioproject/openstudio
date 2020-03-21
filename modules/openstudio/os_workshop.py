@@ -70,9 +70,12 @@ class Workshop:
         """
             :return: price of full workshop product
         """
-        full_ws_product = self.get_products().first()
+        from .os_workshop_product import WorkshopProduct
 
-        return full_ws_product.Price
+        full_ws_product = self.get_products().first()
+        wsp = WorkshopProduct(full_ws_product.id)
+
+        return wsp.get_price()
 
 
     def get_activities(self):

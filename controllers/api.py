@@ -570,6 +570,8 @@ def _workshops_get(var=None):
         - user: OpenStudio API user
         - key: Key for OpenStudio API user
     """
+    from openstudio.os_workshop import Workshop
+
     ws = WorkshopSchedule(TODAY_LOCAL,
                           filter_only_public=True)
     rows = ws.get_workshops_rows()
@@ -578,6 +580,8 @@ def _workshops_get(var=None):
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
+        workshop = Workshop(row.workshops.id)
+
         thumblarge_url = _get_url_image(row.workshops.thumblarge)
         thumbsmall_url = _get_url_image(row.workshops.thumbsmall)
         picture_url = _get_url_image(row.workshops.picture)
@@ -585,7 +589,7 @@ def _workshops_get(var=None):
         teacher = _workshop_get_teacher(row.workshops.auth_teacher_id)
         teacher2 = _workshop_get_teacher(row.workshops.auth_teacher_id2)
 
-        workshop = {
+        data = {
             'id': row.workshops.id,
             'Name': row.workshops.Name,
             'Tagline': row.workshops.Tagline,
@@ -601,14 +605,14 @@ def _workshops_get(var=None):
             'Teacher2': teacher2,
             'Preview': repr_row.workshops.Preview,
             'Description': repr_row.workshops.Description,
-            'Price': row.workshops_products.Price,
+            'Price': workshop.get_full_workshop_price(),
             'LinkThumbLarge': thumblarge_url,
             'LinkThumbSmall': thumbsmall_url,
             'LinkImage': picture_url,
             'LinkShop': workshop_get_url_shop(row.workshops.id)
         }
 
-        workshops.append(workshop)
+        workshops.append(data)
 
 
     return dict(data=workshops)
@@ -721,35 +725,16 @@ def workshop_get():
         activities.append(activity)
 
     tickets = []
-    rows = workshop.get_products(filter_public=True)
-    for i, row in enumerate(rows):
+    p_rows = workshop.get_products(filter_public=True)
+    for i, product in enumerate(p_rows):
         link_shop = URL(
             'shop',
-            'event_add_to_cart',
+            'event_ticket',
             vars={'wspID': row.id},
             host=True,
             scheme=True,
             extension=''
         )
-
-        ticket = {
-            'Name': row.Name,
-            'Price': row.Price,
-            'Description': row.Description,
-            'LinkAddToCart': link_shop,
-            'ExternalShopURL': row.ExternalShopURL,
-            'AddToCartText': row.AddToCartText,
-            'DonationBased': row.Donation
-        }
-        tickets.append(ticket)
-
-
-
-    tickets = []
-    p_rows = workshop.get_products()
-    for i, product in enumerate(p_rows):
-        if not product.PublicProduct:
-            continue
 
         included_activities = []
         workshop_product = WorkshopProduct(product.id)
@@ -758,7 +743,11 @@ def workshop_get():
         
         ticket = {
             'Name': product.Name,
-            'Price': product.Price,
+            'Description': product.Description,
+            'LinkAddToCart': link_shop,
+            'ExternalShopURL': product.ExternalShopURL,
+            'AddToCartText': product.AddToCartText,
+            'Price': workshop_product.get_price(),
             'Donation': product.Donation,
             'IncludedActivities': included_activities
         }
@@ -787,7 +776,6 @@ def workshop_get():
         'LinkImage': picture_url,
         'LinkShop': workshop_get_url_shop(workshop.wsID),
         'Activities': activities,
-        'Tickets': tickets,
     }
 
     return dict(data=workshop)

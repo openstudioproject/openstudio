@@ -455,6 +455,11 @@ def get_backend_menu():
                             False,
                             URL('reports', 'subscriptions_overview', extension='')))
 
+        if user_helpers.check_read_permission('reports_memberships', user_id):
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Memberships'))),
+                            False,
+                            URL('reports', 'memberships_sold', extension='')))
+
         if user_helpers.check_read_permission('reports_dropinclasses', user_id):
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Drop in classes'))),
                             False,

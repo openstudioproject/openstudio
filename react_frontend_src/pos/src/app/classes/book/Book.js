@@ -193,8 +193,8 @@ class Book extends Component {
                 // Check if price > 0
                 if (option.Price > 0) {
                     // customer needs to pay
-                    // clear cart
-                    this.props.clearShopCart()
+                    // clear cart (Disabled for now, customer requisted ability to pay for multiple drop-in classes at once)
+                    // this.props.clearShopCart()
                     // set shop selected customer id
                     this.props.setSelectedCustomerID(customerID)
                     this.props.setDisplayCustomerID(customerID)
@@ -247,8 +247,8 @@ class Book extends Component {
                 // Check if price > 0
                 if (option.Price > 0) {
                     // customer needs to pay
-                    // clear cart
-                    this.props.clearShopCart()
+                    // clear cart (Disabled for now, customer requisted ability to pay for multiple drop-in classes at once)
+                    // this.props.clearShopCart()
                     // set shop selected customer id
                     this.props.setSelectedCustomerID(customerID)
                     this.props.setDisplayCustomerID(customerID)

@@ -1205,21 +1205,37 @@ def get_credit_shop_sales_not_paid_with_cash(date):
     reports = Reports()
 
     total = 0
-    # count = db.school_subscriptions.id.count()
-    amount = reports.shop_sales_not_paid_with_cash_summary(date, date)
-    total += amount
+
+    # non cash payments from receipts
+    rows = reports.shop_sales_not_paid_with_cash_summary(date, date)
+    sum = db.receipts_amounts.TotalPriceVAT.sum()
+    # online mollie payments from invoice_payments
+    amount_paid_using_mollie = reports.shop_sales_mollie_summary(date, date)
 
     header = THEAD(TR(
-        TH(T("Sales")),
+        TH(T("Payment method")),
         TH(T("Amount")),
     ))
 
     table = TABLE(header, _class='table table-striped table-hover')
     table.append(TR(
-        TD(T("Paid not using cash")),
-        TD(represent_decimal_as_amount(amount)),
+        TD(T("Mollie (online shop)")),
+        TD(represent_decimal_as_amount(amount_paid_using_mollie)),
     ))
 
+    for row in rows:
+        amount = row[sum]
+        total += amount
+
+        table.append(TR(
+            TD(row.payment_methods.Name),
+            TD(represent_decimal_as_amount(amount)),
+        ))
+
+    table.append(TFOOT(TR(
+        TH(T("Total")),
+        TH(represent_decimal_as_amount(total)),
+    )))
 
     box = DIV(
         DIV(H3(T("Non cash sales payments"), _class='box-title'),

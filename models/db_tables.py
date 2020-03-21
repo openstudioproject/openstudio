@@ -2170,11 +2170,11 @@ def define_classes():
         Field('Maxstudents', 'integer', required=True,
             requires=IS_INT_IN_RANGE(0, 500),
             label=T("Spaces"),
-            comment=T("Total spaces for this class. Should be greater then online booking and enrollment spaces added up.")),
+            comment=T("Total spaces for this class.")),
         Field('WalkInSpaces', 'integer',
             requires=IS_EMPTY_OR(IS_INT_IN_RANGE(0, 500)),
             label=T("Walk-in spaces"),
-            comment=T("Number of walk-in spaces (Can't be booked online)")),
+            comment=T("Number of walk-in spaces (Can't be booked online).")),
         Field('MaxOnlineBooking', 'integer', # Depricated from 2019.13
             readable=False,
             writable=False,
@@ -2185,7 +2185,7 @@ def define_classes():
             requires=IS_INT_IN_RANGE(0,500),
             default=0,
             label=T('Enrollment spaces'),
-            comment=T("Maximum number of enrollments for this class")),
+            comment=T("Maximum number of enrollments for this class.")),
         Field('MaxReservationsDT', 'integer', # Depricated from 2017.3
             readable=False,
             writable=False,
@@ -6259,6 +6259,10 @@ def setup_set_shop_workflow_values():
     db.sys_properties.insert(
         Property="shop_classes_trial_limit",
         PropertyValue="1"
+    )
+    db.sys_properties.insert(
+        Property="subscription_first_invoice_two_terms_from_day",
+        PropertyValue="15"
     )
 
 

@@ -1638,7 +1638,7 @@ def validate_cart():
     receipt_items = None
     receipt_amounts = None
     receipt_pmID = None
-    checkin_did = None
+    checkin_did = False
     checkin_status = None
     checkin_message = None
 
@@ -1698,9 +1698,9 @@ def validate_cart():
             result = validate_cart_create_order(cuID, pmID, items)
             invoice = result['invoice']
             receipt = result['receipt']
-            checkin_did = result['checkin_did'],
-            checkin_status = result['checkin_status'],
-            checkin_message = result['checkin_message'],
+            checkin_did = result['checkin_did']
+            checkin_status = result['checkin_status']
+            checkin_message = result['checkin_message']
         else:
             # Create receipt for products and custom items manually
             print('create receipt directly')
@@ -1767,7 +1767,7 @@ def validate_cart_create_order(cuID, pmID, items):
             else:
                 order.order_item_add_classcard(item['data']['id'])
         elif item['item_type'] == 'subscription':
-            if item['checkin_classes_id']:
+            if item.get('checkin_classes_id', None):
                 order.order_item_add_subscription(
                     item['data']['id'],
                     classes_id = item['checkin_classes_id'],

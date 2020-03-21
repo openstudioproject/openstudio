@@ -34,7 +34,9 @@ export const shopCartReducer = (state = {}, action={ type: null }) => {
                 let item = state.items[cart_item_index]
                 // console.log(item)
 
-                if ((item.item_type === action.data.item_type) && (item.data.id === action.data.data.id)) {
+                if ((item.item_type === action.data.item_type) 
+                    && (item.data.id === action.data.data.id)
+                    && (item.item_type != "class_dropin")) {
                     console.log('found match')
                     console.log(item.item_type)
                     console.log(action.data.item_type)

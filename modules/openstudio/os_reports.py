@@ -53,9 +53,9 @@ class Reports:
                          chk.auth_customer_id = csu.auth_customer_id AND
                          csu.startdate >= '{firstdaythismonth}' AND csu.startdate <= '{lastdaythismonth}'
                          {where_school_locations_id}
-                   ORDER BY ssu.Name,
+                   ORDER BY csu.startdate DESC,
                             cu.display_name
-                            DESC""".format(firstdaythismonth=firstdaythismonth,
+                            """.format(firstdaythismonth=firstdaythismonth,
                                            lastdaythismonth=lastdaythismonth,
                                            where_school_locations_id=where_school_locations_id)
         return query
@@ -523,7 +523,7 @@ class Reports:
         ##
         cls = Class(clsID, date)
         teacher_payment = cls.get_teacher_payment()
-        print(teacher_payment)
+        # print(teacher_payment)
         if not teacher_payment['error']:
             tp_amount = teacher_payment['data']['ClassRate']
             tp_display = represent_decimal_as_amount(tp_amount)
@@ -924,6 +924,10 @@ ORDER BY ag.Name
             db.receipts_amounts.on(
                 db.receipts_amounts.receipts_id ==
                 db.receipts.id
+            ),
+            db.payment_methods.on(
+                db.receipts.payment_methods_id ==
+                db.payment_methods.id
             )
         ]
 
@@ -932,12 +936,52 @@ ORDER BY ag.Name
                 (db.receipts.payment_methods_id != 1) # method 1 == cash
 
         sum = db.receipts_amounts.TotalPriceVAT.sum()
+        rows = db(query).select(
+            db.payment_methods.id,
+            db.payment_methods.Name,
+            sum,
+            left=left,
+            groupby=db.receipts.payment_methods_id,
+            orderby=db.payment_methods.Name
+        )
+
+        return rows
+
+    def shop_sales_mollie_summary(self, date_from, date_until):
+        """
+
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return:
+        """
+        db = current.db
+
+        if date_from == date_until:
+            # This is required because we're comparing to a date time field
+            # For a DT field, the format becomes yyyy-mm-dd 00:00:00 when only supplying a date
+            date_until = date_until + datetime.timedelta(days=1)
+
+        sum_paid_using_mollie = 0
+
+        left = [
+            db.payment_methods.on(
+                db.invoices_payments.payment_methods_id ==
+                db.payment_methods.id
+            )
+        ]
+
+        query = (db.invoices_payments.PaymentDate >= date_from) & \
+                (db.invoices_payments.PaymentDate <= date_until) & \
+                (db.invoices_payments.payment_methods_id == 100) # method 100 = Mollie
+
+        sum = db.invoices_payments.Amount.sum()
         rows = db(query).select(sum, left=left)
+
         if rows:
             row = rows.first()
-            sum_not_paid_using_cash = row[sum]
+            sum_paid_using_mollie = row[sum]
 
-        return sum_not_paid_using_cash or 0
+        return sum_paid_using_mollie or 0
 
 
     def classes_attendance_classcards_quickstats_summary(self, date_from, date_until):
