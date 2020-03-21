@@ -53,9 +53,9 @@ class Reports:
                          chk.auth_customer_id = csu.auth_customer_id AND
                          csu.startdate >= '{firstdaythismonth}' AND csu.startdate <= '{lastdaythismonth}'
                          {where_school_locations_id}
-                   ORDER BY ssu.Name,
+                   ORDER BY csu.startdate DESC,
                             cu.display_name
-                            DESC""".format(firstdaythismonth=firstdaythismonth,
+                            """.format(firstdaythismonth=firstdaythismonth,
                                            lastdaythismonth=lastdaythismonth,
                                            where_school_locations_id=where_school_locations_id)
         return query

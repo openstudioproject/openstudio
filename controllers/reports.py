@@ -1213,7 +1213,7 @@ def classcards():
               db.school_classcards.on(
                 db.customers_classcards.school_classcards_id ==\
                 db.school_classcards.id)],
-        orderby=db.customers_classcards.Startdate|~db.auth_user.display_name)
+        orderby=~db.customers_classcards.Startdate|~db.auth_user.display_name)
 
     total_price = 0
     for row in rows:
@@ -6432,7 +6432,7 @@ def memberships_sold():
                             db.customers_memberships.id,
                             db.customers_memberships.Startdate,
                             db.customers_memberships.Enddate,
-                            db.customers_memberships.school_classcards_id,
+                            db.customers_memberships.school_memberships_id,
                             db.school_memberships.Name,
                             db.school_memberships.Price,
         left=[db.auth_user.on(db.auth_user.id ==
@@ -6440,7 +6440,7 @@ def memberships_sold():
               db.school_memberships.on(
                 db.customers_memberships.school_memberships_id ==\
                 db.school_memberships.id)],
-        orderby=db.customers_memberships.Startdate|~db.auth_user.display_name)
+        orderby=~db.customers_memberships.Startdate|~db.auth_user.display_name)
 
     total_price = 0
     for row in rows:
@@ -6531,7 +6531,7 @@ def memberships_show_current():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_memberships'))
-def classcards_set_month():
+def memberships_set_month():
     """
         Sets the session variables for classcards year and month
     """
