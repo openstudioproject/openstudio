@@ -1307,6 +1307,11 @@ def test_trialcard_max_times_bought_message(client, web2py):
     """
     populate_customers_with_classcards(web2py)
 
+    db.sys_properties.insert(
+        Property = 'system_allow_trial_cards_for_existing_customers',
+        PropertyValue = 'on'
+    )
+
     # Change card of 1st customer to the trialcard
     card = web2py.db.customers_classcards(1)
     card.school_classcards_id = 2
