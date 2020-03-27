@@ -227,11 +227,19 @@ def checkin_booking_options():
 
     cls = Class(clsID, date)
 
+    # Check if we should apply the trial check for existing customers
+    trial = True
+    trial_for_existing_customers = get_sys_property('system_allow_trial_classes_for_existing_customers')
+    if not trial_for_existing_customers:
+        existing_customer = customer.get_has_or_had_subscription_or_classcard()
+        if existing_customer:
+            trial = False
+
     ah = AttendanceHelper()
     options = ah.get_customer_class_booking_options_formatted(clsID,
                                                               date,
                                                               customer,
-                                                              trial=True,
+                                                              trial=trial,
                                                               list_type='selfcheckin',
                                                               controller='classes')
     cancel = os_gui.get_button('noicon',
