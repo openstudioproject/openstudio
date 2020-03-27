@@ -103,7 +103,7 @@ def upgrade_to_202003():
     ###
     # Add default value for subscription_first_invoice_two_terms_from_day
     ###
-    db.sys_email_templates.insert(
+    db.sys_properties.insert(
         Property = 'subscription_first_invoice_two_terms_from_day',
         PropertyValue = 15
     )
