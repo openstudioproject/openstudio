@@ -10,7 +10,7 @@ def set_version():
     cache_clear_sys_properties = current.globalenv['cache_clear_sys_properties']
 
     row = db.sys_properties(Property='Version')
-    version = '2020.03'
+    version = '2020.04'
     if not row:
         db.sys_properties.insert(Property='Version', PropertyValue=version)
     else:
