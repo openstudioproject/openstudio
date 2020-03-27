@@ -2836,12 +2836,20 @@ def attendance_booking_options():
     complementary_permission = (auth.has_membership(group_id='Admins') or
                                 auth.has_permission('complementary', 'classes_attendance'))
 
+    # Check if we should apply the trial check for existing customers
+    trial = True
+    trial_for_existing_customers = get_sys_property('system_allow_trial_classes_for_existing_customers')
+    if trial_for_existing_customers != 'on':
+        existing_customer = customer.get_has_or_had_subscription_or_classcard()
+        if existing_customer:
+            trial = False
+
     ah = AttendanceHelper()
     content = ah.get_customer_class_booking_options_formatted(
         clsID,
         date,
         customer,
-        trial=True,
+        trial=trial,
         request_review=True,
         complementary=complementary_permission,
         list_type='attendance',

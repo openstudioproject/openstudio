@@ -194,6 +194,8 @@ def system_workflow():
     subscription_first_invoice_two_terms = get_sys_property('subscription_first_invoice_two_terms')
     system_enable_class_checkin_trialclass = get_sys_property('system_enable_class_checkin_trialclass')
     system_enable_class_checkin_reconcile_later = get_sys_property('system_enable_class_checkin_reconcile_later')
+    system_allow_trial_cards_for_existing_customers = get_sys_property('system_allow_trial_cards_for_existing_customers')
+    system_allow_trial_classes_for_existing_customers = get_sys_property('system_allow_trial_classes_for_existing_customers')
 
 
     form = SQLFORM.factory(
@@ -205,6 +207,16 @@ def system_workflow():
               default=system_enable_class_checkin_trialclass,
               label=T('Enable trial class booking option'),
               comment=T('Show or hide the trial class booking option in the back-end')),
+        Field('system_allow_trial_cards_for_existing_customers', 'boolean',
+              default=system_allow_trial_cards_for_existing_customers,
+              label=T('Allow existing customers to buy a trial card'),
+              comment=T(
+                  'Disable to prevent trial products from showing in backend for any customers who have or have had a subscription or card.')),
+        Field('system_allow_trial_classes_for_existing_customers', 'boolean',
+              default=system_allow_trial_classes_for_existing_customers,
+              label=T('Allow existing customers to book a trial class'),
+              comment=T(
+                  'Disable to prevent trial class booking options from showing in backend for any customers who have or have had a subscription or card.')),
         Field('class_attendance_max_complementary_checkins',
               default=class_attendance_max_complementary_checkins,
               label=T('Max. class complementary check-ins'),
@@ -232,6 +244,8 @@ def system_workflow():
 
     if form.process().accepted:
         form_vars = [
+            'system_allow_trial_cards_for_existing_customers',
+            'system_allow_trial_classes_for_existing_customers',
             'system_enable_class_checkin_trialclass',
             'system_enable_class_checkin_reconcile_later',
             'class_attendance_max_complementary_checkins',

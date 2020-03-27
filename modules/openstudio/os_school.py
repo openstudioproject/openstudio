@@ -33,10 +33,9 @@ class School:
             from .os_customer import Customer
 
             customer = Customer(auth_user_id)
-            has_or_had_subscription = customer.get_has_or_had_subscription()
-            has_or_had_card = customer.get_has_or_had_classcard()
+            existing_customer = customer.get_has_or_had_subscription_or_classcard()
 
-            if has_or_had_card or has_or_had_subscription:
+            if existing_customer:
                 query &= (db.school_classcards.Trialcard == False)
 
         return db(query).select(db.school_classcards.ALL,
