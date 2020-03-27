@@ -6248,6 +6248,20 @@ def setup_set_email_templates():
         )
 
 
+def setup_set_system_workflow_values():
+    """
+    Set a few sensible defaults for the system workflow
+    """
+    db.sys_properties.insert(
+        Property = 'system_allow_trial_cards_for_existing_customers',
+        PropertyValue = 'on'
+    )
+    db.sys_properties.insert(
+        Property = 'system_allow_trial_classes_for_existing_customers',
+        PropertyValue = 'on'
+    )
+
+
 def setup_set_shop_workflow_values():
     """
     Set a few sensible defaults for the shop workflow
@@ -6294,6 +6308,7 @@ def setup():
         setup_set_customers_profile_features()
         setup_set_customers_shop_features()
         set_permissions_for_admin_group()
+        setup_set_system_workflow_values()
         setup_set_shop_workflow_values()
 
         from openstudio.os_setup import OsSetup
