@@ -1746,6 +1746,17 @@ def classcard_add():
     return_url = classcards_get_return_url(customers_id, clsID, date_formatted)
 
     query = (db.school_classcards.Archived == False)
+
+    # Check if trial cards for existing customers are allowed
+    system_allow_trial_cards_for_existing_customers = get_sys_property(
+        'system_allow_trial_cards_for_existing_customers'
+    )
+
+    if system_allow_trial_cards_for_existing_customers != 'on':
+        existing_customer = customer.get_has_or_had_subscription_or_classcard()
+        if existing_customer:
+            query &= (db.school_classcards.Trialcard == False)
+
     rows = db(query).select(db.school_classcards.ALL,
                             orderby=db.school_classcards.Trialcard|\
                                     db.school_classcards.Name)
