@@ -40,6 +40,10 @@ def index():
             print(version)
             upgrade_to_202003()
             session.flash = T("Upgraded db to 2020.03")
+        if version < 2020.04:
+            print(version)
+            upgrade_to_202004()
+            session.flash = T("Upgraded db to 2020.04")
         else:
             session.flash = T('Already up to date')
 
@@ -108,3 +112,19 @@ def upgrade_to_202003():
         PropertyValue = 15
     )
 
+
+def upgrade_to_202004():
+    """
+        Upgrade operations to 2020.03
+    """
+    ###
+    # Add default value for subscription_first_invoice_two_terms_from_day
+    ###
+    db.sys_properties.insert(
+        Property = 'system_allow_trial_cards_for_existing_customers',
+        PropertyValue = 'on'
+    )
+    db.sys_properties.insert(
+        Property = 'system_allow_trial_classes_for_existing_customers',
+        PropertyValue = 'on'
+    )
