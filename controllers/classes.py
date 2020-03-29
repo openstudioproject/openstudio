@@ -455,7 +455,6 @@ def class_edit_get_menu(page, clsID):
                      URL('class_info_mail')])
 
 
-
     return get_submenu(pages, page, horizontal=True, htype='tabs')
 
 

@@ -1470,9 +1470,11 @@ def access_group_permissions():
                 ['classes_price-create', T("Add prices")],
                 ['classes_price-update', T("Edit prices")],
                 ['classes_price-delete', T("Delete prices")],
+                ['classes_mail-update', T("Edit info mail")],
                 ['classes_otc-create', T("Add one time changes")],
                 ['classes_otc-update', T("Edit one time changes")],
                 ['classes_otc-delete', T("Delete one time changes")],
+                ['classes_otc_mail-update', T("Edit one time change info mail")],
             ]],
             ['classes-delete', T('Delete classes')],
             ['schedule_classes_status-read', T("View weekly schedule status"), [
