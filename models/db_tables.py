@@ -2216,6 +2216,43 @@ def define_classes():
         pass
 
 
+def define_classes_mail():
+    """
+        Table to hold workshops_information_mails
+    """
+    db.define_table('classes_mail',
+        Field('classes_id', db.classes,
+              readable=False,
+              writable=False,
+              label=T("Class")),
+        Field('MailContent', 'text',
+              label=T("Mail content"))
+    )
+
+
+def define_classes_otc_mail():
+    """
+        Table to hold workshops_information_mails
+    """
+    db.define_table('classes_otc_mail',
+        Field('classes_id', db.classes_otc,
+              readable=False,
+              writable=False,
+              label=T("Class OTC")),
+        Field('ClassDate', 'date', required=True,
+              readable=False,
+              writable=False,
+              requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                        minimum=datetime.date(1900, 1, 1),
+                                        maximum=datetime.date(2999, 1, 1)),
+              represent=represent_date,
+              label=T("Class date"),
+              widget=os_datepicker_widget),
+        Field('MailContent', 'text',
+              label=T("Mail content")),
+    )
+
+
 def define_classes_otc():
     """
         Define one time change table for classes
