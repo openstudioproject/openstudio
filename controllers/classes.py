@@ -578,7 +578,7 @@ def class_info_mail():
         )
     else:
         # we have an id
-        clsID = row.id
+        clsmID = row.id
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
@@ -587,7 +587,7 @@ def class_info_mail():
         'clsID':clsID,
         'date': date_formatted
     })
-    form = crud.update(db.classes_mail, clsID)
+    form = crud.update(db.classes_mail, clsmID)
 
     result = set_form_id_and_get_submit_button(form, 'MainForm')
     form = result['form']
