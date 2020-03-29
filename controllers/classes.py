@@ -80,6 +80,11 @@ def classes_get_menu(page, clsID, date_formatted):
                         T('Revenue'),
                        URL('revenue', vars=vars) ])
     if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('update', 'classes_otc_mail'):
+        pages.append([ 'class_edit_on_date_info_mail',
+                        T('Online info mail'),
+                       URL('class_edit_on_date_info_mail', vars=vars) ])
+    if auth.has_membership(group_id='Admins') or \
        auth.has_permission('create', 'classes_otc'):
         pages.append([ 'class_edit_on_date',
                         T('Edit'),
@@ -374,6 +379,62 @@ def class_edit_on_date_get_form(clsID, date_formatted):
         form = crud.create(db.classes_otc)
 
     return dict(form=form, cotcID=cotcID)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'classes_otc_mail'))
+def class_edit_on_date_info_mail():
+    """
+        Information mail for class on this date
+    """
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, date_formatted)
+    response.title = T("Class")
+    response.subtitle = get_classname(clsID) + ": " + date_formatted
+    response.view = 'general/tabs_menu.html'
+
+    ###
+    # Get ID
+    ###
+    row = db.classes_otc_mail(classes_id = clsID, ClassDate=date)
+    if not row:
+        # create record
+        clsomID = db.classes_otc_mail.insert(
+            classes_id = clsID,
+            ClassDate = date,
+            MailContent = None
+        )
+    else:
+        # we have an id
+        clsomID = row.id
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_updated = T("Saved")
+    crud.settings.formstyle = 'bootstrap3_stacked'
+    crud.settings.update_next = URL('class_edit_on_date_info_mail', vars={
+        'clsID':clsID,
+        'date': date_formatted
+    })
+    form = crud.update(db.classes_otc_mail, clsomID)
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    textareas = form.elements('textarea')
+    for textarea in textareas:
+        textarea['_class'] += ' tmced'
+
+    content = form
+    menu = classes_get_menu(request.function, clsID, date_formatted)
+    back = SPAN(class_get_back(), classes_get_week_chooser(request.function, clsID, date))
+
+    return dict(content=content,
+                menu=menu,
+                back=back,
+                tools='',
+                save=submit)
 
 
 @auth.requires_login()
@@ -2420,7 +2481,7 @@ def waitinglist_edit():
         if request.vars['name'] != '':
             name = request.vars['name']
             search_name = '%' + request.vars['name'] + '%'
-            query &= ((db.auth_user.display_name.like(search_name)))
+            query &= (db.auth_user.display_name.like(search_name))
 
     form = get_customers_searchform(clsID, date, name, request.function)
 
