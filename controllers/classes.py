@@ -544,6 +544,61 @@ def class_edit_get_notification_no_access_defined(clsID):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'classess_mail'))
+def class_info_mail():
+    """
+        Information mail for workshops
+    """
+    response.title = T("Edit class")
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    classname = get_classname(clsID)
+    response.subtitle = classname
+    response.view = 'general/tabs_menu.html'
+
+    ###
+    # Get ID
+    ###
+    row = db.classes_mail(classes_id = clsID)
+    if not row:
+        # create record
+        clsmID = db.classes_mail.insert(
+            classes_id = clsID,
+            MailContent = None
+        )
+    else:
+        # we have an id
+        clsID = row.id
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_updated = T("Saved")
+    crud.settings.formstyle = 'bootstrap3_stacked'
+    crud.settings.update_next = URL('class_info_mail', vars={
+        'clsID':clsID,
+        'date': date_formatted
+    })
+    form = crud.update(db.classes_mail, clsID)
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    textareas = form.elements('textarea')
+    for textarea in textareas:
+        textarea['_class'] += ' tmced'
+
+    content = form
+    menu = class_edit_get_menu(request.function, clsID)
+    back = class_get_back()
+
+    return dict(content=content,
+                menu=menu,
+                back=back,
+                tools='',
+                save=submit)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes'))
 def class_teachers():
     """
