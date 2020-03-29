@@ -449,7 +449,7 @@ def class_edit_get_menu(page, clsID):
 
 
     if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('update', 'classes_info_mail'):
+       auth.has_permission('update', 'classes_mail'):
         pages.append(['class_info_mail',
                      T("Online info mail"),
                      URL('class_info_mail')])
@@ -554,7 +554,7 @@ def class_edit_get_notification_no_access_defined(clsID):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'classess_mail'))
+               auth.has_permission('update', 'classes_mail'))
 def class_info_mail():
     """
         Information mail for workshops
