@@ -423,15 +423,17 @@ def class_edit_get_menu(page, clsID):
         This function returns a submenu for the class edit pages
     """
     vars = {'clsID':clsID}
-    pages = [['class_edit',
-              T('Edit'),
-              URL('class_edit', vars=vars)],
-             ['class_teachers',
-              T('Teachers'),
-              URL('class_teachers', vars=vars)],
-             ['class_prices',
-              T('Prices'),
-              URL('class_prices', vars=vars)]]
+    pages = [
+        ['class_edit',
+         T('Edit'),
+         URL('class_edit', vars=vars)],
+        ['class_teachers',
+         T('Teachers'),
+         URL('class_teachers', vars=vars)],
+        ['class_prices',
+         T('Prices'),
+         URL('class_prices', vars=vars)],
+    ]
 
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'classes_school_subscriptions'):
@@ -444,6 +446,15 @@ def class_edit_get_menu(page, clsID):
         pages.append([ 'class_classcards',
                         T('Class cards'),
                        URL('class_classcards', vars=vars)])
+
+
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('update', 'classes_info_mail'):
+        pages.append(['class_info_mail',
+                     T("Online info mail"),
+                     URL('class_info_mail')])
+
+
 
     return get_submenu(pages, page, horizontal=True, htype='tabs')
 
