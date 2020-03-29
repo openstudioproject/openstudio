@@ -452,7 +452,7 @@ def class_edit_get_menu(page, clsID):
        auth.has_permission('update', 'classes_mail'):
         pages.append(['class_info_mail',
                      T("Online info mail"),
-                     URL('class_info_mail')])
+                     URL('class_info_mail', vars=vars)])
 
 
     return get_submenu(pages, page, horizontal=True, htype='tabs')
