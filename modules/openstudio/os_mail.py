@@ -729,6 +729,19 @@ class OsMail:
             subject = T("Trial follow up")
             content = result['content']
 
+        elif email_template == 'classes_info_mail':
+            from .os_class import Class
+            from .os_class_attendance import ClassAttendance
+            clatt = ClassAttendance(classes_attendance_id)
+            cls = Class(clatt.row.classes_id, clatt.row.ClassDate)
+            class_name = cls.get_name_shop()
+
+            subject = class_name
+            title = class_name
+            result = self._render_email_class_info_mail(classes_attendance_id)
+            content = result['content']
+            description = result['description']
+
         elif email_template == 'workshops_info_mail':
             wspc = db.workshops_products_customers(workshops_products_customers_id)
             wsp = db.workshops_products(wspc.workshops_products_id)
