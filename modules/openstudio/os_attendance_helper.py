@@ -2610,6 +2610,25 @@ class AttendanceHelper:
         return dict(status=status, message=message, caID=caID)
 
 
+    def _attendance_sign_in_send_online_booking_mail(self, clattID, clsID, date, online_booking):
+        """
+        :param clattID: db.classes_attendance.id
+        :return: None
+        """
+        from .os_class import Class
+
+        # Check if this is an online booking
+        if not online_booking:
+            # Nothing to do...
+            return
+
+        # Check if we should send a mail
+        cls = Class(clsID, date)
+        if cls.row.AutoSendInfoMail:
+            # A mail to send...
+            pass
+
+
     def _attendance_sign_in_check_signed_in(self, clsID, cuID, date):
         """
             Check if a customer isn't already signed in to a class
