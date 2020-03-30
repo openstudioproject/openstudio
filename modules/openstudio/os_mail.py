@@ -506,6 +506,56 @@ class OsMail:
             description=description
         )
 
+
+    def _render_email_class_info_mail(self, clattID):
+        """
+        :param template_content: Mail content
+        :param workshops_products_id: db.workshops_products.id
+        :return: mail body for workshop
+        """
+        from .os_class_attendance import ClassAttendance
+        from .os_class import Class
+        from .os_customer import Customer
+
+        db = current.db
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
+        clatt = ClassAttendance(clattID)
+        clsID = clatt.row.classes_id
+        cls = Class(clsID, clatt.row.ClassDate)
+        customer = Customer(clatt.auth_customer_id)
+
+        description = TABLE(TR(TH(T('Date')),
+                               TD(clatt.row.ClassDate.strftime(DATE_FORMAT), _align="left")),
+                            TR(TH(T('Time')),
+                               TD(cls.cls.Starttime.strftime(TIME_FORMAT), _aligh="left")),
+                            TR(TH(T('Class')),
+                               TD(cls.get_classtype_name(), _aligh="left")),
+                            TR(TH(T('Location')),
+                               TD(cls.get_location_name(), _aligh="left")),
+                            _cellspacing="0", _cellpadding='5px', _width='100%', border="0")
+
+        class_mail = db.classes_mail(classes_id=clsID)
+        try:
+            content = class_mail.MailContent
+        except AttributeError:
+            content = ''
+
+
+        # image = IMG(_src=URL('default', 'download', ws.picture, scheme=True, host=True),
+        #             _style="max-width:500px")
+
+        return dict(
+            content=DIV(
+                XML(content.format(
+                    customer_first_name = customer.row.first_name
+                ))
+            ),
+            description=description
+        )
+
+
     def _render_email_trial_follow_up(self,
                                       template_content,
                                       classes_attendance_id=None,
@@ -540,7 +590,7 @@ class OsMail:
         if ccd:
             customer = Customer(ccd.classcard.auth_customer_id)
 
-        customer_name = customer.row.display_name
+        customer_name = customer.row.first_name
 
         content = template_content.format(customer_name=customer_name)
 
