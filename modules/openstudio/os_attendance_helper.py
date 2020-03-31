@@ -2008,6 +2008,15 @@ class AttendanceHelper:
                     take_credit()
                     cache_clear_customers_subscriptions(cuID)
 
+        # Send info mail for online booking, if set and required
+        if status == "ok":
+            self._attendance_sign_in_send_online_booking_mail(
+                clattID,
+                clsID,
+                date,
+                online_booking
+            )
+
         return dict(status=status, message=message)
 
 
@@ -2299,18 +2308,27 @@ class AttendanceHelper:
                 if signed_in.AttendanceType == 5:
                     # Under review, so update
                     status = 'ok'
+                    caID = signed_in.id
                     db(db.classes_attendance._id == signed_in.id).update(**class_data)
                 else:
                     message = T("Already checked in for this class")
             else:
                 status = 'ok'
-
-                db.classes_attendance.insert(
+                caID = db.classes_attendance.insert(
                     **class_data
                 )
 
                 # update class count
                 ccd.set_classes_taken()
+
+            # Send info mail for online booking, if set and required
+            if status == "ok":
+                self._attendance_sign_in_send_online_booking_mail(
+                    caID,
+                    clsID,
+                    date,
+                    online_booking
+                )
         else:
             message = T("Unable to add, no classes left on card")
 
@@ -2374,6 +2392,15 @@ class AttendanceHelper:
                                                         date,
                                                         'dropin')
 
+        # Send info mail for online booking, if set and required
+        if status == "ok":
+            self._attendance_sign_in_send_online_booking_mail(
+                caID,
+                clsID,
+                date,
+                online_booking
+            )
+
         return dict(status=status, message=message, caID=caID)
 
 
@@ -2432,6 +2459,15 @@ class AttendanceHelper:
                                                         clsID,
                                                         date,
                                                         'trial')
+
+        # Send info mail for online booking, if set and required
+        if status == "ok":
+            self._attendance_sign_in_send_online_booking_mail(
+                caID,
+                clsID,
+                date,
+                online_booking
+            )
 
         return dict(status=status, message=message, caID=caID)
 
@@ -2626,7 +2662,16 @@ class AttendanceHelper:
         cls = Class(clsID, date)
         if cls.row.AutoSendInfoMail:
             # A mail to send...
-            pass
+            result = os_mail.render_email_template(
+                'classes_info_mail',
+                classes_attendance_id=clattID,
+                return_html=True
+            )
+
+            print(result)
+
+            # And a checkbox to tick...
+        
 
 
     def _attendance_sign_in_check_signed_in(self, clsID, cuID, date):
