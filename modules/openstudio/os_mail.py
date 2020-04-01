@@ -523,8 +523,8 @@ class OsMail:
         TIME_FORMAT = current.TIME_FORMAT
         clatt = ClassAttendance(clattID)
         clsID = clatt.row.classes_id
-        date = date
-        cls = Class(clsID, clatt.row.ClassDate)
+        date = clatt.row.ClassDate
+        cls = Class(clsID, date)
         customer = Customer(clatt.row.auth_customer_id)
 
         description = TABLE(TR(TH(T('Date')),
