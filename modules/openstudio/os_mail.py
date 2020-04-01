@@ -734,9 +734,9 @@ class OsMail:
             from .os_class_attendance import ClassAttendance
             clatt = ClassAttendance(classes_attendance_id)
             cls = Class(clatt.row.classes_id, clatt.row.ClassDate)
-            class_name = cls.get_name_shop()
+            class_name = cls.get_name()
 
-            subject = class_name
+            subject = T("Class booking") + " " + class_name
             title = class_name
             result = self._render_email_class_info_mail(classes_attendance_id)
             content = result['content']
