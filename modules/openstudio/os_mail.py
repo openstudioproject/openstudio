@@ -523,6 +523,7 @@ class OsMail:
         TIME_FORMAT = current.TIME_FORMAT
         clatt = ClassAttendance(clattID)
         clsID = clatt.row.classes_id
+        date = date
         cls = Class(clsID, clatt.row.ClassDate)
         customer = Customer(clatt.row.auth_customer_id)
 
@@ -536,15 +537,13 @@ class OsMail:
                                TD(cls.get_location_name(), _aligh="left")),
                             _cellspacing="0", _cellpadding='5px', _width='100%', border="0")
 
+        content = ''
+        class_otc_mail = db.classes_otc_mail(classes_id=clsID, ClassDate=date)
         class_mail = db.classes_mail(classes_id=clsID)
-        try:
+        if class_otc_mail:
+            content = class_otc_mail.MailContent
+        elif class_mail:
             content = class_mail.MailContent
-        except AttributeError:
-            content = ''
-
-
-        # image = IMG(_src=URL('default', 'download', ws.picture, scheme=True, host=True),
-        #             _style="max-width:500px")
 
         return dict(
             content=DIV(
