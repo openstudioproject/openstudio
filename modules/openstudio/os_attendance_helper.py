@@ -2012,6 +2012,7 @@ class AttendanceHelper:
         if status == "ok":
             self._attendance_sign_in_send_online_booking_mail(
                 clattID,
+                cuID,
                 clsID,
                 date,
                 online_booking
@@ -2325,6 +2326,7 @@ class AttendanceHelper:
             if status == "ok":
                 self._attendance_sign_in_send_online_booking_mail(
                     caID,
+                    cuID,
                     clsID,
                     date,
                     online_booking
@@ -2396,6 +2398,7 @@ class AttendanceHelper:
         if status == "ok":
             self._attendance_sign_in_send_online_booking_mail(
                 caID,
+                cuID,
                 clsID,
                 date,
                 online_booking
@@ -2464,6 +2467,7 @@ class AttendanceHelper:
         if status == "ok":
             self._attendance_sign_in_send_online_booking_mail(
                 caID,
+                cuID,
                 clsID,
                 date,
                 online_booking
@@ -2646,7 +2650,7 @@ class AttendanceHelper:
         return dict(status=status, message=message, caID=caID)
 
 
-    def _attendance_sign_in_send_online_booking_mail(self, clattID, clsID, date, online_booking):
+    def _attendance_sign_in_send_online_booking_mail(self, clattID, cuID, clsID, date, online_booking):
         """
         :param clattID: db.classes_attendance.id
         :return: None
@@ -2671,6 +2675,15 @@ class AttendanceHelper:
             )
 
             print(result)
+
+            class_name = cls.get_name()
+            subject = T("Class booking") + " " + class_name
+
+            send_result = os_mail.send(
+                message_html=result['html_message'],
+                message_subject=subject,
+                auth_user_id=auth_teacher_id
+            )
 
             # And a checkbox to tick... (SentInfoMail in classes_attendance)
         
