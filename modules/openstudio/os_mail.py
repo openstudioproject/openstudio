@@ -524,7 +524,7 @@ class OsMail:
         clatt = ClassAttendance(clattID)
         clsID = clatt.row.classes_id
         cls = Class(clsID, clatt.row.ClassDate)
-        customer = Customer(clatt.auth_customer_id)
+        customer = Customer(clatt.row.auth_customer_id)
 
         description = TABLE(TR(TH(T('Date')),
                                TD(clatt.row.ClassDate.strftime(DATE_FORMAT), _align="left")),

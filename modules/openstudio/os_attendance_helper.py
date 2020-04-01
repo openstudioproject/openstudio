@@ -2652,6 +2652,7 @@ class AttendanceHelper:
         :return: None
         """
         from .os_class import Class
+        from .os_mail import OsMail
 
         # Check if this is an online booking
         if not online_booking:
@@ -2660,8 +2661,9 @@ class AttendanceHelper:
 
         # Check if we should send a mail
         cls = Class(clsID, date)
-        if cls.row.AutoSendInfoMail:
+        if cls.cls.AutoSendInfoMail:
             # A mail to send...
+            os_mail = OsMail()
             result = os_mail.render_email_template(
                 'classes_info_mail',
                 classes_attendance_id=clattID,
@@ -2670,7 +2672,7 @@ class AttendanceHelper:
 
             print(result)
 
-            # And a checkbox to tick...
+            # And a checkbox to tick... (SentInfoMail in classes_attendance)
         
 
 
