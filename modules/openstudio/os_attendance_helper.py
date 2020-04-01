@@ -2664,6 +2664,8 @@ class AttendanceHelper:
                 return
 
             # Check if we should send a mail
+            T = current.T
+            db = current.db
             cls = Class(clsID, date)
             if cls.cls.AutoSendInfoMail:
                 # A mail to send...
@@ -2690,7 +2692,6 @@ class AttendanceHelper:
                     clatt = db.classes_attendance(clattID)
                     clatt.SentInfoMail = True
                     clatt.update_record()
-
 
 
         def _attendance_sign_in_check_signed_in(self, clsID, cuID, date):
