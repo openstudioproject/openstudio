@@ -2834,6 +2834,79 @@ def attendance():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes_attendance'))
+def attendance_resend_info_mail():
+    """
+    Resend class info mail
+    :return: None
+    """
+    from openstudio.os_attendance_helper import AttendanceHelper
+    from openstudio.os_class_attendance import ClassAttendance
+
+    clattID = request.vars['clattID']
+    clatt = ClassAttendance(clattID)
+
+    cuID = clatt.row.auth_customer_id
+    clsID = clatt.row.classes_id
+    date = clatt.row.ClassDate
+    online_booking = clatt.row.online_booking
+
+    ah = AttendanceHelper()
+    send_result = ah._attendance_sign_in_send_online_booking_mail(
+        clattID,
+        cuID,
+        clsID,
+        date,
+        online_booking
+    )
+
+    send_result_mail_sent = send_result['result']
+    send_result_message = send_result['message']
+
+    session.flash = send_result_message
+
+    # """
+    #     Resend info mail for customer
+    # """
+    # wspcID = request.vars['wspcID']
+    # wspc = db.workshops_products_customers(wspcID)
+    # cuID = wspc.auth_customer_id
+    # customer = Customer(cuID)
+    # ##
+    # # Send mail
+    # ##
+    # osmail = OsMail()
+    # msgID = osmail.render_email_template('workshops_info_mail', workshops_products_customers_id=wspcID)
+    # sent = osmail.send_and_archive(msgID, cuID)
+    #
+    # ##
+    # # Check the "Event info" checkbox
+    # ##
+    # if sent:
+    #     wspc.WorkshopInfo = True
+    #     wspc.update_record()
+    #     msg = T('Sent event info mail to ')
+    # else:
+    #     msg = T('Unable to send event info mail to ')
+    #
+    # ##
+    # # Notify user
+    # ##
+    # session.flash = msg + customer.row.display_name
+    #
+    # wsp = db.workshops_products(wspc.workshops_products_id)
+    #
+    #
+    # if session.workshops_ticket_resend_info_mail == 'customers_events':
+    #     redirect(URL('customers', 'events', vars={'cuID':cuID}))
+    # else:
+    #     redirect(URL('events', 'tickets_list_customers', vars={'wsID':wsp.workshops_id,
+    #                                                                'wspID':wsp.id}))
+
+
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_attendance'))
 def attendance_reconcile_later_to_dropin():
     """
     Change reconcile later class to drop in class

@@ -2676,20 +2676,24 @@ class AttendanceHelper:
         def _attendance_sign_in_send_online_booking_mail(self, clattID, cuID, clsID, date, online_booking):
             """
             :param clattID: db.classes_attendance.id
-            :return: None
+            :return: Boolean - result of sending mail (Only True if mail is actually sent)
             """
             from .os_class import Class
             from .os_mail import OsMail
 
-            # Check if this is an online booking
-            if not online_booking:
-                # Nothing to do...
-                return
-
-            # Check if we should send a mail
             T = current.T
             db = current.db
             cls = Class(clsID, date)
+            send_result = False
+            message = ""
+
+            # Check if this is an online booking
+            if not online_booking:
+                # Nothing to do...
+                message = T("Not an online booking")
+                return dict(result=send_result, message=message)
+
+            # Check if we should send a mail
             if cls.cls.AutoSendInfoMail:
                 # A mail to send...
                 os_mail = OsMail()
@@ -2710,11 +2714,18 @@ class AttendanceHelper:
                     auth_user_id=cuID
                 )
 
+
                 # And a checkbox to tick... (SentInfoMail in classes_attendance)
                 if send_result:
                     clatt = db.classes_attendance(clattID)
                     clatt.SentInfoMail = True
                     clatt.update_record()
+
+                    message = T("Mail sent")
+                else:
+                    message = T("Error sending mail")
+
+            return dict(result=send_result, message=message)
 
 
         def _attendance_sign_in_check_signed_in(self, clsID, cuID, date):
