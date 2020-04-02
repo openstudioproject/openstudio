@@ -45,6 +45,7 @@ class AttendanceHelper:
                 db.classes_attendance.AttendanceType,
                 db.classes_attendance.online_booking,
                 db.classes_attendance.BookingStatus,
+                db.classes_attendance.SentInfoMail,
                 db.classes_attendance.CreatedOn,
                 db.auth_user.teacher_notes_count,  # Holds count of recent teacher notes
                 db.auth_user.teacher_notes_count_injuries
@@ -75,6 +76,7 @@ class AttendanceHelper:
                        clatt.AttendanceType,
                        clatt.online_booking,
                        clatt.BookingStatus,
+                       clatt.SentInfoMail,
                        clatt.CreatedOn,
                        ( SELECT COUNT(*) FROM customers_notes cn 
                          WHERE cn.TeacherNote = 'T' AND 
@@ -91,6 +93,7 @@ class AttendanceHelper:
                              AttendanceType,
                              online_booking,
                              BookingStatus,
+                             SentInfoMail,
                              customers_classcards_id,
                              customers_subscriptions_id,
                              CreatedOn
@@ -307,6 +310,7 @@ class AttendanceHelper:
                                               show_notes=True,
                                               show_booking_time=True,
                                               show_subscriptions=True,
+                                              show_online_booking_resend_info=False,
                                               manage_checkin=True):
             """
                 :param clsID: db.classes.id
@@ -472,7 +476,27 @@ class AttendanceHelper:
                     if row.classes_attendance.online_booking:
                         td_labels.append(' ')
                         td_labels.append(os_gui.get_label('info', T('Online')))
+
+                        # Add (re) send info mail display & link
+                        if show_online_booking_resend_info:
+                            link_text = T('Send')
+                            if row.classes_attendance.SentInfoMail:
+                                link_text = T('Resend')
+                            resend_link = A(os_gui.get_fa_icon('fa-envelope-o'), ' ',
+                                            link_text, ' ', T('info mail'),
+                                            _href=URL('classes', 'attendance_resend_info_mail',
+                                                      vars={'clattID':row.classes_attendance.id}))
+
+                            resend = DIV(
+                                BR(),
+                                resend_link,
+                                _class="small_font"
+                            )
+                            td_labels.append(resend)
+
+
                 except AttributeError:
+                    print("uh oh...")
                     pass
 
                 if row.classes_attendance.AttendanceType == 4:
@@ -488,8 +512,7 @@ class AttendanceHelper:
                     td_labels.append(os_gui.get_label('warning', T('Reconcile later')))
 
                 if show_booking_time:
-                    td_labels.append(BR())
-                    td_labels.append(SPAN(T('Booked on'), ' ', repr_row.classes_attendance.CreatedOn,
+                    td_labels.append(DIV(T('Booked on'), ' ', repr_row.classes_attendance.CreatedOn,
                                           _class='vsmall_font grey'))
 
 

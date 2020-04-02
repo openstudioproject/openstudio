@@ -2687,7 +2687,11 @@ def attendance():
 
 
     ah = AttendanceHelper()
-    attendance = ah.get_checkin_list_customers_booked(clsID, date)
+    attendance = ah.get_checkin_list_customers_booked(
+        clsID,
+        date,
+        show_online_booking_resend_info=True
+    )
 
 
     add_customer = ''
