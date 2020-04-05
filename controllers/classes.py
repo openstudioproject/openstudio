@@ -387,12 +387,16 @@ def class_edit_on_date_info_mail():
     """
         Information mail for class on this date
     """
+    from openstudio.os_gui import OsGui
+
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, date_formatted)
     response.title = T("Class")
     response.subtitle = get_classname(clsID) + ": " + date_formatted
     response.view = 'general/tabs_menu.html'
+
+    os_gui = OsGui()
 
     ###
     # Get ID
@@ -426,7 +430,25 @@ def class_edit_on_date_info_mail():
     for textarea in textareas:
         textarea['_class'] += ' tmced'
 
-    content = form
+    # Check if we should show the remove button
+    link_remove = ''
+    if clsomID:
+        link_remove = SPAN(
+            A(os_gui.get_fa_icon('fa-times'), ' ',
+              T("Remove info mail for this class"),
+              _href=URL('classes', 'class_edit_on_date_info_mail_remove_changes',
+                        vars={'clsID': clsID,
+                              'date': date_formatted,
+                              'clsomID': clsomID}),
+              _class="red"),
+            BR(),
+            _class="pull-right"
+        )
+
+    content = DIV(
+        link_remove,
+        form
+    )
     menu = classes_get_menu(request.function, clsID, date_formatted)
     back = SPAN(class_get_back(), classes_get_week_chooser(request.function, clsID, date))
 
