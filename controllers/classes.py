@@ -440,6 +440,7 @@ def class_edit_on_date_info_mail():
                         vars={'clsID': clsID,
                               'date': date_formatted,
                               'clsomID': clsomID}),
+              _onclick="return confirm('" + T('Are you sure you want to remove this mail?') + "');",
               _class="red"),
             BR(),
             _class="pull-right"
@@ -457,6 +458,28 @@ def class_edit_on_date_info_mail():
                 back=back,
                 tools='',
                 save=submit)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'classes_otc_mail'))
+def class_edit_on_date_info_mail_remove_changes():
+    """
+    Remove info mail for a class on a specific date
+    :return: None
+    """
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    clsomID = request.vars['clsomID']
+
+    # Delete info mail
+    query = (db.classes_otc_mail.id == clsomID)
+    db(query).delete()
+
+    # Notify user
+    session.flash = T("Mail for the class on this date has been removed")
+
+    # Redirect back
+    redirect(URL('class_edit_on_date_info_mail', vars={'clsID': clsID, 'date': date_formatted}))
 
 
 @auth.requires_login()
