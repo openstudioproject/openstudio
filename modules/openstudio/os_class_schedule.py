@@ -389,6 +389,9 @@ class ClassSchedule:
            auth.has_permission('read', 'classes_revenue'):
             permissions['classes_revenue'] = True
         if auth.has_membership(group_id='Admins') or \
+           auth.has_permission('update', 'classes_otc_mail'):
+            permissions['classes_otc_mail'] = True
+        if auth.has_membership(group_id='Admins') or \
            auth.has_permission('create', 'classes_otc'):
             permissions['classes_otc'] = True
         if auth.has_membership(group_id='Admins') or \
@@ -440,6 +443,11 @@ class ClassSchedule:
             links.append(
                 A(os_gui.get_fa_icon('fa-usd'), T('Revenue'),
                   _href=URL('revenue', vars=vars)))
+        # check Revenue permission
+        if permissions.get('classes_otc_mail', False):
+            links.append(
+                A(os_gui.get_fa_icon('fa-envelope-o'), T('Info mail'),
+                  _href=URL('class_edit_on_date_info_mail', vars=vars)))
         # check permissions to change this class
         if permissions.get('classes_otc', False):
             links.append(A(os_gui.get_fa_icon('fa-pencil'),
