@@ -2703,8 +2703,6 @@ class AttendanceHelper:
                     return_html=True
                 )
 
-                print(result)
-
                 class_name = cls.get_name()
                 subject = T("Class booking") + " " + class_name
 

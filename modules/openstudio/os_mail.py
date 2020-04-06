@@ -542,10 +542,8 @@ class OsMail:
         class_mail = db.classes_mail(classes_id=clsID)
         if class_otc_mail:
             content = class_otc_mail.MailContent or ""
-            print("use otc content")
         elif class_mail:
             content = class_mail.MailContent or ""
-            print("use regular content")
 
         return dict(
             content=DIV(
