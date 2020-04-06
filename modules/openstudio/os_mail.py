@@ -738,7 +738,7 @@ class OsMail:
             class_name = cls.get_name()
 
             subject = T("Class booking") + " " + class_name
-            title = class_name
+            title = T("We've reserved your spot!")
             result = self._render_email_class_info_mail(classes_attendance_id)
             content = result['content']
             description = result['description']
