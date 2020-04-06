@@ -401,26 +401,28 @@ def class_edit_on_date_info_mail():
     ###
     # Get ID
     ###
+    clsomID = None
     row = db.classes_otc_mail(classes_id = clsID, ClassDate=date)
-    if not row:
-        # create record
-        clsomID = db.classes_otc_mail.insert(
-            classes_id = clsID,
-            ClassDate = date,
-            MailContent = None
-        )
-    else:
-        # we have an id
+    if row:
         clsomID = row.id
 
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_updated = T("Saved")
-    crud.settings.formstyle = 'bootstrap3_stacked'
-    crud.settings.update_next = URL('class_edit_on_date_info_mail', vars={
+    next_url = URL('class_edit_on_date_info_mail', vars={
         'clsID':clsID,
         'date': date_formatted
     })
-    form = crud.update(db.classes_otc_mail, clsomID)
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_created = T("Saved")
+    crud.messages.record_updated = T("Saved")
+    crud.settings.formstyle = 'bootstrap3_stacked'
+    crud.settings.create_next = next_url
+    crud.settings.update_next = next_url
+    if row:
+        form = crud.update(db.classes_otc_mail, clsomID)
+    else:
+        db.classes_otc_mail.classes_id.default = clsID
+        db.classes_otc_mail.ClassDate.default = date
+        form = crud.create(db.classes_otc_mail)
 
     result = set_form_id_and_get_submit_button(form, 'MainForm')
     form = result['form']
