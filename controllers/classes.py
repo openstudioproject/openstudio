@@ -2911,45 +2911,7 @@ def attendance_resend_info_mail():
 
     session.flash = send_result_message
 
-    # """
-    #     Resend info mail for customer
-    # """
-    # wspcID = request.vars['wspcID']
-    # wspc = db.workshops_products_customers(wspcID)
-    # cuID = wspc.auth_customer_id
-    # customer = Customer(cuID)
-    # ##
-    # # Send mail
-    # ##
-    # osmail = OsMail()
-    # msgID = osmail.render_email_template('workshops_info_mail', workshops_products_customers_id=wspcID)
-    # sent = osmail.send_and_archive(msgID, cuID)
-    #
-    # ##
-    # # Check the "Event info" checkbox
-    # ##
-    # if sent:
-    #     wspc.WorkshopInfo = True
-    #     wspc.update_record()
-    #     msg = T('Sent event info mail to ')
-    # else:
-    #     msg = T('Unable to send event info mail to ')
-    #
-    # ##
-    # # Notify user
-    # ##
-    # session.flash = msg + customer.row.display_name
-    #
-    # wsp = db.workshops_products(wspc.workshops_products_id)
-    #
-    #
-    # if session.workshops_ticket_resend_info_mail == 'customers_events':
-    #     redirect(URL('customers', 'events', vars={'cuID':cuID}))
-    # else:
-    #     redirect(URL('events', 'tickets_list_customers', vars={'wsID':wsp.workshops_id,
-    #                                                                'wspID':wsp.id}))
-
-
+    redirect(URL('classes', 'attendance', vars={'clsID': clsID, 'date': date.strftime(DATE_FORMAT)}))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
