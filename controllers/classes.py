@@ -80,6 +80,11 @@ def classes_get_menu(page, clsID, date_formatted):
                         T('Revenue'),
                        URL('revenue', vars=vars) ])
     if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('update', 'classes_otc_mail'):
+        pages.append([ 'class_edit_on_date_info_mail',
+                        T('Online info mail'),
+                       URL('class_edit_on_date_info_mail', vars=vars) ])
+    if auth.has_membership(group_id='Admins') or \
        auth.has_permission('create', 'classes_otc'):
         pages.append([ 'class_edit_on_date',
                         T('Edit'),
@@ -376,6 +381,109 @@ def class_edit_on_date_get_form(clsID, date_formatted):
     return dict(form=form, cotcID=cotcID)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'classes_otc_mail'))
+def class_edit_on_date_info_mail():
+    """
+        Information mail for class on this date
+    """
+    from openstudio.os_gui import OsGui
+
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, date_formatted)
+    response.title = T("Class")
+    response.subtitle = get_classname(clsID) + ": " + date_formatted
+    response.view = 'general/tabs_menu.html'
+
+    os_gui = OsGui()
+
+    ###
+    # Get ID
+    ###
+    clsomID = None
+    row = db.classes_otc_mail(classes_id = clsID, ClassDate=date)
+    if row:
+        clsomID = row.id
+
+    next_url = URL('class_edit_on_date_info_mail', vars={
+        'clsID':clsID,
+        'date': date_formatted
+    })
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_created = T("Saved")
+    crud.messages.record_updated = T("Saved")
+    crud.settings.formstyle = 'bootstrap3_stacked'
+    crud.settings.create_next = next_url
+    crud.settings.update_next = next_url
+    if row:
+        form = crud.update(db.classes_otc_mail, clsomID)
+    else:
+        db.classes_otc_mail.classes_id.default = clsID
+        db.classes_otc_mail.ClassDate.default = date
+        form = crud.create(db.classes_otc_mail)
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    textareas = form.elements('textarea')
+    for textarea in textareas:
+        textarea['_class'] += ' tmced'
+
+    # Check if we should show the remove button
+    link_remove = ''
+    if clsomID:
+        link_remove = SPAN(
+            A(os_gui.get_fa_icon('fa-times'), ' ',
+              T("Remove info mail for this class"),
+              _href=URL('classes', 'class_edit_on_date_info_mail_remove_changes',
+                        vars={'clsID': clsID,
+                              'date': date_formatted,
+                              'clsomID': clsomID}),
+              _onclick="return confirm('" + T('Are you sure you want to remove this mail?') + "');",
+              _class="red"),
+            BR(),
+            _class="pull-right"
+        )
+
+    content = DIV(
+        link_remove,
+        form
+    )
+    menu = classes_get_menu(request.function, clsID, date_formatted)
+    back = SPAN(class_get_back(), classes_get_week_chooser(request.function, clsID, date))
+
+    return dict(content=content,
+                menu=menu,
+                back=back,
+                tools='',
+                save=submit)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'classes_otc_mail'))
+def class_edit_on_date_info_mail_remove_changes():
+    """
+    Remove info mail for a class on a specific date
+    :return: None
+    """
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    clsomID = request.vars['clsomID']
+
+    # Delete info mail
+    query = (db.classes_otc_mail.id == clsomID)
+    db(query).delete()
+
+    # Notify user
+    session.flash = T("Mail for the class on this date has been removed")
+
+    # Redirect back
+    redirect(URL('class_edit_on_date_info_mail', vars={'clsID': clsID, 'date': date_formatted}))
+
+
 @auth.requires_login()
 def class_add():
     """
@@ -423,15 +531,17 @@ def class_edit_get_menu(page, clsID):
         This function returns a submenu for the class edit pages
     """
     vars = {'clsID':clsID}
-    pages = [['class_edit',
-              T('Edit'),
-              URL('class_edit', vars=vars)],
-             ['class_teachers',
-              T('Teachers'),
-              URL('class_teachers', vars=vars)],
-             ['class_prices',
-              T('Prices'),
-              URL('class_prices', vars=vars)]]
+    pages = [
+        ['class_edit',
+         T('Edit'),
+         URL('class_edit', vars=vars)],
+        ['class_teachers',
+         T('Teachers'),
+         URL('class_teachers', vars=vars)],
+        ['class_prices',
+         T('Prices'),
+         URL('class_prices', vars=vars)],
+    ]
 
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'classes_school_subscriptions'):
@@ -444,6 +554,14 @@ def class_edit_get_menu(page, clsID):
         pages.append([ 'class_classcards',
                         T('Class cards'),
                        URL('class_classcards', vars=vars)])
+
+
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('update', 'classes_mail'):
+        pages.append(['class_info_mail',
+                     T("Online info mail"),
+                     URL('class_info_mail', vars=vars)])
+
 
     return get_submenu(pages, page, horizontal=True, htype='tabs')
 
@@ -541,6 +659,61 @@ def class_edit_get_notification_no_access_defined(clsID):
         )
 
     return notification
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'classes_mail'))
+def class_info_mail():
+    """
+        Information mail for workshops
+    """
+    response.title = T("Edit class")
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    classname = get_classname(clsID)
+    response.subtitle = classname
+    response.view = 'general/tabs_menu.html'
+
+    ###
+    # Get ID
+    ###
+    row = db.classes_mail(classes_id = clsID)
+    if not row:
+        # create record
+        clsmID = db.classes_mail.insert(
+            classes_id = clsID,
+            MailContent = None
+        )
+    else:
+        # we have an id
+        clsmID = row.id
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_updated = T("Saved")
+    crud.settings.formstyle = 'bootstrap3_stacked'
+    crud.settings.update_next = URL('class_info_mail', vars={
+        'clsID':clsID,
+        'date': date_formatted
+    })
+    form = crud.update(db.classes_mail, clsmID)
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    textareas = form.elements('textarea')
+    for textarea in textareas:
+        textarea['_class'] += ' tmced'
+
+    content = form
+    menu = class_edit_get_menu(request.function, clsID)
+    back = class_get_back()
+
+    return dict(content=content,
+                menu=menu,
+                back=back,
+                tools='',
+                save=submit)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -2355,7 +2528,7 @@ def waitinglist_edit():
         if request.vars['name'] != '':
             name = request.vars['name']
             search_name = '%' + request.vars['name'] + '%'
-            query &= ((db.auth_user.display_name.like(search_name)))
+            query &= (db.auth_user.display_name.like(search_name))
 
     form = get_customers_searchform(clsID, date, name, request.function)
 
@@ -2561,7 +2734,11 @@ def attendance():
 
 
     ah = AttendanceHelper()
-    attendance = ah.get_checkin_list_customers_booked(clsID, date)
+    attendance = ah.get_checkin_list_customers_booked(
+        clsID,
+        date,
+        show_online_booking_resend_info=True
+    )
 
 
     add_customer = ''
@@ -2700,6 +2877,41 @@ def attendance():
                 menu=menu,
                 tools=tools,
                 header_tools=header_tools)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_attendance'))
+def attendance_resend_info_mail():
+    """
+    Resend class info mail
+    :return: None
+    """
+    from openstudio.os_attendance_helper import AttendanceHelper
+    from openstudio.os_class_attendance import ClassAttendance
+
+    clattID = request.vars['clattID']
+    clatt = ClassAttendance(clattID)
+
+    cuID = clatt.row.auth_customer_id
+    clsID = clatt.row.classes_id
+    date = clatt.row.ClassDate
+    online_booking = clatt.row.online_booking
+
+    ah = AttendanceHelper()
+    send_result = ah._attendance_sign_in_send_online_booking_mail(
+        clattID,
+        cuID,
+        clsID,
+        date,
+        online_booking
+    )
+
+    send_result_mail_sent = send_result['result']
+    send_result_message = send_result['message']
+
+    session.flash = send_result_message
+
+    redirect(URL('classes', 'attendance', vars={'clsID': clsID, 'date': date.strftime(DATE_FORMAT)}))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

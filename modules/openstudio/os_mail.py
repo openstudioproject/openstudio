@@ -506,6 +506,55 @@ class OsMail:
             description=description
         )
 
+
+    def _render_email_class_info_mail(self, clattID):
+        """
+        :param template_content: Mail content
+        :param workshops_products_id: db.workshops_products.id
+        :return: mail body for workshop
+        """
+        from .os_class_attendance import ClassAttendance
+        from .os_class import Class
+        from .os_customer import Customer
+
+        db = current.db
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
+        clatt = ClassAttendance(clattID)
+        clsID = clatt.row.classes_id
+        date = clatt.row.ClassDate
+        cls = Class(clsID, date)
+        customer = Customer(clatt.row.auth_customer_id)
+
+        description = TABLE(TR(TH(T('Date')),
+                               TD(clatt.row.ClassDate.strftime(DATE_FORMAT), _align="left")),
+                            TR(TH(T('Time')),
+                               TD(cls.cls.Starttime.strftime(TIME_FORMAT), _aligh="left")),
+                            TR(TH(T('Class')),
+                               TD(cls.get_classtype_name(), _aligh="left")),
+                            TR(TH(T('Location')),
+                               TD(cls.get_location_name(), _aligh="left")),
+                            _cellspacing="0", _cellpadding='5px', _width='100%', border="0")
+
+        content = ''
+        class_otc_mail = db.classes_otc_mail(classes_id=clsID, ClassDate=date)
+        class_mail = db.classes_mail(classes_id=clsID)
+        if class_otc_mail:
+            content = class_otc_mail.MailContent or ""
+        elif class_mail:
+            content = class_mail.MailContent or ""
+
+        return dict(
+            content=DIV(
+                XML(content.format(
+                    customer_first_name = customer.row.first_name
+                ))
+            ),
+            description=description
+        )
+
+
     def _render_email_trial_follow_up(self,
                                       template_content,
                                       classes_attendance_id=None,
@@ -540,7 +589,7 @@ class OsMail:
         if ccd:
             customer = Customer(ccd.classcard.auth_customer_id)
 
-        customer_name = customer.row.display_name
+        customer_name = customer.row.first_name
 
         content = template_content.format(customer_name=customer_name)
 
@@ -678,6 +727,19 @@ class OsMail:
 
             subject = T("Trial follow up")
             content = result['content']
+
+        elif email_template == 'classes_info_mail':
+            from .os_class import Class
+            from .os_class_attendance import ClassAttendance
+            clatt = ClassAttendance(classes_attendance_id)
+            cls = Class(clatt.row.classes_id, clatt.row.ClassDate)
+            class_name = cls.get_name()
+
+            subject = T("Class booking") + " " + class_name
+            title = T("We've reserved your spot!")
+            result = self._render_email_class_info_mail(classes_attendance_id)
+            content = result['content']
+            description = result['description']
 
         elif email_template == 'workshops_info_mail':
             wspc = db.workshops_products_customers(workshops_products_customers_id)

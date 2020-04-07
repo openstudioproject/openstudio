@@ -2201,6 +2201,10 @@ def define_classes():
             default=False,
             label=T("Trial class in shop"),
             comment=T("Show trial class booking option in shop.")),
+        Field('AutoSendInfoMail', 'boolean',
+              default=True,
+              label=T('Auto send info mail'),
+              comment=T("Applies to online bookings only. Automatically send info mail to all online booking of this class.")),
         Field('CreatedOn', 'datetime',
               readable=False,
               writable=False,
@@ -2214,6 +2218,43 @@ def define_classes():
         db.classes.CreatedBy.default = auth.user.id
     except AttributeError:
         pass
+
+
+def define_classes_mail():
+    """
+        Table to hold workshops_information_mails
+    """
+    db.define_table('classes_mail',
+        Field('classes_id', db.classes,
+              readable=False,
+              writable=False,
+              label=T("Class")),
+        Field('MailContent', 'text',
+              label=T("Mail content"))
+    )
+
+
+def define_classes_otc_mail():
+    """
+        Table to hold workshops_information_mails
+    """
+    db.define_table('classes_otc_mail',
+        Field('classes_id', db.classes_otc,
+              readable=False,
+              writable=False,
+              label=T("Class OTC")),
+        Field('ClassDate', 'date', required=True,
+              readable=False,
+              writable=False,
+              requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                        minimum=datetime.date(1900, 1, 1),
+                                        maximum=datetime.date(2999, 1, 1)),
+              represent=represent_date,
+              label=T("Class date"),
+              widget=os_datepicker_widget),
+        Field('MailContent', 'text',
+              label=T("Mail content")),
+    )
 
 
 def define_classes_otc():
@@ -2689,6 +2730,9 @@ def define_classes_attendance():
             writable=False,
             represent = represent_classes_attendance_bookingstatus,
             label=T('BookingStatus')),
+        Field('SentInfoMail', 'boolean',
+              default=False,
+              label=T("Event information")),
         Field('CreatedOn', 'datetime',
             readable=False,
             writable=False,
@@ -6751,6 +6795,7 @@ define_classes()
 define_customers_shoppingcart()
 #classes_dict = create_classes_dict()
 define_classes_otc()
+define_classes_otc_mail()
 define_classes_otc_sub_avail()
 define_classes_price()
 define_classes_teachers()
@@ -6765,6 +6810,7 @@ define_classes_attendance_override()
 define_teachers_classtypes()
 define_classes_subteachers()
 define_classes_notes()
+define_classes_mail()
 define_classes_schedule_counts()
 define_classes_school_subscriptions_groups()
 define_classes_school_classcards_groups()
