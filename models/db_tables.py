@@ -2239,7 +2239,7 @@ def define_classes_otc_mail():
         Table to hold workshops_information_mails
     """
     db.define_table('classes_otc_mail',
-        Field('classes_id', db.classes_otc,
+        Field('classes_id', db.classes,
               readable=False,
               writable=False,
               label=T("Class OTC")),
