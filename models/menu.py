@@ -465,7 +465,7 @@ def get_backend_menu():
                             False,
                             URL('reports', 'dropinclasses', extension='')))
 
-        if user_helpers.check_read_permission('reports_trialclasses', user_id):
+        if user_helpers.check_read_permission('reports_trial', user_id):
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Trial'))),
                             False,
                             URL('reports', 'trialclasses', extension='')))
