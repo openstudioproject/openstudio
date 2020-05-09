@@ -1157,52 +1157,52 @@ def test_class_book_classcard_no_shopbook_permission(client, web2py):
     assert "Booking options for this class" in client.text
 
 
-def test_class_book_classcard_recurring_class_cancelled(client, web2py):
-    """
-        Recurring booking not possible when class is cancelled
-    """
-    url = '/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    setup_profile_tests(web2py)
-    prepare_classes(web2py)
-    populate_school_classcards(web2py, nr=2)
-
-    ccdID = web2py.db.customers_classcards.insert(
-        auth_customer_id = 300,
-        school_classcards_id = 1,
-        Startdate = '2014-01-01',
-        Enddate = '2099-12-31'
-    )
-
-    next_monday = next_weekday(datetime.date.today(), 0)
-
-    web2py.db.classes_otc.insert(
-        classes_id = 1,
-        ClassDate = next_monday,
-        Status = 'cancelled'
-    )
-
-    query = (web2py.db.classes_attendance.id > 0)
-    web2py.db(query).delete()
-
-    web2py.db.commit()
-
-    url = "/shop/class_book_classcard_recurring?ccdID=" + str(ccdID) + '&clsID=1&date=' + str(next_monday)
-    client.get(url)
-    assert client.status == 200
-
-    data = {
-        'recur_until':str(next_monday + datetime.timedelta(days=2))
-    }
-
-    client.post(url, data=data)
-    assert client.status == 200
-    assert "Booked 0 classes" in client.text # Check message to user
-
-    # Make sure no class was booked
-    assert web2py.db(web2py.db.classes_attendance).count() == 0
+# def test_class_book_classcard_recurring_class_cancelled(client, web2py):
+#     """
+#         Recurring booking not possible when class is cancelled
+#     """
+#     url = '/user/login'
+#     client.get(url)
+#     assert client.status == 200
+#
+#     setup_profile_tests(web2py)
+#     prepare_classes(web2py)
+#     populate_school_classcards(web2py, nr=2)
+#
+#     ccdID = web2py.db.customers_classcards.insert(
+#         auth_customer_id = 300,
+#         school_classcards_id = 1,
+#         Startdate = '2014-01-01',
+#         Enddate = '2099-12-31'
+#     )
+#
+#     next_monday = next_weekday(datetime.date.today(), 0)
+#
+#     web2py.db.classes_otc.insert(
+#         classes_id = 1,
+#         ClassDate = next_monday,
+#         Status = 'cancelled'
+#     )
+#
+#     query = (web2py.db.classes_attendance.id > 0)
+#     web2py.db(query).delete()
+#
+#     web2py.db.commit()
+#
+#     url = "/shop/class_book_classcard_recurring?ccdID=" + str(ccdID) + '&clsID=1&date=' + str(next_monday)
+#     client.get(url)
+#     assert client.status == 200
+#
+#     data = {
+#         'recur_until':str(next_monday + datetime.timedelta(days=2))
+#     }
+#
+#     client.post(url, data=data)
+#     assert client.status == 200
+#     assert "Booked 0 classes" in client.text # Check message to user
+#
+#     # Make sure no class was booked
+#     assert web2py.db(web2py.db.classes_attendance).count() == 0
 
 
 def test_class_book_classcard_recurring_class_during_holiday(client, web2py):

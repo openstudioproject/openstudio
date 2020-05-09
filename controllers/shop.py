@@ -2954,78 +2954,79 @@ def class_order():
     return dict(content=content, progress=checkout_get_progress(request.function))
 
 
+# @auth.requires_login()
+# def class_book_classcard_recurring():
+#     """
+#         Offer option to make multiple booking for this class
+#     """
+#     from openstudio.os_attendance_helper import AttendanceHelper
+#     from openstudio.os_class import Class
+#     from openstudio.os_customer_classcard import CustomerClasscard
+#
+#     ccdID = request.vars['ccdID']
+#     clsID = request.vars['clsID']
+#     date_formatted = request.vars['date']
+#     date  = datestr_to_python(DATE_FORMAT, request.vars['date'])
+#
+#     response.title= T('Shop')
+#     response.subtitle = T('Book class')
+#     response.view = 'shop/index.html'
+#
+#     return_url = URL('profile', 'classes')
+#
+#     ccd = CustomerClasscard(ccdID)
+#     if not (ccd.classcard.auth_customer_id == auth.user.id):
+#         redirect(return_url)
+#
+#     form = class_book_classcard_recurring_get_form(ccd)
+#
+#     if form.process().accepted:
+#         recur_until = request.vars['recur_until']
+#         ah = AttendanceHelper()
+#         result = ah.attendance_sign_in_classcard_recurring(auth.user.id,
+#                                                            clsID,
+#                                                            ccdID,
+#                                                            date,
+#                                                            datestr_to_python(DATE_FORMAT, recur_until),
+#                                                            online_booking=False,
+#                                                            booking_status='booked')
+#
+#         session.flash = SPAN(T('Booked'), ' ', str(result['classes_booked']), ' ', T('classes'), BR()
+#                              #TODO: Add message returned
+#                              )
+#
+#
+#         redirect(return_url)
+#     elif form.errors:
+#         response.flash = T('')
+#
+#
+#
+#     cls = Class(clsID, date)
+#     location = db.school_locations[cls.cls.school_locations_id].Name
+#
+#     classtype = db.school_classtypes[cls.cls.school_classtypes_id].Name
+#     class_name = NRtoDay(cls.cls.Week_day) + ' ' + '<br><small>' + \
+#                  cls.cls.Starttime.strftime(TIME_FORMAT) + ' - ' + \
+#                  cls.cls.Endtime.strftime(TIME_FORMAT) + ' ' + \
+#                  classtype + ' ' + \
+#                  T('in') + ' ' + location + '</small>'
+#
+#
+#     no_thanks = A(T("No, I just want to attend this class."),
+#                   _href=URL('profile', 'classes'),
+#                   _class='btn btn-link')
+#
+#     content = DIV(H3(XML(class_name)),
+#                   P(T('Would you like to make this a recurring booking?')),
+#                   DIV(form, _class='col-xs-12 col-xs-offset-1 col-md-4 col-md-offset-4'),
+#                   DIV(no_thanks, _class='col-md-12'),
+#                   _class='center')
+#
+#     return dict(content=content)
+
+
 @auth.requires_login()
-def class_book_classcard_recurring():
-    """
-        Offer option to make multiple booking for this class
-    """
-    from openstudio.os_attendance_helper import AttendanceHelper
-    from openstudio.os_class import Class
-    from openstudio.os_customer_classcard import CustomerClasscard
-
-    ccdID = request.vars['ccdID']
-    clsID = request.vars['clsID']
-    date_formatted = request.vars['date']
-    date  = datestr_to_python(DATE_FORMAT, request.vars['date'])
-
-    response.title= T('Shop')
-    response.subtitle = T('Book class')
-    response.view = 'shop/index.html'
-
-    return_url = URL('profile', 'classes')
-
-    ccd = CustomerClasscard(ccdID)
-    if not (ccd.classcard.auth_customer_id == auth.user.id):
-        redirect(return_url)
-
-    form = class_book_classcard_recurring_get_form(ccd)
-
-    if form.process().accepted:
-        recur_until = request.vars['recur_until']
-        ah = AttendanceHelper()
-        result = ah.attendance_sign_in_classcard_recurring(auth.user.id,
-                                                           clsID,
-                                                           ccdID,
-                                                           date,
-                                                           datestr_to_python(DATE_FORMAT, recur_until),
-                                                           online_booking=False,
-                                                           booking_status='booked')
-
-        session.flash = SPAN(T('Booked'), ' ', str(result['classes_booked']), ' ', T('classes'), BR()
-                             #TODO: Add message returned
-                             )
-
-
-        redirect(return_url)
-    elif form.errors:
-        response.flash = T('')
-
-
-
-    cls = Class(clsID, date)
-    location = db.school_locations[cls.cls.school_locations_id].Name
-
-    classtype = db.school_classtypes[cls.cls.school_classtypes_id].Name
-    class_name = NRtoDay(cls.cls.Week_day) + ' ' + '<br><small>' + \
-                 cls.cls.Starttime.strftime(TIME_FORMAT) + ' - ' + \
-                 cls.cls.Endtime.strftime(TIME_FORMAT) + ' ' + \
-                 classtype + ' ' + \
-                 T('in') + ' ' + location + '</small>'
-
-
-    no_thanks = A(T("No, I just want to attend this class."),
-                  _href=URL('profile', 'classes'),
-                  _class='btn btn-link')
-
-    content = DIV(H3(XML(class_name)),
-                  P(T('Would you like to make this a recurring booking?')),
-                  DIV(form, _class='col-xs-12 col-xs-offset-1 col-md-4 col-md-offset-4'),
-                  DIV(no_thanks, _class='col-md-12'),
-                  _class='center')
-
-    return dict(content=content)@auth.requires_login()
-
-
 def class_booked():
     """
         Offer option to make multiple booking for this class
@@ -3068,8 +3069,10 @@ def class_booked():
     if status == 'fail':
         explanation = P(T("An error occurred while processing your class booking. Please contact us."))
 
-    result = os_mail._render_email_class_info_mail(clattID)
-    info = result.get('content', "")
+    info = ""
+    if clattID != "None":
+        result = os_mail._render_email_class_info_mail(clattID)
+        info = result.get('content', "")
 
     content = DIV(H3(XML(class_name)),
                   explanation, BR(),
