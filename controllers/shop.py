@@ -3049,12 +3049,7 @@ def class_booked():
     response.title= T('Shop')
     response.subtitle = T('Booked class')
     response.view = 'shop/index.html'
-
     return_url = URL('profile')
-
-    # ccd = CustomerClasscard(ccdID)
-    # if not (ccd.classcard.auth_customer_id == auth.user.id):
-    #     redirect(return_url)
 
     cls = Class(clsID, date)
     location = db.school_locations[cls.cls.school_locations_id].Name
