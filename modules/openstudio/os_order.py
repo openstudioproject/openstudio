@@ -463,7 +463,6 @@ class Order:
             # Do we have a class in the order items?
             rows = self.get_order_items_rows()
             for row in rows:
-                print(row)
                 if row.customers_orders_items.classes_id:
                     clsID = row.customers_orders_items.classes_id
                     class_date = row.customers_orders_items.ClassDate
