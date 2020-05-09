@@ -419,9 +419,9 @@ def complete():
         msg_success = DIV(H4(success_header),
                           success_msg,
                           BR(), BR(),
-                          DIV(A(T('Continue'), " ", os_gui.get_fa_icon('fa-angle-double-right'),
+                          DIV(A(T('To your profile'), " ", os_gui.get_fa_icon('fa-angle-double-right'),
                                 _href=URL('profile', 'index'),
-                                _class='btn btn-default')),
+                                _class='btn btn-success')),
                           _class='')
 
         msg_fail = DIV(H4(T('Looks like something went wrong with your payment...')),
@@ -469,7 +469,7 @@ def complete():
 
     order_summary = ""
     if coID:
-        order_summary = order.get_order_items_summary_display()
+        order_summary = order.get_order_items_summary_display(with_class_info=True)
 
     content = DIV(
         DIV(content_body, _class='col-md-6'),
@@ -478,7 +478,6 @@ def complete():
             _class='col-md-6'),
         _class="row"
     )
-
 
     # What would you like to do next? Continue shopping or go to your profile?
 
@@ -2685,7 +2684,6 @@ def class_book():
     date_formatted = request.vars['date']
     date  = datestr_to_python(DATE_FORMAT, request.vars['date'])
     status = 'ok'
-
 
     url_booking_options = URL('shop', 'classes_book_options', vars={'clsID':clsID,
                                                                    'date':date_formatted})

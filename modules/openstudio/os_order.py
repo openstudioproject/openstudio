@@ -415,12 +415,17 @@ class Order:
         return rows
 
 
-    def get_order_items_summary_display(self, with_customer_message=True):
+    def get_order_items_summary_display(self,
+                                        with_customer_message=True,
+                                        with_class_info=False):
         """
 
         :return: html table with simple order summary
         """
+        from .os_mail import OsMail
+
         represent_decimal_as_amount = current.globalenv['represent_decimal_as_amount']
+        db = current.db
         T = current.T
 
         rows = self.get_order_items_rows()
@@ -443,7 +448,6 @@ class Order:
                     _class='pull-right'))
         )))
 
-
         message = ''
         if with_customer_message and self.order.CustomerNote:
             message = DIV(
@@ -452,7 +456,32 @@ class Order:
                 _class='well'
             )
 
-        return DIV(table, BR(), message)
+        # Check if a class was ordered
+
+        class_info = ''
+        if with_class_info:
+            # Do we have a class in the order items?
+            rows = self.get_order_items_rows()
+            for row in rows:
+                print(row)
+                if row.customers_orders_items.classes_id:
+                    clsID = row.customers_orders_items.classes_id
+                    class_date = row.customers_orders_items.ClassDate
+
+                    clatt = db.classes_attendance(classes_id=clsID, ClassDate=class_date)
+                    if clatt:
+                        os_mail = OsMail()
+                        result = os_mail._render_email_class_info_mail(clatt.id)
+                        info = result.get('content', "")
+
+                        class_info = DIV(
+                            B(T("Class booking information"), ':'), BR(), BR(),
+                            P("Your spot in this class has been reserved!"), BR(),
+                            info,
+                            _class='well'
+                        )
+
+        return DIV(table, BR(), message, BR(), class_info)
 
 
     def get_amounts(self):
