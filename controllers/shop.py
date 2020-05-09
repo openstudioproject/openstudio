@@ -3047,7 +3047,7 @@ def class_booked():
     response.title= T('Shop')
     response.subtitle = T('Booked class')
     response.view = 'shop/index.html'
-    return_url = URL('profile')
+    return_url = URL('profile', 'index')
 
     cls = Class(clsID, date)
     location = db.school_locations[cls.cls.school_locations_id].Name
