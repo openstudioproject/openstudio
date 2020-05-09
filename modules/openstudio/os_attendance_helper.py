@@ -1955,6 +1955,7 @@ class AttendanceHelper:
             DATE_FORMAT = current.DATE_FORMAT
             cache_clear_customers_subscriptions = current.globalenv['cache_clear_customers_subscriptions']
 
+            clattID = None
             status = 'ok'
             message = ''
             signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
@@ -2041,7 +2042,7 @@ class AttendanceHelper:
                     online_booking
                 )
 
-            return dict(status=status, message=message)
+            return dict(status=status, message=message, caID=clattID)
 
 
         def _attendance_sign_in_subscription_credits_remaining(self, csID):
@@ -2313,6 +2314,7 @@ class AttendanceHelper:
             ccd = CustomerClasscard(ccdID)
             classes_available = ccd.get_classes_available()
 
+            caID = None
             status = 'fail'
             message = ''
             if classes_available or ccd.school_classcard.Unlimited:
@@ -2358,7 +2360,7 @@ class AttendanceHelper:
                 message = T("Unable to add, no classes left on card")
 
 
-            return dict(status=status, message=message)
+            return dict(status=status, message=message, caID=caID)
 
 
         def attendance_sign_in_dropin(self,

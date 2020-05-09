@@ -2680,9 +2680,11 @@ def class_book():
     csID = request.vars['csID']
     ccdID = request.vars['ccdID']
     clsID = request.vars['clsID']
+    clattID = None
     dropin = request.vars['dropin']
     date_formatted = request.vars['date']
     date  = datestr_to_python(DATE_FORMAT, request.vars['date'])
+    status = 'ok'
 
 
     url_booking_options = URL('shop', 'classes_book_options', vars={'clsID':clsID,
@@ -2712,8 +2714,10 @@ def class_book():
                                                     credits_hard_limit=True)
         if result['status'] == 'fail':
             session.flash = result['message']
+            status = 'fail'
         else:
             session.flash = T('Class booked')
+            clattID = result['caID']
 
     if ccdID:
         ccd = CustomerClasscard(ccdID)
@@ -2728,25 +2732,28 @@ def class_book():
         result = ah.attendance_sign_in_classcard(cuID, clsID, ccdID, date, online_booking=True)
         if result['status'] == 'fail':
             #print 'failed'
+            status = 'fail'
             session.flash = result['message']
         else:
             session.flash = T('Class booked')
+            clattID = result['caID']
 
-            # validity > today + 7 days and classes remaining
-            if not ccd.classcard.Enddate:
-                valid_next_week = True
-            else:
-                valid_next_week = ccd.classcard.Enddate > (TODAY_LOCAL + datetime.timedelta(days=7))
-
-            if ccd.unlimited:
-                classes_remaining = True
-            else:
-                classes_remaining = ccd.get_classes_remaining()
-
-            if valid_next_week and classes_remaining:
-                redirect(URL('class_book_classcard_recurring', vars={'clsID':clsID,
-                                                                     'date':date_formatted,
-                                                                     'ccdID':ccdID}))
+            # Disable recurring bookings for classpasses for now
+            # # validity > today + 7 days and classes remaining
+            # if not ccd.classcard.Enddate:
+            #     valid_next_week = True
+            # else:
+            #     valid_next_week = ccd.classcard.Enddate > (TODAY_LOCAL + datetime.timedelta(days=7))
+            #
+            # if ccd.unlimited:
+            #     classes_remaining = True
+            # else:
+            #     classes_remaining = ccd.get_classes_remaining()
+            #
+            # if valid_next_week and classes_remaining:
+            #     redirect(URL('class_book_classcard_recurring', vars={'clsID':clsID,
+            #                                                          'date':date_formatted,
+            #                                                          'ccdID':ccdID}))
 
     # Clear api cache to update available spaces
     cache_clear_classschedule_api()
@@ -2760,7 +2767,10 @@ def class_book():
                                              'dropin':dropin,
                                              'trial':trial}))
 
-    redirect(URL('profile', 'classes'))
+    redirect(URL('class_booked', vars={'clsID': clsID,
+                                       'date': date_formatted,
+                                       'clattID': clattID,
+                                       'status':status}))
 
 
 @auth.requires_login()
@@ -3013,6 +3023,66 @@ def class_book_classcard_recurring():
                   P(T('Would you like to make this a recurring booking?')),
                   DIV(form, _class='col-xs-12 col-xs-offset-1 col-md-4 col-md-offset-4'),
                   DIV(no_thanks, _class='col-md-12'),
+                  _class='center')
+
+    return dict(content=content)@auth.requires_login()
+
+
+def class_booked():
+    """
+        Offer option to make multiple booking for this class
+    """
+    from openstudio.os_attendance_helper import AttendanceHelper
+    from openstudio.os_class import Class
+    from openstudio.os_customer_classcard import CustomerClasscard
+    from openstudio.os_gui import OsGui
+    from openstudio.os_mail import OsMail
+
+    clsID = request.vars['clsID']
+    clattID = request.vars['clattID']
+    status = request.vars['status']
+    date_formatted = request.vars['date']
+    date  = datestr_to_python(DATE_FORMAT, request.vars['date'])
+    os_gui = OsGui()
+    os_mail = OsMail()
+
+    response.title= T('Shop')
+    response.subtitle = T('Booked class')
+    response.view = 'shop/index.html'
+
+    return_url = URL('profile')
+
+    # ccd = CustomerClasscard(ccdID)
+    # if not (ccd.classcard.auth_customer_id == auth.user.id):
+    #     redirect(return_url)
+
+    cls = Class(clsID, date)
+    location = db.school_locations[cls.cls.school_locations_id].Name
+
+    classtype = db.school_classtypes[cls.cls.school_classtypes_id].Name
+    class_name = NRtoDay(cls.cls.Week_day) + ' ' + '<br><small>' + \
+                 cls.cls.Starttime.strftime(TIME_FORMAT) + ' - ' + \
+                 cls.cls.Endtime.strftime(TIME_FORMAT) + ' ' + \
+                 classtype + ' ' + \
+                 T('in') + ' ' + location + '</small>'
+
+
+    to_profile = A(T("To my profile"), ' ', os_gui.get_fa_icon("fa-chevron-right"),
+                  _href=return_url,
+                  _class='btn btn-success')
+
+    explanation = P(T("We've reserved your spot in this class"))
+    if status == 'fail':
+        explanation = P(T("An error occurred while processing your class booking. Please contact us."))
+
+    result = os_mail._render_email_class_info_mail(clattID)
+    info = result.get('content', "")
+
+    content = DIV(H3(XML(class_name)),
+                  explanation, BR(),
+                  info, BR(),
+                  # DIV(form, _class='col-xs-12 col-xs-offset-1 col-md-4 col-md-offset-4'),
+                  DIV(to_profile, _class='col-md-12'),
                   _class='center')
 
     return dict(content=content)
