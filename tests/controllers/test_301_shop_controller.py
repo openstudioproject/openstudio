@@ -1121,7 +1121,7 @@ def test_class_book_classcard(client, web2py):
     query = (web2py.db.classes_attendance.auth_customer_id == 300)
     assert web2py.db(query).count() == 1
 
-    assert 'Recur booking until' in client.text # Check redirection after booking a class using a card
+    assert 'reserved' in client.text # Check redirection after booking a class using a card
 
 
 def test_class_book_classcard_no_shopbook_permission(client, web2py):
@@ -1205,287 +1205,287 @@ def test_class_book_classcard_no_shopbook_permission(client, web2py):
 #     assert web2py.db(web2py.db.classes_attendance).count() == 0
 
 
-def test_class_book_classcard_recurring_class_during_holiday(client, web2py):
-    """
-        Recurring booking not possible when class is in a holiday
-    """
-    url = '/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    setup_profile_tests(web2py)
-    prepare_classes(web2py)
-    populate_school_classcards(web2py, nr=2)
-
-    ccdID = web2py.db.customers_classcards.insert(
-        auth_customer_id = 300,
-        school_classcards_id = 1,
-        Startdate = '2014-01-01',
-        Enddate = '2099-12-31'
-    )
-
-    next_monday = next_weekday(datetime.date.today(), 0)
-
-    shID = web2py.db.school_holidays.insert(
-        Description = "Holiday",
-        Startdate = next_monday - datetime.timedelta(days=7),
-        Enddate = next_monday + datetime.timedelta(days=35),
-        Classes = True
-    )
-
-    web2py.db.school_holidays_locations.insert(
-        school_holidays_id = shID,
-        school_locations_id = 1,
-    )
-
-    query = (web2py.db.classes_attendance.id > 0)
-    web2py.db(query).delete()
-
-    web2py.db.commit()
-
-    url = "/shop/class_book_classcard_recurring?ccdID=" + str(ccdID) + '&clsID=1&date=' + str(next_monday)
-    client.get(url)
-    assert client.status == 200
-
-    data = {
-        'recur_until':str(next_monday + datetime.timedelta(days=32))
-    }
-
-    client.post(url, data=data)
-    assert client.status == 200
-    assert "Booked 0 classes" in client.text # Check message to user
-
-    # Make sure no class was booked
-    assert web2py.db(web2py.db.classes_attendance).count() == 0
-
-
-def test_class_book_classcard_recurring_class_full(client, web2py):
-    """
-        Recurring booking not possible when OnlineBooking spaces for a class are full
-    """
-    url = '/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    setup_profile_tests(web2py)
-    prepare_classes(web2py)
-    populate_school_classcards(web2py, nr=2)
-
-    ccdID = web2py.db.customers_classcards.insert(
-        auth_customer_id = 300,
-        school_classcards_id = 1,
-        Startdate = '2014-01-01',
-        Enddate = '2099-12-31'
-    )
-
-    next_monday = next_weekday(datetime.date.today(), 0)
-
-    query = (web2py.db.classes_attendance.id > 0)
-    web2py.db(query).delete()
-
-    # Remove online booking spaces to simulate a full class
-    cls = web2py.db.classes(1)
-    cls.Maxstudents = 0 # No spaces
-    cls.update_record()
-
-    web2py.db.commit()
-
-    url = "/shop/class_book_classcard_recurring?ccdID=" + str(ccdID) + '&clsID=1&date=' + str(next_monday)
-    client.get(url)
-    assert client.status == 200
-
-    data = {
-        'recur_until':str(next_monday + datetime.timedelta(days=3))
-    }
-
-    client.post(url, data=data)
-    assert client.status == 200
-
-    assert "Booked 0 classes" in client.text # Check message to user
-
-    # Make sure no class was booked
-    assert web2py.db(web2py.db.classes_attendance).count() == 0
-
-
-def test_class_book_classcard_recurring_no_classcard_classes_remaining(client, web2py):
-    """
-        It should not be possible to recur a booking on a class card without remaining classes
-    """
-    url = '/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    setup_profile_tests(web2py)
-    prepare_classes(web2py)
-    populate_school_classcards(web2py, nr=2)
-
-    ccdID = web2py.db.customers_classcards.insert(
-        auth_customer_id = 300,
-        school_classcards_id = 1,
-        Startdate = '2014-01-01',
-        Enddate = '2099-12-31'
-    )
-
-    next_monday = next_weekday(datetime.date.today(), 0)
-
-    query = (web2py.db.classes_attendance.id > 0)
-    web2py.db(query).delete()
-
-    # Remove classes from school card to simulate no classes remaining on card
-    scd = web2py.db.school_classcards(1)
-    scd.Classes = 0
-    scd.update_record()
-
-    web2py.db.commit()
-
-    url = "/shop/class_book_classcard_recurring?ccdID=" + str(ccdID) + '&clsID=1&date=' + str(next_monday)
-    client.get(url)
-    assert client.status == 200
-
-    data = {
-        'recur_until':str(next_monday + datetime.timedelta(days=3))
-    }
-
-    client.post(url, data=data)
-    assert client.status == 200
-    assert "Booked 0 classes" in client.text # Check message to user
-
-    # Make sure no class was booked
-    assert web2py.db(web2py.db.classes_attendance).count() == 0
-
-
-def test_class_book_classcard_recurring_past_advance_booking_limit(client, web2py):
-    """
-        Recurring booking not possible when OnlineBooking spaces for a class are full
-    """
-    url = '/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    setup_profile_tests(web2py)
-    prepare_classes(web2py)
-    populate_school_classcards(web2py, nr=2)
-
-    ccdID = web2py.db.customers_classcards.insert(
-        auth_customer_id = 300,
-        school_classcards_id = 1,
-        Startdate = '2014-01-01',
-        Enddate = '2099-12-31'
-    )
-
-    next_monday = next_weekday(datetime.date.today(), 0) + datetime.timedelta(days=7)
-
-    query = (web2py.db.classes_attendance.id > 0)
-    web2py.db(query).delete()
-
-    # Set advance booking limit to 3 day to simulate class going past advance booking limit
-    web2py.db.sys_properties.insert(
-        Property = 'shop_classes_advance_booking_limit',
-        PropertyValue = '3'
-    )
-
-    web2py.db.commit()
-
-    url = "/shop/class_book_classcard_recurring?ccdID=" + str(ccdID) + '&clsID=1&date=' + str(next_monday)
-    client.get(url)
-    assert client.status == 200
-
-    data = {
-        'recur_until':str(next_monday + datetime.timedelta(days=14))
-    }
-
-    client.post(url, data=data)
-    assert client.status == 200
-
-    assert "Enter date in range" in client.text # Check message to user
-
-    # Make sure no class was booked
-    assert web2py.db(web2py.db.classes_attendance).count() == 0
-
-
-def test_class_book_classcard_recurring_class_past_classcard_enddate(client, web2py):
-    """
-        Recurring class not booked when after classcard enddate
-    """
-    url = '/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    setup_profile_tests(web2py)
-    prepare_classes(web2py)
-    populate_school_classcards(web2py, nr=2)
-
-    ccdID = web2py.db.customers_classcards.insert(
-        auth_customer_id = 300,
-        school_classcards_id = 1,
-        Startdate = '2014-01-01',
-        Enddate = '2014-12-31'
-    )
-
-    next_monday = next_weekday(datetime.date.today(), 0) + datetime.timedelta(days=7)
-
-    query = (web2py.db.classes_attendance.id > 0)
-    web2py.db(query).delete()
-
-    web2py.db.commit()
-
-    url = "/shop/class_book_classcard_recurring?ccdID=" + str(ccdID) + '&clsID=1&date=' + str(next_monday)
-    client.get(url)
-    assert client.status == 200
-
-    data = {
-        'recur_until':str(next_monday + datetime.timedelta(days=10))
-    }
-
-    client.post(url, data=data)
-    assert client.status == 200
-    assert "Enter date in range" in client.text # Check message to user
-
-    # Make sure no class was booked
-    assert web2py.db(web2py.db.classes_attendance).count() == 0
-
-
-def test_class_book_classcard_recurring(client, web2py):
-    """
-        Are recurring classes booked?
-    """
-    url = '/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    setup_profile_tests(web2py)
-    prepare_classes(web2py)
-    populate_school_classcards(web2py, nr=2)
-
-    ccdID = web2py.db.customers_classcards.insert(
-        auth_customer_id = 300,
-        school_classcards_id = 1,
-        Startdate = '2014-01-01',
-        Enddate = '2099-12-31'
-    )
-
-    next_monday = next_weekday(datetime.date.today(), 0)
-
-    query = (web2py.db.classes_attendance.id > 0)
-    web2py.db(query).delete()
-
-    web2py.db.commit()
-
-    url = "/shop/class_book_classcard_recurring?ccdID=" + str(ccdID) + '&clsID=1&date=' + str(next_monday)
-    client.get(url)
-    assert client.status == 200
-
-    data = {
-        'recur_until':str(next_monday + datetime.timedelta(days=22))
-    }
-
-    client.post(url, data=data)
-    assert client.status == 200
-
-    assert "Booked 4 classes" in client.text # Check message to user
-
-    # Make sure 4 classes were booked
-    assert web2py.db(web2py.db.classes_attendance).count() == 4
+# def test_class_book_classcard_recurring_class_during_holiday(client, web2py):
+#     """
+#         Recurring booking not possible when class is in a holiday
+#     """
+#     url = '/user/login'
+#     client.get(url)
+#     assert client.status == 200
+#
+#     setup_profile_tests(web2py)
+#     prepare_classes(web2py)
+#     populate_school_classcards(web2py, nr=2)
+#
+#     ccdID = web2py.db.customers_classcards.insert(
+#         auth_customer_id = 300,
+#         school_classcards_id = 1,
+#         Startdate = '2014-01-01',
+#         Enddate = '2099-12-31'
+#     )
+#
+#     next_monday = next_weekday(datetime.date.today(), 0)
+#
+#     shID = web2py.db.school_holidays.insert(
+#         Description = "Holiday",
+#         Startdate = next_monday - datetime.timedelta(days=7),
+#         Enddate = next_monday + datetime.timedelta(days=35),
+#         Classes = True
+#     )
+#
+#     web2py.db.school_holidays_locations.insert(
+#         school_holidays_id = shID,
+#         school_locations_id = 1,
+#     )
+#
+#     query = (web2py.db.classes_attendance.id > 0)
+#     web2py.db(query).delete()
+#
+#     web2py.db.commit()
+#
+#     url = "/shop/class_book_classcard_recurring?ccdID=" + str(ccdID) + '&clsID=1&date=' + str(next_monday)
+#     client.get(url)
+#     assert client.status == 200
+#
+#     data = {
+#         'recur_until':str(next_monday + datetime.timedelta(days=32))
+#     }
+#
+#     client.post(url, data=data)
+#     assert client.status == 200
+#     assert "Booked 0 classes" in client.text # Check message to user
+#
+#     # Make sure no class was booked
+#     assert web2py.db(web2py.db.classes_attendance).count() == 0
+#
+#
+# def test_class_book_classcard_recurring_class_full(client, web2py):
+#     """
+#         Recurring booking not possible when OnlineBooking spaces for a class are full
+#     """
+#     url = '/user/login'
+#     client.get(url)
+#     assert client.status == 200
+#
+#     setup_profile_tests(web2py)
+#     prepare_classes(web2py)
+#     populate_school_classcards(web2py, nr=2)
+#
+#     ccdID = web2py.db.customers_classcards.insert(
+#         auth_customer_id = 300,
+#         school_classcards_id = 1,
+#         Startdate = '2014-01-01',
+#         Enddate = '2099-12-31'
+#     )
+#
+#     next_monday = next_weekday(datetime.date.today(), 0)
+#
+#     query = (web2py.db.classes_attendance.id > 0)
+#     web2py.db(query).delete()
+#
+#     # Remove online booking spaces to simulate a full class
+#     cls = web2py.db.classes(1)
+#     cls.Maxstudents = 0 # No spaces
+#     cls.update_record()
+#
+#     web2py.db.commit()
+#
+#     url = "/shop/class_book_classcard_recurring?ccdID=" + str(ccdID) + '&clsID=1&date=' + str(next_monday)
+#     client.get(url)
+#     assert client.status == 200
+#
+#     data = {
+#         'recur_until':str(next_monday + datetime.timedelta(days=3))
+#     }
+#
+#     client.post(url, data=data)
+#     assert client.status == 200
+#
+#     assert "Booked 0 classes" in client.text # Check message to user
+#
+#     # Make sure no class was booked
+#     assert web2py.db(web2py.db.classes_attendance).count() == 0
+#
+#
+# def test_class_book_classcard_recurring_no_classcard_classes_remaining(client, web2py):
+#     """
+#         It should not be possible to recur a booking on a class card without remaining classes
+#     """
+#     url = '/user/login'
+#     client.get(url)
+#     assert client.status == 200
+#
+#     setup_profile_tests(web2py)
+#     prepare_classes(web2py)
+#     populate_school_classcards(web2py, nr=2)
+#
+#     ccdID = web2py.db.customers_classcards.insert(
+#         auth_customer_id = 300,
+#         school_classcards_id = 1,
+#         Startdate = '2014-01-01',
+#         Enddate = '2099-12-31'
+#     )
+#
+#     next_monday = next_weekday(datetime.date.today(), 0)
+#
+#     query = (web2py.db.classes_attendance.id > 0)
+#     web2py.db(query).delete()
+#
+#     # Remove classes from school card to simulate no classes remaining on card
+#     scd = web2py.db.school_classcards(1)
+#     scd.Classes = 0
+#     scd.update_record()
+#
+#     web2py.db.commit()
+#
+#     url = "/shop/class_book_classcard_recurring?ccdID=" + str(ccdID) + '&clsID=1&date=' + str(next_monday)
+#     client.get(url)
+#     assert client.status == 200
+#
+#     data = {
+#         'recur_until':str(next_monday + datetime.timedelta(days=3))
+#     }
+#
+#     client.post(url, data=data)
+#     assert client.status == 200
+#     assert "Booked 0 classes" in client.text # Check message to user
+#
+#     # Make sure no class was booked
+#     assert web2py.db(web2py.db.classes_attendance).count() == 0
+#
+#
+# def test_class_book_classcard_recurring_past_advance_booking_limit(client, web2py):
+#     """
+#         Recurring booking not possible when OnlineBooking spaces for a class are full
+#     """
+#     url = '/user/login'
+#     client.get(url)
+#     assert client.status == 200
+#
+#     setup_profile_tests(web2py)
+#     prepare_classes(web2py)
+#     populate_school_classcards(web2py, nr=2)
+#
+#     ccdID = web2py.db.customers_classcards.insert(
+#         auth_customer_id = 300,
+#         school_classcards_id = 1,
+#         Startdate = '2014-01-01',
+#         Enddate = '2099-12-31'
+#     )
+#
+#     next_monday = next_weekday(datetime.date.today(), 0) + datetime.timedelta(days=7)
+#
+#     query = (web2py.db.classes_attendance.id > 0)
+#     web2py.db(query).delete()
+#
+#     # Set advance booking limit to 3 day to simulate class going past advance booking limit
+#     web2py.db.sys_properties.insert(
+#         Property = 'shop_classes_advance_booking_limit',
+#         PropertyValue = '3'
+#     )
+#
+#     web2py.db.commit()
+#
+#     url = "/shop/class_book_classcard_recurring?ccdID=" + str(ccdID) + '&clsID=1&date=' + str(next_monday)
+#     client.get(url)
+#     assert client.status == 200
+#
+#     data = {
+#         'recur_until':str(next_monday + datetime.timedelta(days=14))
+#     }
+#
+#     client.post(url, data=data)
+#     assert client.status == 200
+#
+#     assert "Enter date in range" in client.text # Check message to user
+#
+#     # Make sure no class was booked
+#     assert web2py.db(web2py.db.classes_attendance).count() == 0
+#
+#
+# def test_class_book_classcard_recurring_class_past_classcard_enddate(client, web2py):
+#     """
+#         Recurring class not booked when after classcard enddate
+#     """
+#     url = '/user/login'
+#     client.get(url)
+#     assert client.status == 200
+#
+#     setup_profile_tests(web2py)
+#     prepare_classes(web2py)
+#     populate_school_classcards(web2py, nr=2)
+#
+#     ccdID = web2py.db.customers_classcards.insert(
+#         auth_customer_id = 300,
+#         school_classcards_id = 1,
+#         Startdate = '2014-01-01',
+#         Enddate = '2014-12-31'
+#     )
+#
+#     next_monday = next_weekday(datetime.date.today(), 0) + datetime.timedelta(days=7)
+#
+#     query = (web2py.db.classes_attendance.id > 0)
+#     web2py.db(query).delete()
+#
+#     web2py.db.commit()
+#
+#     url = "/shop/class_book_classcard_recurring?ccdID=" + str(ccdID) + '&clsID=1&date=' + str(next_monday)
+#     client.get(url)
+#     assert client.status == 200
+#
+#     data = {
+#         'recur_until':str(next_monday + datetime.timedelta(days=10))
+#     }
+#
+#     client.post(url, data=data)
+#     assert client.status == 200
+#     assert "Enter date in range" in client.text # Check message to user
+#
+#     # Make sure no class was booked
+#     assert web2py.db(web2py.db.classes_attendance).count() == 0
+#
+#
+# def test_class_book_classcard_recurring(client, web2py):
+#     """
+#         Are recurring classes booked?
+#     """
+#     url = '/user/login'
+#     client.get(url)
+#     assert client.status == 200
+#
+#     setup_profile_tests(web2py)
+#     prepare_classes(web2py)
+#     populate_school_classcards(web2py, nr=2)
+#
+#     ccdID = web2py.db.customers_classcards.insert(
+#         auth_customer_id = 300,
+#         school_classcards_id = 1,
+#         Startdate = '2014-01-01',
+#         Enddate = '2099-12-31'
+#     )
+#
+#     next_monday = next_weekday(datetime.date.today(), 0)
+#
+#     query = (web2py.db.classes_attendance.id > 0)
+#     web2py.db(query).delete()
+#
+#     web2py.db.commit()
+#
+#     url = "/shop/class_book_classcard_recurring?ccdID=" + str(ccdID) + '&clsID=1&date=' + str(next_monday)
+#     client.get(url)
+#     assert client.status == 200
+#
+#     data = {
+#         'recur_until':str(next_monday + datetime.timedelta(days=22))
+#     }
+#
+#     client.post(url, data=data)
+#     assert client.status == 200
+#
+#     assert "Booked 4 classes" in client.text # Check message to user
+#
+#     # Make sure 4 classes were booked
+#     assert web2py.db(web2py.db.classes_attendance).count() == 4
 
 
 def test_class_enroll(client, web2py):
