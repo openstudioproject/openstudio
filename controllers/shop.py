@@ -2448,12 +2448,13 @@ def classes_book_options():
 
     ##
     # Enrollment options
+    # Enable code below to enable enrollment options when booking a class in the shop
     ##
-    content.append(DIV(DIV(H4(T('Join every week'), _class='center'), _class='col-md-12'),
-                       _class='row'))
-
-    enrollment_options = class_book_options_get_enrollment_options(clsID, date, date_formatted, features, customer)
-    content.append(enrollment_options)
+    # content.append(DIV(DIV(H4(T('Join every week'), _class='center'), _class='col-md-12'),
+    #                    _class='row'))
+    #
+    # enrollment_options = class_book_options_get_enrollment_options(clsID, date, date_formatted, features, customer)
+    # content.append(enrollment_options)
 
 
     return dict(content=content, back=back)
