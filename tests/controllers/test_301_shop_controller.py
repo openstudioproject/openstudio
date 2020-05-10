@@ -827,143 +827,143 @@ def test_classes_book_options_no_bookings_during_holidays(client, web2py):
     assert 'Unable to show booking options for this class.' in client.text
 
 
-def test_classes_book_options_enroll_show(client, web2py):
-    """
-         Is the enroll option showing?
-    """
-    url = '/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    today = datetime.date.today()
-    next_monday = next_weekday(today, 0)
-
-    setup_profile_tests(web2py)
-    prepare_classes(web2py)
-    populate_school_subscriptions(web2py)
-    populate_school_classcards(web2py, nr=2)
-
-    web2py.db.customers_subscriptions.insert(
-        auth_customer_id = 300,
-        school_subscriptions_id = 1,
-        Startdate = '2014-01-01',
-        payment_methods_id = 1)
-
-    web2py.db.commit()
-
-    url = '/shop/classes_book_options?clsID=1&date=' + str(next_monday)
-    client.get(url)
-    assert client.status == 200
-
-
-    ssu = web2py.db.school_subscriptions(1)
-    assert "Enroll" in client.text
-    assert 'In case you would like to join this class every week' in client.text
-
-
-def test_classes_book_options_enroll_not_allowed_message(client, web2py):
-    """
-         Is the enroll option showing?
-    """
-    url = '/default/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    setup_profile_tests(web2py)
-    prepare_classes(web2py)
-
-    today = datetime.date.today()
-    next_monday = next_weekday(today, 0)
-
-    query = (web2py.db.classes_school_subscriptions_groups.id > 0)
-    web2py.db(query).delete()
-
-    web2py.db.customers_subscriptions.insert(
-        auth_customer_id = 300,
-        school_subscriptions_id = 1,
-        Startdate = '2014-01-01',
-        payment_methods_id = 1)
-
-    web2py.db.commit()
-
-    url = '/shop/classes_book_options?clsID=1&date=' + str(next_monday)
-    client.get(url)
-    assert client.status == 200
-
-    assert "Enrollment in this class is not possible using your current subscription(s)." in client.text
-
-
-def test_classes_book_options_enroll_no_subscription_message(client, web2py):
-    """
-         Is the enroll option showing?
-    """
-    setup_profile_tests(web2py)
-    prepare_classes(web2py)
-
-    today = datetime.date.today()
-    next_monday = next_weekday(today, 0)
-
-    web2py.db.commit()
-
-    url = '/shop/classes_book_options?clsID=1&date=' + str(next_monday)
-    client.get(url)
-    assert client.status == 200
-
-    assert 'A subscription is required to enroll' in client.text
-
-
-def test_classes_book_options_enroll_already_enrolled_message(client, web2py):
-    """
-         Is the enroll option showing?
-    """
-    setup_profile_tests(web2py)
-    prepare_classes(web2py)
-
-    today = datetime.date.today()
-    next_monday = next_weekday(today, 0)
-
-    web2py.db.classes_reservation.insert(
-        classes_id = 1,
-        auth_customer_id = 300,
-        Startdate = '2014-01-01',
-    )
-
-    web2py.db.commit()
-
-    url = '/shop/classes_book_options?clsID=1&date=' + str(next_monday)
-    client.get(url)
-    assert client.status == 200
-
-    assert "You're enrolled in this class." in client.text
-
-
-def test_classes_book_options_enroll_no_spaces_message(client, web2py):
-    """
-         Is the enroll option showing?
-    """
-    setup_profile_tests(web2py)
-    prepare_classes(web2py)
-
-    today = datetime.date.today()
-    next_monday = next_weekday(today, 0)
-
-    cls = web2py.db.classes(1)
-    cls.MaxReservationsRecurring = 1
-    cls.update_record()
-
-    web2py.db.classes_reservation.insert(
-        classes_id = 1,
-        auth_customer_id = 1001,
-        Startdate = '2014-01-01',
-    )
-
-    web2py.db.commit()
-
-    url = '/shop/classes_book_options?clsID=1&date=' + str(next_monday)
-    client.get(url)
-    assert client.status == 200
-
-    assert 'All spaces for enrollments are currently filled. ' in client.text
+# def test_classes_book_options_enroll_show(client, web2py):
+#     """
+#          Is the enroll option showing?
+#     """
+#     url = '/user/login'
+#     client.get(url)
+#     assert client.status == 200
+#
+#     today = datetime.date.today()
+#     next_monday = next_weekday(today, 0)
+#
+#     setup_profile_tests(web2py)
+#     prepare_classes(web2py)
+#     populate_school_subscriptions(web2py)
+#     populate_school_classcards(web2py, nr=2)
+#
+#     web2py.db.customers_subscriptions.insert(
+#         auth_customer_id = 300,
+#         school_subscriptions_id = 1,
+#         Startdate = '2014-01-01',
+#         payment_methods_id = 1)
+#
+#     web2py.db.commit()
+#
+#     url = '/shop/classes_book_options?clsID=1&date=' + str(next_monday)
+#     client.get(url)
+#     assert client.status == 200
+#
+#
+#     ssu = web2py.db.school_subscriptions(1)
+#     assert "Enroll" in client.text
+#     assert 'In case you would like to join this class every week' in client.text
+#
+#
+# def test_classes_book_options_enroll_not_allowed_message(client, web2py):
+#     """
+#          Is the enroll option showing?
+#     """
+#     url = '/default/user/login'
+#     client.get(url)
+#     assert client.status == 200
+#
+#     setup_profile_tests(web2py)
+#     prepare_classes(web2py)
+#
+#     today = datetime.date.today()
+#     next_monday = next_weekday(today, 0)
+#
+#     query = (web2py.db.classes_school_subscriptions_groups.id > 0)
+#     web2py.db(query).delete()
+#
+#     web2py.db.customers_subscriptions.insert(
+#         auth_customer_id = 300,
+#         school_subscriptions_id = 1,
+#         Startdate = '2014-01-01',
+#         payment_methods_id = 1)
+#
+#     web2py.db.commit()
+#
+#     url = '/shop/classes_book_options?clsID=1&date=' + str(next_monday)
+#     client.get(url)
+#     assert client.status == 200
+#
+#     assert "Enrollment in this class is not possible using your current subscription(s)." in client.text
+#
+#
+# def test_classes_book_options_enroll_no_subscription_message(client, web2py):
+#     """
+#          Is the enroll option showing?
+#     """
+#     setup_profile_tests(web2py)
+#     prepare_classes(web2py)
+#
+#     today = datetime.date.today()
+#     next_monday = next_weekday(today, 0)
+#
+#     web2py.db.commit()
+#
+#     url = '/shop/classes_book_options?clsID=1&date=' + str(next_monday)
+#     client.get(url)
+#     assert client.status == 200
+#
+#     assert 'A subscription is required to enroll' in client.text
+#
+#
+# def test_classes_book_options_enroll_already_enrolled_message(client, web2py):
+#     """
+#          Is the enroll option showing?
+#     """
+#     setup_profile_tests(web2py)
+#     prepare_classes(web2py)
+#
+#     today = datetime.date.today()
+#     next_monday = next_weekday(today, 0)
+#
+#     web2py.db.classes_reservation.insert(
+#         classes_id = 1,
+#         auth_customer_id = 300,
+#         Startdate = '2014-01-01',
+#     )
+#
+#     web2py.db.commit()
+#
+#     url = '/shop/classes_book_options?clsID=1&date=' + str(next_monday)
+#     client.get(url)
+#     assert client.status == 200
+#
+#     assert "You're enrolled in this class." in client.text
+#
+#
+# def test_classes_book_options_enroll_no_spaces_message(client, web2py):
+#     """
+#          Is the enroll option showing?
+#     """
+#     setup_profile_tests(web2py)
+#     prepare_classes(web2py)
+#
+#     today = datetime.date.today()
+#     next_monday = next_weekday(today, 0)
+#
+#     cls = web2py.db.classes(1)
+#     cls.MaxReservationsRecurring = 1
+#     cls.update_record()
+#
+#     web2py.db.classes_reservation.insert(
+#         classes_id = 1,
+#         auth_customer_id = 1001,
+#         Startdate = '2014-01-01',
+#     )
+#
+#     web2py.db.commit()
+#
+#     url = '/shop/classes_book_options?clsID=1&date=' + str(next_monday)
+#     client.get(url)
+#     assert client.status == 200
+#
+#     assert 'All spaces for enrollments are currently filled. ' in client.text
 
 
 def test_class_book_subscription(client, web2py):
