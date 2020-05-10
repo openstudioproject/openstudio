@@ -2034,12 +2034,11 @@ class AttendanceHelper:
 
             # Send info mail for online booking, if set and required
             if status == "ok":
-                self._attendance_sign_in_send_online_booking_mail(
+                self._attendance_sign_in_send_booking_mail(
                     clattID,
                     cuID,
                     clsID,
-                    date,
-                    online_booking
+                    date
                 )
 
             return dict(status=status, message=message, caID=clattID)
@@ -2349,12 +2348,11 @@ class AttendanceHelper:
 
                 # Send info mail for online booking, if set and required
                 if status == "ok":
-                    self._attendance_sign_in_send_online_booking_mail(
+                    self._attendance_sign_in_send_booking_mail(
                         caID,
                         cuID,
                         clsID,
-                        date,
-                        online_booking
+                        date
                     )
             else:
                 message = T("Unable to add, no classes left on card")
@@ -2421,12 +2419,11 @@ class AttendanceHelper:
 
             # Send info mail for online booking, if set and required
             if status == "ok":
-                self._attendance_sign_in_send_online_booking_mail(
+                self._attendance_sign_in_send_booking_mail(
                     caID,
                     cuID,
                     clsID,
-                    date,
-                    online_booking
+                    date
                 )
 
             return dict(status=status, message=message, caID=caID)
@@ -2490,12 +2487,11 @@ class AttendanceHelper:
 
             # Send info mail for online booking, if set and required
             if status == "ok":
-                self._attendance_sign_in_send_online_booking_mail(
+                self._attendance_sign_in_send_booking_mail(
                     caID,
                     cuID,
                     clsID,
-                    date,
-                    online_booking
+                    date
                 )
 
             return dict(status=status, message=message, caID=caID)
@@ -2675,7 +2671,7 @@ class AttendanceHelper:
             return dict(status=status, message=message, caID=caID)
 
 
-        def _attendance_sign_in_send_online_booking_mail(self, clattID, cuID, clsID, date, online_booking):
+        def _attendance_sign_in_send_booking_mail(self, clattID, cuID, clsID, date):
             """
             :param clattID: db.classes_attendance.id
             :return: Boolean - result of sending mail (Only True if mail is actually sent)
@@ -2689,11 +2685,11 @@ class AttendanceHelper:
             send_result = False
             message = ""
 
-            # Check if this is an online booking
-            if not online_booking:
-                # Nothing to do...
-                message = T("Not an online booking")
-                return dict(result=send_result, message=message)
+            # # Check if this is an online booking
+            # if not online_booking:
+            #     # Nothing to do...
+            #     message = T("Not an online booking")
+            #     return dict(result=send_result, message=message)
 
             # Check if we should send a mail
             if cls.cls.AutoSendInfoMail:

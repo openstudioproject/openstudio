@@ -2898,12 +2898,11 @@ def attendance_resend_info_mail():
     online_booking = clatt.row.online_booking
 
     ah = AttendanceHelper()
-    send_result = ah._attendance_sign_in_send_online_booking_mail(
+    send_result = ah._attendance_sign_in_send_booking_mail(
         clattID,
         cuID,
         clsID,
-        date,
-        online_booking
+        date
     )
 
     send_result_mail_sent = send_result['result']

@@ -2460,7 +2460,6 @@ def classes_book_options():
     return dict(content=content, back=back)
 
 
-
 def class_book_options_get_enrollment_options(clsID, date, date_formatted, features, customer):
     """
         List enrollment options
