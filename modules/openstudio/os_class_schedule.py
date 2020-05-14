@@ -59,32 +59,32 @@ class ClassSchedule:
         """
             Returns the filter query for the schedule
         """
-        where = ''
+        where = ' '
 
         if self.filter_id_sys_organization:
-            where += 'AND cla.sys_organizations_id = ' + str(self.filter_id_sys_organization) + ' '
+            where += 'AND cla.sys_organizations_id = %(filter_id_sys_organization)s '
         if self.filter_id_teacher:
             where += 'AND ((CASE WHEN cotc.auth_teacher_id IS NULL \
                             THEN clt.auth_teacher_id  \
-                            ELSE cotc.auth_teacher_id END) = '
-            where += str(self.filter_id_teacher) + ' '
+                            ELSE cotc.auth_teacher_id END) = %(filter_id_teacher)s '
+            where += ' '
             where += 'OR (CASE WHEN cotc.auth_teacher_id2 IS NULL \
                           THEN clt.auth_teacher_id2  \
-                          ELSE cotc.auth_teacher_id2 END) = '
-            where += str(self.filter_id_teacher) + ') '
+                          ELSE cotc.auth_teacher_id2 END) = %(filter_id_teacher)s '
+            where += ') '
         if self.filter_id_school_classtype:
             where += 'AND (CASE WHEN cotc.school_classtypes_id IS NULL \
                            THEN cla.school_classtypes_id  \
-                           ELSE cotc.school_classtypes_id END) = '
-            where += str(self.filter_id_school_classtype) + ' '
+                           ELSE cotc.school_classtypes_id END) = %(filter_id_school_classtype)s '
+            where += ' '
         if self.filter_id_school_location:
             where += 'AND (CASE WHEN cotc.school_locations_id IS NULL \
                            THEN cla.school_locations_id  \
-                           ELSE cotc.school_locations_id END) = '
-            where += str(self.filter_id_school_location) + ' '
+                           ELSE cotc.school_locations_id END) = %(filter_id_school_location)s '
+            where += ' '
         if self.filter_id_school_level:
-            where += 'AND cla.school_levels_id = '
-            where += str(self.filter_id_school_level) + ' '
+            where += 'AND cla.school_levels_id = %(filter_id_school_level)s '
+            where += ' '
         if self.filter_public:
             where += "AND cla.AllowAPI = 'T' "
             where += "AND sl.AllowAPI = 'T' "
@@ -92,8 +92,7 @@ class ClassSchedule:
         if self.filter_starttime_from:
             where += 'AND ((CASE WHEN cotc.Starttime IS NULL \
                             THEN cla.Starttime  \
-                            ELSE cotc.Starttime END) >= '
-            where += "'" + str(self.filter_starttime_from) + "') "
+                            ELSE cotc.Starttime END) >= %(filter_starttime_from)s)'
 
         return where
 
@@ -647,6 +646,8 @@ class ClassSchedule:
             a date for the class and
             a SQLFORM.grid for a selected day which is within 1 - 7 (ISO standard).
         """
+        web2pytest = current.globalenv['web2pytest']
+        request = current.globalenv['request']
         date = self.date
         DATE_FORMAT = current.DATE_FORMAT
         db = current.db
@@ -762,13 +763,13 @@ class ClassSchedule:
                ( SELECT count(clatt.id) as count_att
                  FROM classes_attendance clatt
                  WHERE clatt.classes_id = cla.id AND
-                       clatt.ClassDAte ='{class_date}' AND
+                       clatt.ClassDate = %(class_date)s AND
                        clatt.BookingStatus != 'cancelled') AS count_attendance,
                /* Count of online bookings for this class */
                ( SELECT COUNT(clatt.id) as count_atto
                  FROM classes_attendance clatt
                  WHERE clatt.classes_id = cla.id AND
-                       clatt.ClassDate = '{class_date}' AND
+                       clatt.ClassDate = %(class_date)s AND
                        clatt.BookingStatus != 'cancelled' AND
                        clatt.online_booking = 'T'
                  GROUP BY clatt.classes_id ) as count_clatto,
@@ -776,8 +777,8 @@ class ClassSchedule:
                ( SELECT COUNT(clr.id) as count_clr
                  FROM classes_reservation clr
                  WHERE clr.classes_id = cla.id AND
-                       (clr.Startdate <= '{class_date}' AND
-                        (clr.Enddate >= '{class_date}' OR clr.Enddate IS NULL))
+                       (clr.Startdate <= %(class_date)s AND
+                        (clr.Enddate >= %(class_date)s OR clr.Enddate IS NULL))
                  GROUP BY clr.classes_id ) as count_clr
         FROM classes cla
         LEFT JOIN
@@ -797,7 +798,7 @@ class ClassSchedule:
                      Maxstudents,
                      WalkInSpaces
               FROM classes_otc
-              WHERE ClassDate = '{class_date}' ) cotc
+              WHERE ClassDate = %(class_date)s ) cotc
             ON cla.id = cotc.classes_id
         LEFT JOIN school_locations sl
             ON sl.id = cla.school_locations_id
@@ -813,8 +814,8 @@ class ClassSchedule:
                      auth_teacher_id2,
                      teacher_role2
               FROM classes_teachers
-              WHERE Startdate <= '{class_date}' AND (
-                    Enddate >= '{class_date}' OR Enddate IS NULL)
+              WHERE Startdate <= %(class_date)s AND (
+                    Enddate >= %(class_date)s OR Enddate IS NULL)
               ) clt
             ON clt.classes_id = cla.id
         LEFT JOIN
@@ -823,22 +824,39 @@ class ClassSchedule:
               LEFT JOIN
                 school_holidays_locations shl
                 ON shl.school_holidays_id = sh.id
-              WHERE sh.Startdate <= '{class_date}' AND
-                    sh.Enddate >= '{class_date}') sho
+              WHERE sh.Startdate <= %(class_date)s AND
+                    sh.Enddate >= %(class_date)s) sho
             ON sho.school_locations_id = cla.school_locations_id
-        WHERE cla.Week_day = '{week_day}' AND
-              cla.Startdate <= '{class_date}' AND
-              (cla.Enddate >= '{class_date}' OR cla.Enddate IS NULL)
+        WHERE cla.Week_day = %(week_day)s AND
+              cla.Startdate <= %(class_date)s AND
+              (cla.Enddate >= %(class_date)s OR cla.Enddate IS NULL)
               {where_filter}
-        ORDER BY {orderby_sql}
-        """.format(class_date = date,
-                   week_day = weekday,
-                   orderby_sql = orderby_sql,
-                   where_filter = where_filter,
-                   one_month_ago = one_month_ago,
-                   two_months_ago = two_months_ago)
+        ORDER BY %(orderby_sql)s
+        """.format(
+            where_filter=where_filter,
+        )
 
-        rows = db.executesql(query, fields=fields)
+        placeholders = {
+            "class_date": str(date),
+            "week_day": weekday,
+            "orderby_sql": orderby_sql,
+            "one_month_ago": one_month_ago,
+            "two_months_ago": two_months_ago,
+            "filter_id_sys_organization": self.filter_id_sys_organization,
+            "filter_id_school_classtype": self.filter_id_school_classtype,
+            "filter_id_school_level": self.filter_id_school_level,
+            "filter_id_school_location": self.filter_id_school_location,
+            "filter_id_teacher": self.filter_id_teacher,
+            "filter_starttime_from": self.filter_starttime_from
+        }
+
+        if not web2pytest.is_running_under_test(request, request.application):
+            rows = db.executesql(query, fields=fields, placeholders=placeholders)
+        else:
+            # Pre-format string for SQLite, as it has a different parameter schema than MySQL
+            placeholders['class_date'] = '"' + placeholders['class_date'] + '"'
+            query = query % placeholders
+            rows = db.executesql(query, fields=fields)
 
         return rows
 
