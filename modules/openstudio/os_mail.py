@@ -530,7 +530,7 @@ class OsMail:
         description = TABLE(TR(TH(T('Date')),
                                TD(clatt.row.ClassDate.strftime(DATE_FORMAT), _align="left")),
                             TR(TH(T('Time')),
-                               TD(cls.cls.Starttime.strftime(TIME_FORMAT), _aligh="left")),
+                               TD(cls.get_starttime(), _aligh="left")),
                             TR(TH(T('Class')),
                                TD(cls.get_classtype_name(), _aligh="left")),
                             TR(TH(T('Location')),

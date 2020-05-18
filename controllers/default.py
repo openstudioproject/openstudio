@@ -111,6 +111,7 @@ def user():
         error_message = T("Please enter your last name")
     )
 
+    form = ''
     form_login = ''
     login_link = ''
     login_title = ''

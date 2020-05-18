@@ -2361,13 +2361,11 @@ def class_book_get_class_header(clsID, date):
     from openstudio.os_class import Class
 
     cls = Class(clsID, date)
-    location = db.school_locations[cls.cls.school_locations_id].Name
-
-
-    classtype = db.school_classtypes[cls.cls.school_classtypes_id].Name
+    location = cls.get_location_name()
+    classtype = cls.get_classtype_name()
     class_name = date.strftime('%d %B %Y') + ' ' + '<br><small>' + \
-                 cls.cls.Starttime.strftime(TIME_FORMAT) + ' - ' + \
-                 cls.cls.Endtime.strftime(TIME_FORMAT) + ' ' + \
+                 cls.get_starttime() + ' - ' + \
+                 cls.get_endtime() + ' ' + \
                  classtype + ' ' + \
                  T('in') + ' ' + location + '</small>'
 
@@ -3054,11 +3052,7 @@ def class_booked():
     location = db.school_locations[cls.cls.school_locations_id].Name
 
     classtype = db.school_classtypes[cls.cls.school_classtypes_id].Name
-    class_name = NRtoDay(cls.cls.Week_day) + ' ' + '<br><small>' + \
-                 cls.cls.Starttime.strftime(TIME_FORMAT) + ' - ' + \
-                 cls.cls.Endtime.strftime(TIME_FORMAT) + ' ' + \
-                 classtype + ' ' + \
-                 T('in') + ' ' + location + '</small>'
+    class_name = class_book_get_class_header(clsID, date)
 
 
     to_profile = A(T("To my profile"), ' ', os_gui.get_fa_icon("fa-chevron-right"),
