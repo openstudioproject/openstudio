@@ -47,7 +47,10 @@ class Class:
     def get_starttime(self, formatted=True):
         db = current.db
         TIME_FORMAT = current.TIME_FORMAT
-        start_time = self.cls_otc.Starttime if self.cls_otc.Starttime else self.cls.Starttime
+        start_time = self.cls.Starttime
+        if self.cls_otc:
+            if self.cls_otc.Starttime:
+                start_time = self.cls_otc.Starttime
 
         if formatted:
             return start_time.strftime(TIME_FORMAT)
@@ -58,7 +61,10 @@ class Class:
     def get_endtime(self, formatted=True):
         db = current.db
         TIME_FORMAT = current.TIME_FORMAT
-        end_time = self.cls_otc.Endtime if self.cls_otc.Endtime else self.cls.Endtime
+        end_time = self.cls.Endtime
+        if self.cls_otc:
+            if self.cls_otc.Endtime:
+                end_time = self.cls_otc.Endtime
 
         if formatted:
             return end_time.strftime(TIME_FORMAT)
@@ -68,14 +74,20 @@ class Class:
 
     def get_classtype_name(self):
         db = current.db
-        ctID = self.cls_otc.school_classtypes_id if self.cls_otc.school_classtypes_id else self.cls.school_classtypes_id
+        ctID = self.cls.school_classtypes_id
+        if self.cls_otc:
+            if self.cls_otc.school_classtypes_id:
+                ctID = self.cls_otc.school_classtypes_id
 
         return db.school_classtypes[ctID].Name
 
 
     def get_location_name(self):
         db = current.db
-        locID = self.cls_otc.school_locations_id if self.cls_otc.school_locations_id else self.cls.school_locations_id
+        locID = self.cls.school_locations_id
+        if self.cls_otc:
+            if self.cls_otc.school_locations_id:
+                locID = self.cls_otc.school_locations_id
 
         return db.school_locations[locID].Name
 
