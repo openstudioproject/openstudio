@@ -831,15 +831,15 @@ class ClassSchedule:
               cla.Startdate <= %(class_date)s AND
               (cla.Enddate >= %(class_date)s OR cla.Enddate IS NULL)
               {where_filter}
-        ORDER BY %(orderby_sql)s
+        ORDER BY {orderby_sql}
         """.format(
             where_filter=where_filter,
+            orderby_sql=orderby_sql
         )
 
         placeholders = {
             "class_date": str(date),
             "week_day": weekday,
-            "orderby_sql": orderby_sql,
             "one_month_ago": one_month_ago,
             "two_months_ago": two_months_ago,
             "filter_id_sys_organization": self.filter_id_sys_organization,
