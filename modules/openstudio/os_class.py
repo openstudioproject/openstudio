@@ -484,6 +484,25 @@ class Class:
             return False
 
 
+    def has_info_mail(self):
+        """
+        Return True if the class has an info mail, else False
+        """
+        db = current.db
+
+        class_otc_mail = db.classes_otc_mail(classes_id=self.clsID, ClassDate=self.date)
+        class_mail = db.classes_mail(classes_id=self.clsID)
+
+        if class_otc_mail:
+            if class_otc_mail.MailContent:
+                return True
+        elif class_mail:
+            if class_mail.MailContent:
+                return True
+
+        return False
+
+
     def has_recurring_reservation_spaces(self):
         """
         Check whether a class has space for more recurring reservations

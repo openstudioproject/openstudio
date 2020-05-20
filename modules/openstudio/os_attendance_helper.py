@@ -310,7 +310,7 @@ class AttendanceHelper:
                                               show_notes=True,
                                               show_booking_time=True,
                                               show_subscriptions=True,
-                                              show_online_booking_resend_info=False,
+                                              show_booking_resend_info=False,
                                               manage_checkin=True):
             """
                 :param clsID: db.classes.id
@@ -477,24 +477,6 @@ class AttendanceHelper:
                         td_labels.append(' ')
                         td_labels.append(os_gui.get_label('info', T('Online')))
 
-                        # Add (re) send info mail display & link
-                        if show_online_booking_resend_info:
-                            link_text = T('Send')
-                            if row.classes_attendance.SentInfoMail:
-                                link_text = T('Resend')
-                            resend_link = A(os_gui.get_fa_icon('fa-envelope-o'), ' ',
-                                            link_text, ' ', T('info mail'),
-                                            _href=URL('classes', 'attendance_resend_info_mail',
-                                                      vars={'clattID':row.classes_attendance.id}))
-
-                            resend = DIV(
-                                BR(),
-                                resend_link,
-                                _class="small_font"
-                            )
-                            td_labels.append(resend)
-
-
                 except AttributeError:
                     print("uh oh...")
                     pass
@@ -516,7 +498,21 @@ class AttendanceHelper:
                                           _class='vsmall_font grey'))
 
 
+                # Add (re) send info mail display & link
+                if show_booking_resend_info and class_has_info_mail:
+                    link_text = T('Send')
+                    if row.classes_attendance.SentInfoMail:
+                        link_text = T('Resend')
+                    resend_link = A(os_gui.get_fa_icon('fa-envelope-o'), ' ',
+                                    link_text, ' ', T('info mail'),
+                                    _href=URL('classes', 'attendance_resend_info_mail',
+                                              vars={'clattID':row.classes_attendance.id}))
 
+                    resend = DIV(
+                        resend_link,
+                        _class="small_font"
+                    )
+                    td_labels.append(resend)
 
                 ##
                 # Invoice for drop in or trial class
@@ -578,6 +574,7 @@ class AttendanceHelper:
             # Start main function
             ##
             from .os_customer import Customer
+            from .os_class import Class
             from .os_invoices import Invoices
 
             T = current.T
@@ -585,6 +582,11 @@ class AttendanceHelper:
             auth = current.auth
             os_gui = current.globalenv['os_gui']
             DATE_FORMAT = current.DATE_FORMAT
+            cls = Class(clsID, date)
+            class_has_info_mail = cls.has_info_mail()
+
+            print("has_info_mail")
+            print(class_has_info_mail)
 
             modals = DIV()
 
