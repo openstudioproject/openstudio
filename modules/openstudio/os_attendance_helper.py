@@ -585,9 +585,6 @@ class AttendanceHelper:
             cls = Class(clsID, date)
             class_has_info_mail = cls.has_info_mail()
 
-            print("has_info_mail")
-            print(class_has_info_mail)
-
             modals = DIV()
 
             cls = db.classes(clsID)
