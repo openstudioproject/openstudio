@@ -33,7 +33,6 @@ class Class:
         else:
             date = self.date.strftime(DATE_FORMAT)
 
-
         record = self.cls
         location = db.school_locations[record.school_locations_id].Name
         classtype = db.school_classtypes[record.school_classtypes_id].Name
@@ -682,7 +681,6 @@ class Class:
             auth_teacher_id = auth_teacher_id,
             auth_teacher_id2 = auth_teacher_id2
         )
-
 
 
     def get_teacher_payment(self):

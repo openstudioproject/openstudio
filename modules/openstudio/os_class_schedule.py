@@ -839,19 +839,30 @@ class ClassSchedule:
 
         placeholders = {
             "class_date": str(date),
-            "week_day": weekday,
-            "one_month_ago": one_month_ago,
-            "two_months_ago": two_months_ago,
-            "filter_id_sys_organization": self.filter_id_sys_organization,
-            "filter_id_school_classtype": self.filter_id_school_classtype,
-            "filter_id_school_level": self.filter_id_school_level,
-            "filter_id_school_location": self.filter_id_school_location,
-            "filter_id_teacher": self.filter_id_teacher,
-            "filter_starttime_from": self.filter_starttime_from
+            "week_day": str(weekday),
+            "one_month_ago": str(one_month_ago),
+            "two_months_ago": str(two_months_ago),
         }
+
+        # Don't include any values in placeholders that aren't set
+        # Prevent any PyDAL references from reaching pymysql by converting all params to string
+        if self.filter_id_sys_organization:
+            placeholders["filter_id_sys_organization"] = str(self.filter_id_sys_organization)
+        if self.filter_id_school_classtype:
+            placeholders['filter_id_school_classtype'] = str(self.filter_id_school_classtype)
+        if self.filter_id_school_level:
+            placeholders['filter_id_school_level'] = str(self.filter_id_school_level)
+        if self.filter_id_school_location:
+            placeholders['filter_id_school_location'] = str(self.filter_id_school_location)
+        if self.filter_id_teacher:
+            placeholders['filter_id_teacher'] = str(self.filter_id_teacher)
+        if self.filter_starttime_from:
+            placeholders['filter_starttime_from'] = str(self.filter_starttime_from)
+
 
         if not web2pytest.is_running_under_test(request, request.application):
             rows = db.executesql(query, fields=fields, placeholders=placeholders)
+            # print(db._lastsql[0])
         else:
             # Pre-format string for SQLite, as it has a different parameter schema than MySQL
             placeholders['class_date'] = '"' + placeholders['class_date'] + '"'
