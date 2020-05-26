@@ -862,7 +862,6 @@ class ClassSchedule:
 
         if not web2pytest.is_running_under_test(request, request.application):
             rows = db.executesql(query, fields=fields, placeholders=placeholders)
-            # print(db._lastsql[0])
         else:
             # Pre-format string for SQLite, as it has a different parameter schema than MySQL
             placeholders['class_date'] = '"' + placeholders['class_date'] + '"'
