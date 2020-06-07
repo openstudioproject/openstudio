@@ -3304,6 +3304,9 @@ def define_classes_subteachers():
         )
 
 def define_classes_reservation():
+    """
+    Used for enrollments
+    """
     db.define_table('classes_reservation',
         Field('auth_customer_id', db.auth_user, required=True,
             readable=False,
