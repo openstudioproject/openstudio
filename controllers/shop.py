@@ -2383,10 +2383,12 @@ def classes_book_options():
     from openstudio.os_attendance_helper import AttendanceHelper
     from openstudio.os_class import Class
     from openstudio.os_customer import Customer
+    from openstudio.os_gui import OsGui
 
     response.title= T('Shop')
     response.subtitle = T('Book class')
     response.view = 'shop/index.html'
+    os_gui = OsGui()
 
     features = db.customers_shop_features(1)
     if not features.Classes:
@@ -2400,7 +2402,6 @@ def classes_book_options():
 
     # Get class data and populate info content
     class_header = class_book_get_class_header(clsID, date)
-
     customer = Customer(auth.user.id)
 
     content = DIV(H2(XML(class_header), _class='center'), BR(), H4(T('Booking options for this class')), _class='center')
@@ -2433,6 +2434,13 @@ def classes_book_options():
     # Check if the class isn't booked yet
     if cls.is_booked_by_customer(auth.user.id):
         content.append(DIV(B(T("You've already booked this class"))))
+        return dict(content=content, back=back)
+
+    if cls.get_full():
+        content.append(DIV(B(T("This class is fully booked."))))
+        content.append(BR())
+        content.append(A(os_gui.get_fa_icon('fa-arrow-left'), ' ', T("Choose another class"),
+                         _href="/shop/classes"))
         return dict(content=content, back=back)
 
     ##

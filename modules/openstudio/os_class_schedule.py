@@ -630,6 +630,15 @@ class ClassSchedule:
         if available_spaces < 1:
             available_spaces = 0
 
+        # if int(row.classes.id == 351):
+        #     print("Class spaces")
+        #     print(row.classes.id)
+        #     print("total: %s" %total_spaces)
+        #     print("Attendance: %s" % attendance)
+        #     print("online: %s" % online_spaces)
+        #     print("Available %s" % available_spaces)
+        #     print("############")
+
         ## Enable code below for debugging
         # print '### clsID' + unicode(row.classes.id)
         # print spaces
