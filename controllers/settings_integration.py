@@ -14,6 +14,9 @@ def integration_get_menu(page):
         ['mollie',
          T('Mollie'),
          URL('mollie')],
+        ['recaptcha',
+         T('reCAPTCHA'),
+         URL('recaptcha')],
     ]
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
@@ -145,5 +148,75 @@ def mollie():
     menu = integration_get_menu(request.function)
 
     return dict(content=DIV(mollie_signup, form),
+                menu=menu,
+                save=submit)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
+def recaptcha():
+    """
+        Page to set Mollie website profile
+    """
+    response.title = T("Settings")
+    response.subtitle = T("Integration")
+    response.view = 'general/tabs_menu.html'
+
+    recaptcha_enabled = get_sys_property('recaptcha_enabled')
+    recaptcha_site_key = get_sys_property('recaptcha_site_key')
+    recaptcha_secret_key = get_sys_property('recaptcha_secret_key')
+
+    form = SQLFORM.factory(
+        Field('recaptcha_enabled', 'boolean',
+              default=recaptcha_enabled,
+              label=T("Use reCAPTCHA for login, password reset and user account creation forms")),
+        Field('recaptcha_site_key',
+              default=recaptcha_site_key,
+              label=T("Site key")),
+        Field('recaptcha_secret_key',
+              default=recaptcha_secret_key,
+              label=T('Secret key')),
+        submit_button=T("Save"),
+        formstyle='bootstrap3_stacked',
+        separator=' ')
+
+    form_id = "MainForm"
+    form_element = form.element('form')
+    form['_id'] = form_id
+
+    elements = form.elements('input, select, textarea')
+    for element in elements:
+        element['_form'] = form_id
+
+    submit = form.element('input[type=submit]')
+
+    if form.accepts(request.vars, session):
+        # check payment provider and profile id
+        vars = [
+            'recaptcha_enabled',
+            'recaptcha_site_key',
+            'recaptcha_secret_key'
+        ]
+        for var in vars:
+            value = request.vars[var]
+            set_sys_property(var, value)
+
+        # User feedback
+        session.flash = T('Saved')
+        # reload so the user sees how the values are stored in the db now
+        redirect(URL('recaptcha'))
+
+    info = ""
+    if not recaptcha_site_key:
+        info = DIV(
+            T("Sign up for you reCAPTCHA keys "),
+            A(T("here"),
+              _href="https://www.google.com/recaptcha/"
+            )
+        )
+
+    menu = integration_get_menu(request.function)
+
+    return dict(content=DIV(form, info),
                 menu=menu,
                 save=submit)
