@@ -149,13 +149,33 @@ def user():
     if 'register' in request.args:
         # Enforce strong passwords
         db.auth_user.password.requires.insert(0, IS_STRONG())
-        auth.settings.captcha = Recaptcha2(
-            request,
-            recaptcha_site_key,
-            recaptcha_secret_key,
-            error_message=T("Please verify you're not a robot")
-        )
-        form = auth()
+        recaptch2 = ""
+        if use_recaptcha:
+            auth.settings.captcha = Recaptcha2(
+                request,
+                recaptcha_site_key,
+                recaptcha_secret_key,
+                error_message=T("Please verify you're not a robot")
+            )
+            form = auth()
+            recaptcha2 = DIV(
+                BR(),
+                Recaptcha2(
+                    request,
+                    recaptcha_site_key,
+                    recaptcha_secret_key,
+                    error_message=T("Please verify you're not a robot")
+                ),
+                DIV(
+                    DIV(
+                        form.errors.get('captcha', ''),
+                        _class="error"
+                    ),
+                    _class="error-wrapper",
+                ),
+            )
+        else:
+            form = auth()
 
         register_title = T("Create your account")
         login_title = T("Already have an account?")
@@ -241,20 +261,7 @@ def user():
             location,
             SPAN(T('By creating an account I'), _class='bold'),
             accept_ul,
-            BR(),
-            Recaptcha2(
-                request,
-                recaptcha_site_key,
-                recaptcha_secret_key,
-                error_message=T("Please verify you're not a robot")
-            ),
-            DIV(
-                DIV(
-                    form.errors.get('captcha', ''),
-                    _class="error"
-                ),
-                _class="error-wrapper",
-            ),
+            recaptcha2,
             BR(),
             A(T('Cancel'),
               _href=URL(args='login'),
