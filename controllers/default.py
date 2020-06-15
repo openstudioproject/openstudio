@@ -275,39 +275,11 @@ def user():
     # set logo
     logo_login = user_get_logo_login()
 
-
     if 'logout' in request.args or 'not_authorized' in request.args or 'verify_email' in request.args:
         form = auth()
 
-
     if 'login' in request.args:
-        recaptcha2 = ""
-        if use_recaptcha:
-            auth.settings.captcha = Recaptcha2(
-                request,
-                recaptcha_site_key,
-                recaptcha_secret_key,
-                error_message=T("Please verify you're not a robot")
-            )
-            form = auth()
-            recaptcha2 = DIV(
-                BR(),
-                Recaptcha2(
-                    request,
-                    recaptcha_site_key,
-                    recaptcha_secret_key,
-                    error_message=T("Please verify you're not a robot")
-                ),
-                DIV(
-                    DIV(
-                        form.errors.get('captcha', ''),
-                        _class="error"
-                    ),
-                    _class="error-wrapper",
-                ),
-            )
-        else:
-            form = auth()
+        form = auth()
 
         response.view = 'default/user_login.html'
         login_title = T("Log in")
@@ -333,8 +305,6 @@ def user():
                 _class='form-group has-feedback'),
             LABEL(form.custom.widget.remember_me, ' ', form.custom.label.remember_me,
                   _id='label_remember'),
-            recaptcha2,
-            BR(),
             DIV(form.custom.submit, _class='pull-right'),
             form.custom.end,
             )

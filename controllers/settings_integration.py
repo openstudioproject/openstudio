@@ -169,7 +169,7 @@ def recaptcha():
     form = SQLFORM.factory(
         Field('recaptcha_enabled', 'boolean',
               default=recaptcha_enabled,
-              label=T("Use reCAPTCHA for login, password reset and user account creation forms")),
+              label=T("Use reCAPTCHA for user registration and password reset forms")),
         Field('recaptcha_site_key',
               default=recaptcha_site_key,
               label=T("Site key")),
