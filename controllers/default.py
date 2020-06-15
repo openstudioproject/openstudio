@@ -8,6 +8,8 @@
 ## - call exposes all registered services (none by default)
 #########################################################################
 
+from gluon.tools import Recaptcha2
+
 from general_helpers import User_helpers
 from general_helpers import max_string_length
 
@@ -88,6 +90,14 @@ def user():
     auth.settings.register_onaccept.append(user_register_log_acceptance)
     auth.settings.login_onaccept.append(user_set_last_login)
 
+    # Fetch reCAPTCHA settings
+    recaptcha_enabled = get_sys_property('recaptcha_enabled')
+    recaptcha_site_key = get_sys_property('recaptcha_site_key')
+    recaptcha_secret_key = get_sys_property('recaptcha_secret_key')
+    use_recaptcha = False
+    if recaptcha_enabled == "on" and recaptcha_site_key and recaptcha_secret_key:
+        use_recaptcha = True
+
     ## Create auth form
     if session.show_location: # check if we need a requirement for the school_locations_id field for customers
         loc_query = (db.school_locations.AllowAPI == True)
@@ -139,6 +149,12 @@ def user():
     if 'register' in request.args:
         # Enforce strong passwords
         db.auth_user.password.requires.insert(0, IS_STRONG())
+        auth.settings.captcha = Recaptcha2(
+            request,
+            recaptcha_site_key,
+            recaptcha_secret_key
+        )
+
         form = auth()
 
         register_title = T("Create your account")
@@ -225,6 +241,20 @@ def user():
             location,
             SPAN(T('By creating an account I'), _class='bold'),
             accept_ul,
+            BR(),
+            Recaptcha2(
+                request,
+                recaptcha_site_key,
+                recaptcha_secret_key,
+                error_message=T("Please verify you're not a robot")
+            ),
+            DIV(
+                DIV(
+                    form.errors.get('captcha', ''),
+                    _class="error"
+                ),
+                _class="error-wrapper",
+            ),
             BR(),
             A(T('Cancel'),
               _href=URL(args='login'),
