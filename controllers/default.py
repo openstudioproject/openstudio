@@ -152,9 +152,9 @@ def user():
         auth.settings.captcha = Recaptcha2(
             request,
             recaptcha_site_key,
-            recaptcha_secret_key
+            recaptcha_secret_key,
+            error_message=T("Please verify you're not a robot")
         )
-
         form = auth()
 
         register_title = T("Create your account")
