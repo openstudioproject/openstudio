@@ -1758,7 +1758,7 @@ def validate_cart_create_order(cuID, pmID, items):
         if item['item_type'] == 'product':
             order.order_item_add_product_variant(item['data']['id'], item['quantity'])
         elif item['item_type'] == 'classcard':
-            if item['checkin_classes_id']:
+            if item.get('checkin_classes_id', None):
                 order.order_item_add_classcard(
                     item['data']['id'],
                     classes_id = item['checkin_classes_id'],
