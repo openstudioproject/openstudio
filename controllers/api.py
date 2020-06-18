@@ -318,6 +318,10 @@ def schedule_get_days():
     """
 
     """
+    ## allow all domains to request this resource
+    ## Only enable when you really need it, server side implementation is recommended.
+    response.headers["Access-Control-Allow-Origin"] = "*"
+
     # forget session
     session.forget(response)
     # check extension
@@ -553,12 +557,6 @@ def schedule_get_days():
                             db.school_levels.Name,
                             cache=caching).as_list()
     data['levels'] = rows
-
-
-    ## allow all domains to request this resource
-    ## Only enable when you really need it, server side implementation is recommended.
-    # response.headers["Access-Control-Allow-Origin"] = "*"
-
 
     return dict(data=data)
 
