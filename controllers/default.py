@@ -8,6 +8,8 @@
 ## - call exposes all registered services (none by default)
 #########################################################################
 
+from gluon.tools import Recaptcha2
+
 from general_helpers import User_helpers
 from general_helpers import max_string_length
 
@@ -88,6 +90,14 @@ def user():
     auth.settings.register_onaccept.append(user_register_log_acceptance)
     auth.settings.login_onaccept.append(user_set_last_login)
 
+    # Fetch reCAPTCHA settings
+    recaptcha_enabled = get_sys_property('recaptcha_enabled')
+    recaptcha_site_key = get_sys_property('recaptcha_site_key')
+    recaptcha_secret_key = get_sys_property('recaptcha_secret_key')
+    use_recaptcha = False
+    if recaptcha_enabled == "on" and recaptcha_site_key and recaptcha_secret_key:
+        use_recaptcha = True
+
     ## Create auth form
     if session.show_location: # check if we need a requirement for the school_locations_id field for customers
         loc_query = (db.school_locations.AllowAPI == True)
@@ -139,7 +149,33 @@ def user():
     if 'register' in request.args:
         # Enforce strong passwords
         db.auth_user.password.requires.insert(0, IS_STRONG())
-        form = auth()
+        recaptcha2 = ""
+        if use_recaptcha:
+            auth.settings.captcha = Recaptcha2(
+                request,
+                recaptcha_site_key,
+                recaptcha_secret_key,
+                error_message=T("Please verify you're not a robot")
+            )
+            form = auth()
+            recaptcha2 = DIV(
+                BR(),
+                Recaptcha2(
+                    request,
+                    recaptcha_site_key,
+                    recaptcha_secret_key,
+                    error_message=T("Please verify you're not a robot")
+                ),
+                DIV(
+                    DIV(
+                        form.errors.get('captcha', ''),
+                        _class="error"
+                    ),
+                    _class="error-wrapper",
+                ),
+            )
+        else:
+            form = auth()
 
         register_title = T("Create your account")
         login_title = T("Already have an account?")
@@ -225,6 +261,7 @@ def user():
             location,
             SPAN(T('By creating an account I'), _class='bold'),
             accept_ul,
+            recaptcha2,
             BR(),
             A(T('Cancel'),
               _href=URL(args='login'),
@@ -238,10 +275,8 @@ def user():
     # set logo
     logo_login = user_get_logo_login()
 
-
     if 'logout' in request.args or 'not_authorized' in request.args or 'verify_email' in request.args:
         form = auth()
-
 
     if 'login' in request.args:
         form = auth()
@@ -292,7 +327,34 @@ def user():
 
 
     if 'request_reset_password' in request.args:
-        form = auth()
+        recaptcha2 = ""
+        if use_recaptcha:
+            auth.settings.captcha = Recaptcha2(
+                request,
+                recaptcha_site_key,
+                recaptcha_secret_key,
+                error_message=T("Please verify you're not a robot")
+            )
+            form = auth()
+            recaptcha2 = DIV(
+                BR(),
+                Recaptcha2(
+                    request,
+                    recaptcha_site_key,
+                    recaptcha_secret_key,
+                    error_message=T("Please verify you're not a robot")
+                ),
+                DIV(
+                    DIV(
+                        form.errors.get('captcha', ''),
+                        _class="error"
+                    ),
+                    _class="error-wrapper",
+                ),
+            )
+        else:
+            form = auth()
+
         response.view = 'default/user_login.html'
 
         cancel = A(T("Cancel"),
@@ -301,6 +363,7 @@ def user():
         form = DIV(
             form.custom.begin,
             DIV(form.custom.widget.email, _class='form-group'),
+            recaptcha2, BR(),
             DIV(form.custom.submit, _class='pull-right'),
             cancel,
             form.custom.end)
@@ -325,7 +388,33 @@ def user():
     if 'reset_password' in request.args:
         # Enforce strong passwords
         db.auth_user.password.requires.insert(0, IS_STRONG())
-        form = auth()
+        recaptcha2 = ""
+        if use_recaptcha:
+            auth.settings.captcha = Recaptcha2(
+                request,
+                recaptcha_site_key,
+                recaptcha_secret_key,
+                error_message=T("Please verify you're not a robot")
+            )
+            form = auth()
+            recaptcha2 = DIV(
+                BR(),
+                Recaptcha2(
+                    request,
+                    recaptcha_site_key,
+                    recaptcha_secret_key,
+                    error_message=T("Please verify you're not a robot")
+                ),
+                DIV(
+                    DIV(
+                        form.errors.get('captcha', ''),
+                        _class="error"
+                    ),
+                    _class="error-wrapper",
+                ),
+            )
+        else:
+            form = auth()
 
         response.view = 'default/user_login.html'
 
@@ -338,6 +427,8 @@ def user():
             form.custom.begin,
             os_gui.get_form_group(form.custom.label.new_password, form.custom.widget.new_password),
             os_gui.get_form_group(form.custom.label.new_password2, form.custom.widget.new_password2),
+            recaptcha2,
+            BR(),
             form.custom.submit,
             form.custom.end)
 
