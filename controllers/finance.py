@@ -419,7 +419,6 @@ def batch_content():
     table = TABLE(
         TR(TH(T('Line')),
            TH(T('CuID'), _title=T("Customers ID")),
-           TH(T('SuID'), _title=T("Subscription ID")),
            TH(T('AccountHolder')),
            TH(T('AccountNR')),
            TH(T('BIC')),
@@ -446,11 +445,6 @@ def batch_content():
         pbiID = item['id']
 
         cuID = item['cuID']
-        csID = item['csID']
-        cs_link = A(csID,
-                 _href=URL('customers',
-                           'subscriptions', vars={'cuID':cuID}),
-                 _title=T("Customer subscription ID"))
         cu_link = A(cuID,
                     _href=URL('customers', 'edit', args=cuID),
                     _title=T('Customers ID'))
@@ -461,7 +455,6 @@ def batch_content():
         tr = TR(
             TD(item['line']),
             TD(cu_link),
-            TD(cs_link),
             TD(item['account_holder']),
             TD(item['account_number']),
             TD(item['bic']),
@@ -878,7 +871,7 @@ def generate_batch_items_invoices(pbID,
         db.payment_batches_items.insert(
             payment_batches_id = pbID,
             auth_customer_id = cuID,
-            customers_subscriptions_id = csID,
+            customers_subscriptions_id = csID, # This field is no longer used due to compatibility issues with linking invoice items to subscriptions (sometimes duplicates)
             invoices_id = iID,
             AccountHolder = row.customers_payment_info.AccountHolder,
             BIC = bic,
