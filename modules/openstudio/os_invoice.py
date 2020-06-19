@@ -904,7 +904,7 @@ class Invoice:
                     Description = T("Paid in invoice ") + self.invoice.InvoiceID
                 )
 
-
+                self.link_item_to_customer_subscription(csID, iiID2)
         ##
         # Check if a registration fee should be added
         # ; Add fee if a registration fee has ever been paid
