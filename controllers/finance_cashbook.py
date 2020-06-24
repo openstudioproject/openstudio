@@ -667,8 +667,8 @@ def get_debit_classes(date, list_type='balance'):
             )
 
         teachers = cls['Teachers']
-        if not 'teacher' in teachers:
-            teacher = T("Teacher not found")
+        if not 'teacher' in teachers or cls['Teachers']['error']:
+            teacher = T("No teacher")
         else:
             sub = T(" (sub)") if teachers['teacher_sub'] else ""
             teacher = teachers['teacher'].display_name + sub
