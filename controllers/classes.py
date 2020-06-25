@@ -945,8 +945,6 @@ def class_delete():
             cache_clear_classschedule()
 
     session.flash = flash_msg
-
-
     redirect(URL('schedule'))
 
 

@@ -193,6 +193,7 @@ def webhook_order_paid_get_bank_info_from_mollie(cuID, payment):
     # Insert payment details if none are found yet
     cpiID = db.customers_payment_info.update_or_insert(
         db.customers_payment_info.auth_customer_id == cuID,
+        auth_customer_id = cuID,
         payment_methods_id = 3, # Direct debit
         AccountNumber = account_number,
         AccountHolder = account_holder,
