@@ -684,7 +684,7 @@ permissions = ['create', 'read', 'update', 'delete', 'select']
 
 def define_sys_accounting():
     db.define_table('sys_accounting',
-        Field('auth_user_id', db.auth_user),
+        Field('auth_user_id', db.auth_user, on_delete="SET NULL"),
         Field('table_name'),
         Field('record_id'),
         Field('record_data', 'text'),
