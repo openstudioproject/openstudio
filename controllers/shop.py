@@ -2344,11 +2344,11 @@ def class_book_options_get_url_next_weekday(clsID, date, isoweekday):
     from openstudio.os_class import Class
 
     # Check if today's class is taking place, if not, go to next week.
-    cls_today = Class(clsID, TODAY_LOCAL)
+    cls_today = Class(clsID, date)
     if cls_today.is_taking_place():
-        next_class = TODAY_LOCAL
+        next_class = date
     else:
-        next_class = next_weekday(TODAY_LOCAL, isoweekday)
+        next_class = next_weekday(date, isoweekday)
 
     return URL('classes_book_options', vars={'clsID':clsID,
                                              'date':next_class.strftime(DATE_FORMAT)})
