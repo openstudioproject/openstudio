@@ -654,8 +654,10 @@ class Class:
             message = message,
             teacher = teacher,
             teacher_sub = teacher_sub,
+            teacher_role = teacher_role,
             teacher2 = teacher2,
-            teacher2_sub = teacher2_sub
+            teacher2_sub = teacher2_sub,
+            teacher2_role = teacher2_role,
         )
 
 
