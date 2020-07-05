@@ -765,7 +765,7 @@ class Order:
                         row.customers_orders_items.ClassDate,
                         online_booking=False,
                         credits_hard_limit=False,
-                        booking_status="attending"
+                        booking_status="booked"
                     )
                 elif attendance_type == 3 and ccdID:
                     # classcard checkin
@@ -775,7 +775,7 @@ class Order:
                         ccdID,
                         row.customers_orders_items.ClassDate,
                         online_booking=False,
-                        booking_status="attending"
+                        booking_status="booked"
                     )
 
                 if result:
