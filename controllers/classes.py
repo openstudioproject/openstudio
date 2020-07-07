@@ -2738,7 +2738,6 @@ def attendance():
         show_booking_resend_info=True
     )
 
-
     add_customer = ''
     customers = Customers()
 
@@ -2833,7 +2832,8 @@ def attendance():
 
 
     if not attendance_get_count_attending(clsID, date, formatted=False) and \
-       not attendance_get_count_booked(clsID, date, formatted=False):
+       not attendance_get_count_booked(clsID, date, formatted=False) and \
+       not attendance_get_count_other_statuses(clsID, date, formatted=False):
         content = DIV(
             search_results,
             DIV(
@@ -3007,6 +3007,28 @@ def attendance_get_count_booked(clsID, date, formatted=True):
     query = (db.classes_attendance.classes_id == clsID) & \
             (db.classes_attendance.ClassDate == date) & \
             (db.classes_attendance.BookingStatus == 'booked')
+    count = db(query).count()
+
+
+    if not formatted:
+        return count
+    else:
+        count_text = 'Customers booked'
+        if count == 1:
+            count_text = 'Customer booked'
+
+        return SPAN(count, ' ', count_text, ' - ', _class='grey')
+
+def attendance_get_count_other_statuses(clsID, date, formatted=True):
+    """
+        :param clsID: db.classes.id
+        :param date: date of class
+        :return: SPAN with count of attending customers
+    """
+    query = (db.classes_attendance.classes_id == clsID) & \
+            (db.classes_attendance.ClassDate == date) & \
+            ((db.classes_attendance.BookingStatus != 'booked') |
+             (db.classes_attendance.BookingStatus != 'attending'))
     count = db(query).count()
 
 

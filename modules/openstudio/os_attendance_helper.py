@@ -601,7 +601,7 @@ class AttendanceHelper:
             table = TABLE(header, _class='table table-striped table-hover')
 
             for i, row in enumerate(rows):
-                #print row
+                #print(row)
                 repr_row = list(rows[i:i+1].render())[0]
                 add_table_row(row,
                               repr_row,
