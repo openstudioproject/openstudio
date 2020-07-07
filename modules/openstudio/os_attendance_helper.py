@@ -392,11 +392,11 @@ class AttendanceHelper:
                         menu_class='btn-group pull-right')
 
                     # btn = DIV(_class='btn-group pull-right')
-                    attending = SPAN(_class='glyphicon glyphicon-ok green very_big_check')
+                    attending = SPAN(_class='glyphicon glyphicon-ok green very_big_check hidden-xs')
 
 
                 else:
-                    attending = SPAN(_class='glyphicon glyphicon-ok grey-light very_big_check')
+                    attending = SPAN(_class='glyphicon glyphicon-ok grey-light very_big_check hidden-xs')
                     btn = ''
                     # Check update permission
                     if (auth.has_membership(group_id='Admins') or
@@ -453,7 +453,7 @@ class AttendanceHelper:
                                 _class='os-customer_image_td hidden-xs')
 
 
-                td_labels = TD(repr_row.classes_attendance.BookingStatus, _class='hidden-xs')
+                td_labels = TD(repr_row.classes_attendance.BookingStatus, _class='')
                 if reservations and row.classes_reservation.id:
                     date_formatted = date.strftime(DATE_FORMAT)
                     crID = row.classes_reservation.id
@@ -595,7 +595,8 @@ class AttendanceHelper:
                               TH(T('Status')), # Booking Status [and Enrollment]
                               TH(),
                               TH(),
-                              TH()))
+                              TH(),
+                              _class='hidden-xs'))
 
             rows = self.get_attendance_rows(clsID, date)
             table = TABLE(header, _class='table table-striped table-hover')
