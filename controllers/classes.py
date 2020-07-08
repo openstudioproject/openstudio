@@ -2431,7 +2431,7 @@ def reservations_get_spaces(clsID, date):
     cls = db.classes(clsID)
     spaces = cls.Maxstudents
 
-    spaces_recur = cls.MaxReservationsRecurring or T('Not set')
+    spaces_recur = cls.MaxReservationsRecurring or 0
 
     res_recur = reservations['recurring']
     available = spaces - res_recur
@@ -2440,17 +2440,18 @@ def reservations_get_spaces(clsID, date):
         THEAD(TR(TH(T('Spaces')),
            TH(T('Enrollments')),
            TH(T('Available')))),
-        TR(TD(spaces_recur),
+        TR(TD(spaces_recur or T('Not set')),
            TD(res_recur),
            TD(available)),
         _class='table table-condensed'
     )
 
     warning = ''
-    if res_recur > spaces_recur and not cls.MaxReservationsRecurring is None:
-        warning = os_gui.get_alert('danger',
-            SPAN(B(T('Warning')), BR(),
-                 T('Enrollments exceed available spaces')))
+    if spaces_recur:
+        if res_recur > spaces_recur and not cls.MaxReservationsRecurring is None:
+            warning = os_gui.get_alert('danger',
+                SPAN(B(T('Warning')), BR(),
+                     T('Enrollments exceed available spaces')))
 
     spaces = DIV(warning,
                  table_summary,
