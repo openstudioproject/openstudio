@@ -1009,7 +1009,9 @@ ORDER BY ag.Name
 
         query = (db.classes_attendance.ClassDate >= date_from) & \
                 (db.classes_attendance.ClassDate <= date_until) & \
-                (db.classes_attendance.customers_classcards_id != None)
+                (db.classes_attendance.customers_classcards_id != None) & \
+                ((db.classes_attendance.BookingStatus == "booked") |
+                 (db.classes_attendance.BookingStatus == "attending"))
 
         rows = db(query).select(
             db.school_classcards.id,
@@ -1052,7 +1054,9 @@ ORDER BY ag.Name
 
         query = (db.classes_attendance.ClassDate >= date_from) & \
                 (db.classes_attendance.ClassDate <= date_until) & \
-                (db.classes_attendance.customers_subscriptions_id != None)
+                (db.classes_attendance.customers_subscriptions_id != None) & \
+                ((db.classes_attendance.BookingStatus == "booked") |
+                 (db.classes_attendance.BookingStatus == "attending"))
 
         rows = db(query).select(
             db.school_subscriptions.id,
