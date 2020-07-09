@@ -398,6 +398,7 @@ class AttendanceHelper:
                 else:
                     attending = SPAN(_class='glyphicon glyphicon-ok grey-light very_big_check hidden-xs')
                     btn = ''
+                    links = []
                     # Check update permission
                     if (auth.has_membership(group_id='Admins') or
                         auth.has_permission('update', 'classes_attendance')):
