@@ -956,11 +956,6 @@ ORDER BY ag.Name
         """
         db = current.db
 
-        if date_from == date_until:
-            # This is required because we're comparing to a date time field
-            # For a DT field, the format becomes yyyy-mm-dd 00:00:00 when only supplying a date
-            date_until = date_until + datetime.timedelta(days=1)
-
         sum_paid_using_mollie = 0
 
         left = [
@@ -971,7 +966,7 @@ ORDER BY ag.Name
         ]
 
         query = (db.invoices_payments.PaymentDate >= date_from) & \
-                (db.invoices_payments.PaymentDate < date_until) & \
+                (db.invoices_payments.PaymentDate <= date_until) & \
                 (db.invoices_payments.payment_methods_id == 100) # method 100 = Mollie
 
         sum = db.invoices_payments.Amount.sum()
