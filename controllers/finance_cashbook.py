@@ -656,13 +656,15 @@ def get_debit_classes(date, list_type='balance'):
 
     table = TABLE(header, _class='table table-striped table-hover')
     for cls in revenue['data']:
+        class_vars = {"clsID": cls["ClassesID"], "date": date.strftime(DATE_FORMAT)}
+        
         if list_type == 'balance':
             amount = represent_decimal_as_amount(cls['Balance'])
         elif list_type == 'teacher_payments':
             amount = A(
                 represent_decimal_as_amount(cls['TeacherPayment']),
                 _href=URL("classes", "revenue",
-                          vars={"clsID": cls["ClassesID"], "date": date.strftime(DATE_FORMAT)}),
+                          vars=class_vars),
                 _target="_blank"
             )
 
@@ -681,7 +683,9 @@ def get_debit_classes(date, list_type='balance'):
                     _class="text-muted text_small"),
                     _title=teacher
                ),
-            TD(cls['CountAttendance']),
+            TD(A(cls['CountAttendance'],
+                 _href=URL("classes", "attendance", vars=class_vars),
+                 _target="_blank")),
             TD(amount)
         )
 
