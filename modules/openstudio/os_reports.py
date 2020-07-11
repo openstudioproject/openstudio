@@ -971,7 +971,7 @@ ORDER BY ag.Name
         ]
 
         query = (db.invoices_payments.PaymentDate >= date_from) & \
-                (db.invoices_payments.PaymentDate <= date_until) & \
+                (db.invoices_payments.PaymentDate < date_until) & \
                 (db.invoices_payments.payment_methods_id == 100) # method 100 = Mollie
 
         sum = db.invoices_payments.Amount.sum()
