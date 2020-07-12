@@ -117,6 +117,10 @@ def get_debit(date):
     sold_cards = get_debit_classcards(date)
     total += sold_cards['total'] or 0
 
+    # Sold drop-in using mollie
+    sold_dropin_using_mollie = get_debit_mollie_dropin(date)
+    total += sold_dropin_using_mollie.get(total, 0)
+
     # Sold products
     sold_products = get_debit_sales_summary(date)
     total += Decimal(sold_products['total'] or 0)
@@ -138,6 +142,7 @@ def get_debit(date):
         sold_memberships['box'],
         sold_subscriptions['box'],
         sold_cards['box'],
+        sold_dropin_using_mollie.get('box', ""),
         sold_products['box'],
         sold_custom_products['box'],
         teacher_payments['box'],
@@ -702,6 +707,65 @@ def get_debit_classes(date, list_type='balance'):
 
     box = DIV(
         DIV(H3(box_title, _class='box-title'),
+            DIV(A(I(_class='fa fa-minus'),
+                _href='#',
+                _class='btn btn-box-tool',
+                _title=T("Collapse"),
+                **{'_data-widget': 'collapse'}),
+                _class='box-tools pull-right'),
+            _class='box-header'),
+        DIV(table, _class='box-body no-padding'),
+        _class='box box-success',
+    )
+
+    return dict(
+        box = box,
+        total = total
+    )
+
+
+def get_debit_mollie_dropin(date):
+    """
+
+    :param date: datetime.date
+    :return:
+    """
+    from openstudio.os_reports import Reports
+
+    reports = Reports()
+
+    total = 0
+    count = db.invoices_payments.Amount.count()
+    rows = reports.get_day_mollie_dropin_classes_summary_day(date)
+
+    header = THEAD(TR(
+        TH(T("# Sold")),
+        TH(T("Price")),
+        TH(T("Total")),
+    ))
+
+    table = TABLE(header, _class='table table-striped table-hover')
+    for row in rows:
+        nr_sold = row[count]
+        row_total = row.invoices_payments.Amount * nr_sold
+
+        table.append(TR(
+            TD(nr_sold),
+            TD(represent_decimal_as_amount(row.invoices_payments.Amount)),
+            TD(represent_decimal_as_amount(row_total))
+        ))
+
+        total += row_total
+
+    # cards sold footer
+    table.append(TFOOT(TR(
+        TH(),
+        TH(T("Total")),
+        TH(represent_decimal_as_amount(total))
+    )))
+
+    box = DIV(
+        DIV(H3(T("Drop-in classes bought with Mollie"), _class='box-title'),
             DIV(A(I(_class='fa fa-minus'),
                 _href='#',
                 _class='btn btn-box-tool',

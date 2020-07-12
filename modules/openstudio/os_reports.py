@@ -154,6 +154,37 @@ class Reports:
         )
 
 
+    def get_day_mollie_dropin_classes_summary_day(self, date):
+        """
+        Returns summary of drop-in classes bought using mollie for a given date
+        :param: date: datetime.date
+        :return:
+        """
+        db = current.db
+
+        query = (db.invoices_payments.payment_methods_id == 100) & \
+                (db.invoices_payments.PaymentDate == date) & \
+                (db.invoices_items_classes_attendance.id != None)
+
+        left = [
+            db.invoices.on(db.invoices.id == db.invoices_payments.invoices_id),
+            db.invoices_items.on(db.invoices_items.invoices_id == db.invoices.id),
+            db.invoices_items_classes_attendance.on(db.invoices_items_classes_attendance.invoices_items_id ==
+                                                    db.invoices_items.id)
+        ]
+
+        count = db.invoices_payments.Amount.count()
+
+        rows = db(query).select(
+            db.invoices_payments.Amount,
+            count,
+            left=left,
+            groupby=db.invoices_payments.Amount
+        )
+
+        return rows
+
+
     def get_classes_revenue_summary_day(self, date):
         """
 
