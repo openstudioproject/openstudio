@@ -180,6 +180,10 @@ def get_credit(date):
     cards_used_classes = get_credit_classcards_used_classes_summary(date)
     total += cards_used_classes['total']
 
+    # Mollie drop-in classes taken
+    mollie_used_classes = get_credit_mollie_dropin_used_classes_summary(date)
+    total += mollie_used_classes['total']
+
     # Non-cash payments
     non_cash_payments = get_credit_shop_sales_not_paid_with_cash(date)
     total += non_cash_payments['total']
@@ -190,6 +194,7 @@ def get_credit(date):
         expenses['box'],
         subscriptions_used_classes['box'],
         cards_used_classes['box'],
+        mollie_used_classes['box'],
         non_cash_payments['box'],
         _class=' col-md-6'
     )
@@ -1079,6 +1084,66 @@ def get_debit_sales_summary_custom(date):
         total = total
     )
 
+
+def get_credit_mollie_dropin_used_classes_summary(date):
+    """
+
+    :param date: datetime.date
+    :return:
+    """
+    from general_helpers import max_string_length
+    from openstudio.os_reports import Reports
+
+    reports = Reports()
+
+    total = 0
+    count = db.invoices_payments.Amount.count()
+    rows = reports.get_day_mollie_dropin_classes_taken_summary_day(date)
+
+    header = THEAD(TR(
+        TH(T("Classes taken")),
+        TH(T("Class amount")),
+        TH(T("Total")),
+    ))
+
+    table = TABLE(header, _class='table table-striped table-hover')
+
+    for row in rows:
+        classes_taken = row[count]
+        row_total = row.invoices_payments.Amount * classes_taken
+
+        table.append(TR(
+            TD(classes_taken),
+            TD(represent_decimal_as_amount(row.invoices_payments.Amount)),
+            TD(represent_decimal_as_amount(row_total))
+        ))
+
+        total += row_total
+
+    # cards sold footer
+    table.append(TFOOT(TR(
+        TH(),
+        TH(T("Total")),
+        TH(represent_decimal_as_amount(total))
+    )))
+
+    box = DIV(
+        DIV(H3(T("Drop-in classes taken (bought with Mollie)"), _class='box-title'),
+            DIV(A(I(_class='fa fa-minus'),
+                _href='#',
+                _class='btn btn-box-tool',
+                _title=T("Collapse"),
+                **{'_data-widget': 'collapse'}),
+                _class='box-tools pull-right'),
+            _class='box-header'),
+        DIV(table, _class='box-body no-padding'),
+        _class='box box-danger',
+    )
+
+    return dict(
+        box = box,
+        total = total
+    )
 
 def get_credit_classcards_used_classes_summary(date):
     """

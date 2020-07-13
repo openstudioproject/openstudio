@@ -203,7 +203,7 @@ class Reports:
             db.invoices_items.on(db.invoices_items.invoices_id == db.invoices.id),
             db.invoices_items_classes_attendance.on(db.invoices_items_classes_attendance.invoices_items_id ==
                                                     db.invoices_items.id),
-            db.classes_attendance.on(db.invoices_items_classes_attendance.classes_attenance_id ==
+            db.classes_attendance.on(db.invoices_items_classes_attendance.classes_attendance_id ==
                                      db.classes_attendance.id)
         ]
 
