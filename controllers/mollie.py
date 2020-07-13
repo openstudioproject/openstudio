@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pytz
 
 from general_helpers import max_string_length
 from general_helpers import datestr_to_python
@@ -13,6 +14,17 @@ from decimal import Decimal, ROUND_HALF_UP
 
 from mollie.api.client import Client
 from mollie.api.error import Error as MollieError
+
+
+def _mollie_utc_datetime_to_local_date(mollie_utc_source_datetime):
+    """ Transform mollie UTC date to local date """
+
+    payment_datetime_utc = pytz.utc.localize(mollie_utc_source_datetime)
+    payment_datetime_local = payment_datetime_utc.astimezone(pytz.timezone(TIMEZONE))
+    payment_date_local = datetime.date(payment_datetime_local.year,
+                                       payment_datetime_local.month,
+                                       payment_datetime_local.day)
+    return payment_date_local
 
 
 def webhook():
@@ -49,9 +61,11 @@ def webhook():
             # product to the customer.
             #
             payment_amount = float(payment.amount['value'])
-            payment_date = datetime.datetime.strptime(payment.paid_at.split('+')[0],
-                                                      '%Y-%m-%dT%H:%M:%S').date()
-
+            payment_datetime_utc_source = datetime.datetime.strptime(
+                payment.paid_at.split('+')[0],
+                '%Y-%m-%dT%H:%M:%S'
+            )
+            payment_date = _mollie_utc_datetime_to_local_date(payment_datetime_utc_source)
 
             # Process refunds
             if payment.refunds:
@@ -128,8 +142,8 @@ def webhook_order_paid(coID,
         :param coID: db.customers_orders.id
         :return: None
     """
-    print('webhook order paid')
-    print(payment)
+    # print('webhook order paid')
+    # print(payment)
     order = Order(coID)
     result = order.deliver()
 
@@ -145,14 +159,13 @@ def webhook_order_paid(coID,
                 mollie_payment_id=mollie_payment_id
             )
 
-    #TODO: write this function
     if payment:
-        print("payment found")
+        # print("payment found")
         # Check for setting to do initial payment using mollie and
         # The following payments using direct debit
         if get_sys_property("shop_subscriptions_payment_method") == "mollie_directdebit":
             # Check for subscription id in order
-            print("correct sys property")
+            # print("correct sys property")
             subscription_found_in_order = False
             items = order.get_order_items_rows()
             for item in items:
@@ -160,8 +173,8 @@ def webhook_order_paid(coID,
                     subscription_found_in_order = True
                     break
 
-            print(payment)
-            print(subscription_found_in_order)
+            # print(payment)
+            # print(subscription_found_in_order)
 
             if subscription_found_in_order and payment.method == "ideal":
 
@@ -245,8 +258,9 @@ def webook_payment_is_paid_process_refunds(coID, iID, mollie_refunds):
         for refund in mollie_refunds['_embedded']['refunds']:
             refund_id = refund['id']
             amount = float(refund['settlementAmount']['value'])
-            refund_date = datetime.datetime.strptime(refund['createdAt'].split('+')[0],
-                                                     '%Y-%m-%dT%H:%M:%S').date()
+            refund_date_utc = datetime.datetime.strptime(refund['createdAt'].split('+')[0],
+                                                     '%Y-%m-%dT%H:%M:%S')
+            refund_date = _mollie_utc_datetime_to_local_date(refund_date_utc)
             try:
                 description = refund['description']
             except:
@@ -335,8 +349,9 @@ def webhook_payment_is_paid_process_chargeback(coID,
         for chargeback in mollie_chargebacks['_embedded']['chargebacks']:
             chargeback_id = chargeback['id']
             chargeback_amount = float(chargeback['settlementAmount']['value'])
-            chargeback_date = datetime.datetime.strptime(chargeback['createdAt'].split('+')[0],
-                                                         '%Y-%m-%dT%H:%M:%S').date()
+            chargeback_date_utc = datetime.datetime.strptime(chargeback['createdAt'].split('+')[0],
+                                                         '%Y-%m-%dT%H:%M:%S')
+            chargeback_date = _mollie_utc_datetime_to_local_date(chargeback_date_utc)
             try:
                 chargeback_details = "Failure reason: %s (Bank reason code: %s)" % (
                     mollie_payment['details']['bankReason'],
@@ -406,9 +421,9 @@ def test_webhook_invoice_chargeback():
         chargeback_id = request.vars['chargeback_id']
         chargeback_details = request.vars['chargeback_details']
 
-        print('cb_details')
-        print(request.vars)
-        print(chargeback_details)
+        # print('cb_details')
+        # print(request.vars)
+        # print(chargeback_details)
 
         webhook_invoice_chargeback(
             iID,
