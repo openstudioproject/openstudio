@@ -154,7 +154,7 @@ class Reports:
         )
 
 
-    def get_day_mollie_dropin_classes_summary_day(self, date):
+    def get_day_mollie_dropin_classes_sold_summary_day(self, date):
         """
         Returns summary of drop-in classes bought using mollie for a given date
         :param: date: datetime.date
@@ -164,13 +164,47 @@ class Reports:
 
         query = (db.invoices_payments.payment_methods_id == 100) & \
                 (db.invoices_payments.PaymentDate == date) & \
-                (db.invoices_items_classes_attendance.id != None)
+                (db.customers_orders_items.classes_id != None) & \
+                ((db.customers_orders_items.AttendanceType == 1) |
+                 (db.customers_orders_items.AttendanceType == 2))
+
+        left = [
+            db.invoices.on(db.invoices.id == db.invoices_payments.invoices_id),
+            db.invoices_customers_orders.on(db.invoices_customers_orders.invoices_id == db.invoices.id),
+            db.customers_orders_items.on(db.invoices_customers_orders.customers_orders_id ==
+                                         db.customers_orders_items.customers_orders_id)
+        ]
+
+        count = db.invoices_payments.Amount.count()
+
+        rows = db(query).select(
+            db.invoices_payments.Amount,
+            count,
+            left=left,
+            groupby=db.invoices_payments.Amount
+        )
+
+        return rows
+
+
+    def get_day_mollie_dropin_classes_taken_summary_day(self, date):
+        """
+        Returns summary of drop-in classes bought using mollie for a given date
+        :param: date: datetime.date
+        :return:
+        """
+        db = current.db
+
+        query = (db.invoices_payments.payment_methods_id == 100) & \
+                (db.classes_attendance.ClassDate == date)
 
         left = [
             db.invoices.on(db.invoices.id == db.invoices_payments.invoices_id),
             db.invoices_items.on(db.invoices_items.invoices_id == db.invoices.id),
             db.invoices_items_classes_attendance.on(db.invoices_items_classes_attendance.invoices_items_id ==
-                                                    db.invoices_items.id)
+                                                    db.invoices_items.id),
+            db.classes_attendance.on(db.invoices_items_classes_attendance.classes_attenance_id ==
+                                     db.classes_attendance.id)
         ]
 
         count = db.invoices_payments.Amount.count()

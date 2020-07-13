@@ -736,7 +736,7 @@ def get_debit_mollie_dropin(date):
 
     total = 0
     count = db.invoices_payments.Amount.count()
-    rows = reports.get_day_mollie_dropin_classes_summary_day(date)
+    rows = reports.get_day_mollie_dropin_classes_sold_summary_day(date)
 
     header = THEAD(TR(
         TH(T("# Sold")),
