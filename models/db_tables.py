@@ -2210,7 +2210,7 @@ def define_classes():
         Field('AutoSendInfoMail', 'boolean',
               default=True,
               label=T('Auto send info mail'),
-              comment=T("Applies to online bookings only. Automatically send info mail to all online booking of this class.")),
+              comment=T("Automatically send info mail to all booking for this class.")),
         Field('CreatedOn', 'datetime',
               readable=False,
               writable=False,
