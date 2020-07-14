@@ -2892,9 +2892,8 @@ def attendance_get_resend_info_mail_all_button(clsID, date_formatted):
     from openstudio.os_gui import OsGui
 
     os_gui = OsGui()
-
-    #TODO: Check if an info mail is defined
-    #TODO: Add JS confirm
+    onclick_resend = "return confirm('" \
+                     + T('Resend info mail to all customers on the attendance list with status attending or booked?') + "');"
 
     button = os_gui.get_button(
         button_type="envelope",
@@ -2902,8 +2901,7 @@ def attendance_get_resend_info_mail_all_button(clsID, date_formatted):
         tooltip="",
         title=T("Resend info mail to all"),
         _style='',
-        _target='',
-        onclick=None,
+        onclick=onclick_resend,
         btn_size='',
     )
 
