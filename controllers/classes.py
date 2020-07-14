@@ -2852,7 +2852,9 @@ def attendance():
 
     menu = classes_get_menu(request.function, clsID, date_formatted)
     export = attendance_get_export(clsID, date_formatted)
+    resend_info_mail_all = attendance_get_resend_info_mail_all_button(clsID, date_formatted)
     header_tools = DIV(
+        resend_info_mail_all,
         add_customer,
         btn_attendance_chart,
         export,
@@ -2876,6 +2878,36 @@ def attendance():
                 menu=menu,
                 tools=tools,
                 header_tools=header_tools)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_attendance'))
+def attendance_get_resend_info_mail_all_button(clsID, date_formatted):
+    """
+    Get Button to resend info mail to all attending customers for this class
+    :param clsID: db.classes.id
+    :param date_formatted: date string
+    :return: HTML button
+    """
+    from openstudio.os_gui import OsGui
+
+    os_gui = OsGui()
+
+    #TODO: Check if an info mail is defined
+    #TODO: Add JS confirm
+
+    button = os_gui.get_button(
+        button_type="repeat",
+        url=URL("classes", "attendance_resend_info_mail_add", vars={'clsID': clsID, 'date': date_formatted}),
+        tooltip="",
+        title=T("Resend info mail to all"),
+        _style='',
+        _target='',
+        onclick=None,
+        btn_size='',
+    )
+
+    return button
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

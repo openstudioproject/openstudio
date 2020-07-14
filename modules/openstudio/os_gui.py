@@ -123,7 +123,7 @@ class OsGui:
             icon  = 'fa fa-print'
         elif button_type == 'repeat':
             title = title
-            icon = 'fa fa-refresh'
+            icon = 'fa fa-repeat'
         elif button_type == 'search':
             title = title
             icon  = 'fa fa-search'
