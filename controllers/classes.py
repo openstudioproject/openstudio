@@ -2931,17 +2931,12 @@ def attendance_resend_info_mail_all():
     mails_sent = 0
     mail_sending_errors = 0
     for row in rows:
-        print('##########')
         send_result = ah._attendance_sign_in_send_booking_mail(
             row.id,
             row.auth_customer_id,
             clsID,
             date
         )
-
-
-        print(send_result)
-        print(send_result.get('result'))
 
         if send_result.get("result", False):
             mails_sent += 1

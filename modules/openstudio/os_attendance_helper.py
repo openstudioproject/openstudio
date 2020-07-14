@@ -2686,8 +2686,6 @@ class AttendanceHelper:
             send_result = False
             message = ""
 
-            print(locals())
-
             # # Check if this is an online booking
             # if not online_booking:
             #     # Nothing to do...
