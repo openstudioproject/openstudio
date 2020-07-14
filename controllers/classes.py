@@ -2897,8 +2897,8 @@ def attendance_get_resend_info_mail_all_button(clsID, date_formatted):
     #TODO: Add JS confirm
 
     button = os_gui.get_button(
-        button_type="repeat",
-        url=URL("classes", "attendance_resend_info_mail_add", vars={'clsID': clsID, 'date': date_formatted}),
+        button_type="envelope",
+        url=URL("classes", "attendance_resend_info_mail_all", vars={'clsID': clsID, 'date': date_formatted}),
         tooltip="",
         title=T("Resend info mail to all"),
         _style='',
@@ -2908,6 +2908,51 @@ def attendance_get_resend_info_mail_all_button(clsID, date_formatted):
     )
 
     return button
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_attendance'))
+def attendance_resend_info_mail_all():
+    """
+    resend info mail to all attending and booked customers
+    :return:
+    """
+    from openstudio.os_attendance_helper import AttendanceHelper
+    ah = AttendanceHelper()
+
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, date_formatted)
+
+    query = (db.classes_attendance.ClassDate == date) & \
+            (db.classes_attendance.classes_id == clsID) & \
+            ((db.classes_attendance.BookingStatus == "attending") |
+             (db.classes_attendance.BookingStatus == "booked"))
+    rows = db(query).select(db.classes_attendance.ALL)
+
+    mails_sent = 0
+    mail_sending_errors = 0
+    for row in rows:
+        print('##########')
+        send_result = ah._attendance_sign_in_send_booking_mail(
+            row.id,
+            row.auth_customer_id,
+            clsID,
+            date
+        )
+
+
+        print(send_result)
+        print(send_result.get('result'))
+
+        if send_result.get("result", False):
+            mails_sent += 1
+        else:
+            mail_sending_errors += 1
+
+    session.flash = T("Resent %s info mails with %s errors sending" % (mails_sent, mail_sending_errors))
+
+    redirect(URL('classes', 'attendance', vars={'clsID': clsID, 'date': date_formatted}))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

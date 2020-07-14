@@ -2686,6 +2686,8 @@ class AttendanceHelper:
             send_result = False
             message = ""
 
+            print(locals())
+
             # # Check if this is an online booking
             # if not online_booking:
             #     # Nothing to do...
@@ -2701,7 +2703,6 @@ class AttendanceHelper:
                     classes_attendance_id=clattID,
                     return_html=True
                 )
-
                 class_name = cls.get_name()
                 subject = T("Class booking") + " " + class_name
 
@@ -2710,7 +2711,6 @@ class AttendanceHelper:
                     message_subject=subject,
                     auth_user_id=cuID
                 )
-
 
                 # And a checkbox to tick... (SentInfoMail in classes_attendance)
                 if send_result:
@@ -2721,6 +2721,8 @@ class AttendanceHelper:
                     message = T("Mail sent")
                 else:
                     message = T("Error sending mail")
+            else:
+                message = T("Class auto info mail not enabled")
 
             return dict(result=send_result, message=message)
 
