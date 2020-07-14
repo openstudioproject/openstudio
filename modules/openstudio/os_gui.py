@@ -55,6 +55,12 @@ class OsGui:
         elif button_type == 'edit_custom':
             title = current.T(title)
             icon = "fa fa-pencil"
+        elif button_type == 'envelope':
+            title = title
+            icon = "fa fa-envelope"
+        elif button_type == 'envelope-o':
+            title = title
+            icon = "fa fa-envelope-o"
         elif button_type == 'delete':
             title = current.T("Delete")
             icon = "fa fa-times"
@@ -123,7 +129,7 @@ class OsGui:
             icon  = 'fa fa-print'
         elif button_type == 'repeat':
             title = title
-            icon = 'fa fa-refresh'
+            icon = 'fa fa-repeat'
         elif button_type == 'search':
             title = title
             icon  = 'fa fa-search'
