@@ -296,6 +296,10 @@ class Class:
         db = current.db
         spaces = self.cls.Maxstudents
 
+        if self.cls_otc:
+            if self.cls_otc.MaxStudents:
+                spaces = self.cls_otc.MaxStudents
+
         query = (db.classes_attendance.classes_id == self.clsID) & \
                 (db.classes_attendance.ClassDate == self.date)
         if only_count_status:
