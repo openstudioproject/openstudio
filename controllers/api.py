@@ -418,7 +418,7 @@ def schedule_get_days():
                         'LevelID_' + str(LevelID)
             classes = cache.ram(cache_key,
                              lambda: class_schedule.get_day_list(),
-                             time_expire=CACHE_LONG)
+                             time_expire=cache_2_min)
 
         data['schedule'].append({
             'classes': classes,
