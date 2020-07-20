@@ -297,8 +297,8 @@ class Class:
         spaces = self.cls.Maxstudents
 
         if self.cls_otc:
-            if self.cls_otc.MaxStudents:
-                spaces = self.cls_otc.MaxStudents
+            if self.cls_otc.Maxstudents:
+                spaces = self.cls_otc.Maxstudents
 
         query = (db.classes_attendance.classes_id == self.clsID) & \
                 (db.classes_attendance.ClassDate == self.date)
