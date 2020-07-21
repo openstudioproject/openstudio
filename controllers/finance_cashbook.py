@@ -647,7 +647,7 @@ def get_debit_classes(date, list_type='balance'):
     from openstudio.os_reports import Reports
 
     reports = Reports()
-    revenue = reports.get_classes_revenue_summary_day(session.finance_cashbook_date)
+    revenue = reports.get_classes_revenue_summary_day(session.finance_cashbook_date, "attending")
 
     if list_type == 'balance':
         total = revenue['balance']
