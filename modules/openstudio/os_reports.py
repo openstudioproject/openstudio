@@ -1077,6 +1077,8 @@ ORDER BY ag.Name
 
         count = db.school_classcards.id.count()
 
+        # Important; don't just change the status. The Cashbook depends on the status attending by default.
+        # If the status needs to change, the cashbook needs to be able to specify only attending.
         query = (db.classes_attendance.ClassDate >= date_from) & \
                 (db.classes_attendance.ClassDate <= date_until) & \
                 (db.classes_attendance.customers_classcards_id != None) & \
@@ -1121,6 +1123,8 @@ ORDER BY ag.Name
 
         count = db.school_subscriptions.id.count()
 
+        # Important; don't just change the status. The Cashbook depends on the status attending by default.
+        # If the status needs to change, the cashbook needs to be able to specify only attending.
         query = (db.classes_attendance.ClassDate >= date_from) & \
                 (db.classes_attendance.ClassDate <= date_until) & \
                 (db.classes_attendance.customers_subscriptions_id != None) & \
