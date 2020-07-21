@@ -5244,7 +5244,8 @@ def revenue():
     response.view = 'general/tabs_menu.html'
 
     reports = Reports()
-    result = reports.get_class_revenue_summary_formatted(clsID, date)
+    # TODO: Add booking status from request.var
+    result = reports.get_class_revenue_summary_formatted(clsID, date, "attending")
 
     content =  DIV(
         DIV(H4(T('Total')),
