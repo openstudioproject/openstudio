@@ -18,6 +18,7 @@ class ClassSchedule:
                        filter_id_status = None,
                        filter_public = False,
                        filter_starttime_from = None,
+                       attendance_count = "attending_and_booked",
                        sorting = 'starttime',
                        trend_medium = None,
                        trend_high = None):
@@ -32,6 +33,7 @@ class ClassSchedule:
         self.filter_id_status = filter_id_status
         self.filter_public = filter_public
         self.filter_starttime_from = filter_starttime_from
+        self.attendance_count = attendance_count
         self.sorting = sorting
         self.trend_medium = trend_medium
         self.trend_high = trend_high
@@ -95,6 +97,25 @@ class ClassSchedule:
                             ELSE cotc.Starttime END) >= %(filter_starttime_from)s)'
 
         return where
+
+
+    def _get_attendance_count_sql(self):
+        """
+        Get SQl to count attendance depending on the status
+        :return:
+        """
+        if self.attendance_count == "attending_and_booked":
+            return """ ( SELECT count(clatt.id) as count_att
+                 FROM classes_attendance clatt
+                 WHERE clatt.classes_id = cla.id AND
+                       clatt.ClassDate = %(class_date)s AND
+                       clatt.BookingStatus != 'cancelled') AS count_attendance """
+        elif self.attendance_count == "attending":
+            return """ ( SELECT count(clatt.id) as count_att
+                 FROM classes_attendance clatt
+                 WHERE clatt.classes_id = cla.id AND
+                       clatt.ClassDate = %(class_date)s AND
+                       clatt.BookingStatus = 'attending') AS count_attendance """
 
 
     def _get_day_row_status(self, row):
@@ -705,6 +726,7 @@ class ClassSchedule:
         ]
 
         where_filter = self._get_day_filter_query()
+        attendance_count_sql = self._get_attendance_count_sql()
 
         query = """
         SELECT cla.id,
@@ -769,11 +791,7 @@ class ClassSchedule:
                sho.id,
                sho.Description,
                 /* Count attendance for this class */
-               ( SELECT count(clatt.id) as count_att
-                 FROM classes_attendance clatt
-                 WHERE clatt.classes_id = cla.id AND
-                       clatt.ClassDate = %(class_date)s AND
-                       clatt.BookingStatus != 'cancelled') AS count_attendance,
+               {attendance_count},
                /* Count of online bookings for this class */
                ( SELECT COUNT(clatt.id) as count_atto
                  FROM classes_attendance clatt
@@ -842,9 +860,12 @@ class ClassSchedule:
               {where_filter}
         ORDER BY {orderby_sql}
         """.format(
+            attendance_count=attendance_count_sql,
             where_filter=where_filter,
             orderby_sql=orderby_sql
         )
+
+        print(query)
 
         placeholders = {
             "class_date": str(date),
