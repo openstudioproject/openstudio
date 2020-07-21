@@ -232,7 +232,7 @@ def get_class_revenue():
 
     reports = Reports()
 
-    return dict(revenue=reports.get_class_revenue_summary(clsID, date))
+    return dict(revenue=reports.get_class_revenue_summary(clsID, date, booking_status="attending"))
 
 
 @auth.requires_login(otherwise=return_json_login_error)
