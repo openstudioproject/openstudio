@@ -219,7 +219,7 @@ class Reports:
         return rows
 
 
-    def get_classes_revenue_summary_day(self, date):
+    def get_classes_revenue_summary_day(self, date, booking_status):
         """
 
         :param date:
@@ -227,8 +227,9 @@ class Reports:
         """
         from .os_class import Class
         from .os_class_schedule import ClassSchedule
+
         # Get class schedule for days
-        cs = ClassSchedule(date)
+        cs = ClassSchedule(date, attendance_count=booking_status)
         schedule = cs.get_day_list()
 
         revenue = {
@@ -242,7 +243,7 @@ class Reports:
         for cls in schedule:
             clsID = cls['ClassesID']
             # Get revenue for each class
-            class_revenue = self.get_class_revenue_summary(clsID, date)
+            class_revenue = self.get_class_revenue_summary(clsID, date, booking_status=booking_status)
 
             cls_object = Class(clsID, date)
             teacher_payment = cls_object.get_teacher_payment()
@@ -266,7 +267,7 @@ class Reports:
         return revenue
 
 
-    def get_class_revenue_summary(self, clsID, date, quick_stats=True):
+    def get_class_revenue_summary(self, clsID, date, booking_status, quick_stats=True):
         """
         :param subscription_quick_stats: Boolean - use db.school_subscriptions.QuickStatsAmount or not
         :return:
@@ -320,7 +321,7 @@ class Reports:
             }
         }
 
-        rows = self.get_class_revenue_rows(clsID, date)
+        rows = self.get_class_revenue_rows(clsID, date, booking_status=booking_status)
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i + 1].render())[0]
 
@@ -426,7 +427,7 @@ class Reports:
         return data
 
 
-    def get_class_revenue_summary_formatted(self, clsID, date, quick_stats=True):
+    def get_class_revenue_summary_formatted(self, clsID, date, booking_status, quick_stats=True):
         """
         Format output from self.get_class_revenue_summary
         :param clsID: db.classes.id
@@ -444,6 +445,7 @@ class Reports:
         revenue = self.get_class_revenue_summary(
             clsID=clsID,
             date=date,
+            booking_status=booking_status,
             quick_stats=quick_stats
         )
 
@@ -632,7 +634,7 @@ class Reports:
         )
 
 
-    def get_class_revenue_summary_pdf(self, clsID, date, quick_stats=True):
+    def get_class_revenue_summary_pdf(self, clsID, date, booking_status, quick_stats=True):
         """
         :param clsID: db.classes.id
         :param date: datetime.date
@@ -642,7 +644,7 @@ class Reports:
         import io
         import weasyprint
 
-        html = self._get_class_revenue_summary_pdf_template(clsID, date, quick_stats)
+        html = self._get_class_revenue_summary_pdf_template(clsID, date, booking_status, quick_stats)
 
         stream = io.BytesIO()
         workshop = weasyprint.HTML(string=html).write_pdf(stream)
@@ -650,7 +652,7 @@ class Reports:
         return stream
 
 
-    def _get_class_revenue_summary_pdf_template(self, clsID, date, quick_stats=True):
+    def _get_class_revenue_summary_pdf_template(self, clsID, date, booking_status, quick_stats=True):
         """
             Print friendly display of a Workshop
         """
@@ -671,7 +673,7 @@ class Reports:
 
         html = response.render(template_file,
                                dict(class_info = cls.get_info(),
-                                    revenue=self.get_class_revenue_summary(clsID, date, quick_stats),
+                                    revenue=self.get_class_revenue_summary(clsID, date, booking_status, quick_stats),
                                     teacher_payment=teacher_payment,
                                     logo=self._get_class_revenue_summary_pdf_template_get_logo(),
                                     max_string_length=max_string_length,
@@ -711,10 +713,11 @@ class Reports:
         return logo_img
 
 
-    def get_class_revenue_rows(self, clsID, date):
+    def get_class_revenue_rows(self, clsID, date, booking_status):
         """
         :param clsID: db.classes.id
         :param date: Class date
+        :param booking_status: "attending", "booked", "attending_and_booked"
         :return: All customers attending a class (db.customers_attendance.ALL & db.customers_subscriptions.ALL)
         """
         db = current.db
@@ -732,8 +735,15 @@ class Reports:
                 db.auth_user.on(db.classes_attendance.auth_customer_id == db.auth_user.id),
         ]
         query = (db.classes_attendance.classes_id == clsID) & \
-                (db.classes_attendance.ClassDate == date) & \
-                (db.classes_attendance.BookingStatus != 'cancelled')
+                (db.classes_attendance.ClassDate == date)
+
+        if booking_status == "attending":
+            query &= (db.classes_attendance.BookingStatus == "attending")
+        elif booking_status == "booked":
+            query &= (db.classes_attendance.BookingStatus == "booked")
+        elif booking_status == "attending_and_booked":
+            query &= (db.classes_attendance.BookingStatus != 'cancelled')
+
         rows = db(query).select(db.auth_user.ALL,
                                 db.classes_attendance.ALL,
                                 db.customers_subscriptions.ALL,
