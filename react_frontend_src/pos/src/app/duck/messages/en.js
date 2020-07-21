@@ -20,7 +20,7 @@ export const ENGLISH_TRANSLATION = {
         "app.general.strings.pdf": "PDF",
         "app.general.strings.price": "Price",
         "app.general.strings.requires_membership": "Requires membership",
-        "app.general.strings.revenue": "Revenue",
+        "app.general.strings.revenue": "Revenue (Attending only)",
         "app.general.strings.subscriptions": "Subscriptions",
         "app.general.strings.teacher_payment": "Teacher payment",
         "app.general.strings.total": "Total",
