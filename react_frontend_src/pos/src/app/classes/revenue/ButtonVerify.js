@@ -24,7 +24,7 @@ class ButtonVerify extends Component {
     
     render() {
         const tp = this.props.teacher_payment
-        const export_url = backendHost + '/classes/revenue_export?clsID=' + tp.data.classes_id + '&date=' + tp.data.ClassDate
+        const export_url = backendHost + '/classes/revenue_export?booking_status=attending&clsID=' + tp.data.classes_id + '&date=' + tp.data.ClassDate 
 
         return (
             (tp.data.Status === 'verified') ?
