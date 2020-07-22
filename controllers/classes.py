@@ -5238,6 +5238,7 @@ def revenue():
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, date_formatted)
+    booking_status = request.vars['booking_status'] or "booked_and_attending"
     response.title = T("Class")
     response.subtitle = get_classname(clsID) + ": " + date_formatted
 
@@ -5245,11 +5246,15 @@ def revenue():
 
     reports = Reports()
     # TODO: Add booking status from request.var
-    result = reports.get_class_revenue_summary_formatted(clsID, date, "attending")
+    result = reports.get_class_revenue_summary_formatted(clsID, date, booking_status)
+    filter = revenue_get_filter_form(booking_status)
 
     content =  DIV(
         DIV(H4(T('Total')),
-            result['table_total'], _class='col-md-12'),
+            result['table_total'], _class='col-md-8'),
+        DIV(H4(T("Display")),
+            filter,
+            _class='col-md-4'),
         DIV(H4(T('Revenue')),
             result['table_revenue'], _class='col-md-12'),
         _class='row'
@@ -5269,6 +5274,48 @@ def revenue():
                 back=back,
                 tools=export,
                 menu=menu)
+
+
+def revenue_get_filter_form(booking_status):
+    form = SQLFORM.factory(
+        Field('booking_status',
+            requires=IS_IN_SET(attendance_booking_statuses_filter_values,
+                              zero=None),
+            default=booking_status,
+            label=T("Booking status")),
+        submit_button=T('Filter'),
+        formstyle='divs',
+        )
+
+    # sumbit form on change
+    selects = form.elements('select')
+    for select in selects:
+        select.attributes['_onchange'] = "this.form.submit();"
+
+    # clear = A(T("Clear"), _class="btn btn-default",
+    #             _href=URL('_schedule_clear_filter'),
+    #             _title=T("Reset filter to default"))
+    #
+    # div = DIV(
+    #     form.custom.begin,
+    #     DIV(form.custom.widget.location,
+    #         _class='col-md-2'),
+    #     DIV(form.custom.widget.teacher,
+    #         _class='col-md-2'),
+    #     DIV(form.custom.widget.classtype,
+    #         _class='col-md-2'),
+    #     DIV(form.custom.widget.level,
+    #         _class='col-md-2'),
+    #     DIV(form.custom.widget.status,
+    #         _class='col-md-2'),
+    #     DIV(DIV(form.custom.submit,
+    #             clear,
+    #             _class="pull-right"),
+    #         _class='col-md-2'),
+    #     form.custom.end,
+    #     _id="schedule_filter_form")
+
+    return form
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
