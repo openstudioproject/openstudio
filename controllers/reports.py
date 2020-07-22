@@ -64,7 +64,10 @@ def subscriptions_get_menu(page=None):
 
 def attendance_get_menu(page=None):
     pages = [
-        (['attendance_classes', T('Class Revenue'), URL('reports','attendance_classes')]),
+        (['attendance_classes', T('Class Revenue - All'), URL('reports','attendance_classes')]),
+        (['attendance_classes_no_show',
+          T('Class Revenue - No show'),
+          URL('reports', 'attendance_classes_no_show')]),
         (['attendance_classtypes', T('Classtypes'), URL('reports','attendance_classtypes')]),
         (['attendance_organizations',
           T('Organizations'),
@@ -75,9 +78,6 @@ def attendance_get_menu(page=None):
         (['attendance_reconcile_later',
           T('Reconcile later'),
           URL('reports','attendance_reconcile_later')]),
-        (['attendance_no_show',
-          T('No show'),
-          URL('reports','attendance_no_show')]),
     ]
 
 
@@ -3079,6 +3079,66 @@ def attendance_classes_get_form(year=TODAY_LOCAL.year,
                _class = 'row')
 
     return form
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'reports_attendance'))
+def attendance_classes_no_show():
+    """
+        List classes for a selected month with revenue
+    """
+    response.title = T("Reports")
+    response.view = 'reports/subscriptions.html'
+
+    session.reports_attendance_no_show = request.function
+    session.classes_attendance_back = 'reports_attendance_classes_no_show'
+
+    # form_subtitle = get_form_subtitle(function=request.function)
+    response.subtitle = T('Classes attendance - no show')
+
+    form = "form here"
+    content = "content here"
+
+    # year = TODAY_LOCAL.year
+    # month = TODAY_LOCAL.month
+    # soID = None
+    # slID = None
+    # content = T("Please click 'Run Report' to generate a report. This might take a little while depending on the number of classes in the schedule for the selected month.")
+    # month_chooser = ''
+    # if 'year' in request.vars:
+    #     year = int(request.vars['year'])
+    #     month = int(request.vars['month'])
+    #     slID = request.vars['slID']
+    #     soID = request.vars['soID']
+    #
+    #     session.reports_att_year = year
+    #     session.reports_att_month = month
+    #
+    #     date = datetime.date(year, month, 1)
+    #     firstdaythismonth = date
+    #     next_month = date.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
+    #     lastdaythismonth = next_month - datetime.timedelta(days=next_month.day)
+    #     content = attendance_classes_get_content(firstdaythismonth, lastdaythismonth, slID, soID)
+    #
+    #     subtitle = get_month_subtitle(month, year)
+    #     response.subtitle = T('Classes attendance') + ' - ' + subtitle
+
+
+    # form = attendance_classes_get_form(year, month, slID, soID)
+
+    # current_month = form_subtitle['current_month']
+    # submit = form_subtitle['submit']
+
+    menu = attendance_get_menu(request.function)
+
+    return dict(
+        form=form,
+        menu=menu,
+        content=content,
+        # current_month='',
+        # month_chooser='', # Month chooser doesn't work here as we require the form the be submitted before anything happens
+        # submit=submit
+    )
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
