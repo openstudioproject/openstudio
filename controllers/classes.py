@@ -5283,7 +5283,10 @@ def revenue_export_preview():
 
     reports = Reports()
 
-    return reports._get_class_revenue_summary_pdf_template(clsID, date, quick_stats=True)
+    return reports._get_class_revenue_summary_pdf_template(clsID,
+                                                           date,
+                                                           booking_status="booked_and_attending",
+                                                           quick_stats=True)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
