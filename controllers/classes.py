@@ -5292,29 +5292,6 @@ def revenue_get_filter_form(booking_status):
     for select in selects:
         select.attributes['_onchange'] = "this.form.submit();"
 
-    # clear = A(T("Clear"), _class="btn btn-default",
-    #             _href=URL('_schedule_clear_filter'),
-    #             _title=T("Reset filter to default"))
-    #
-    # div = DIV(
-    #     form.custom.begin,
-    #     DIV(form.custom.widget.location,
-    #         _class='col-md-2'),
-    #     DIV(form.custom.widget.teacher,
-    #         _class='col-md-2'),
-    #     DIV(form.custom.widget.classtype,
-    #         _class='col-md-2'),
-    #     DIV(form.custom.widget.level,
-    #         _class='col-md-2'),
-    #     DIV(form.custom.widget.status,
-    #         _class='col-md-2'),
-    #     DIV(DIV(form.custom.submit,
-    #             clear,
-    #             _class="pull-right"),
-    #         _class='col-md-2'),
-    #     form.custom.end,
-    #     _id="schedule_filter_form")
-
     return form
 
 
