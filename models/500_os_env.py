@@ -576,6 +576,13 @@ def set_customers_orders_origins():
         ['pos', T("Point of Sale")],
     ]
 
+def set_attendance_booking_statuses_filter_values():
+    return [
+        ['attending_and_booked', T('Attending & Booked')],
+        ['booked', T('Booked')],
+        ['attending', T('Attending')],
+    ]
+
 
 def represent_customers_orders_origin(value, row):
     return_value = ''
@@ -638,6 +645,7 @@ CACHE_LONG = int(configuration.get('cache.max_cache_time')) # 3 days
 GENDERS = set_genders()
 VALIDITY_UNITS = set_validity_units()
 SUBSCRIPTION_UNITS = set_subscription_units()
+attendance_booking_statuses_filter_values = set_attendance_booking_statuses_filter_values()
 teachers_roles = set_teachers_roles()
 payment_statuses = set_payment_statuses()
 message_statuses = set_message_statuses()
