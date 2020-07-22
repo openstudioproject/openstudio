@@ -3141,6 +3141,68 @@ def attendance_classes_no_show():
     )
 
 
+def attendance_classes_no_show_get_day_chooser(date):
+    """
+    Set day for cashbook
+    :param date: datetime.date
+    :return: HTML prev/next buttons
+    """
+    yesterday = (date - datetime.timedelta(days=1)).strftime(DATE_FORMAT)
+    tomorrow = (date + datetime.timedelta(days=1)).strftime(DATE_FORMAT)
+
+    link = 'set_date'
+    url_prev = URL(link, vars={'date': yesterday})
+    url_next = URL(link, vars={'date': tomorrow})
+    url_today = URL(link, vars={'date': TODAY_LOCAL.strftime(DATE_FORMAT)})
+
+    today = ''
+    if date != TODAY_LOCAL:
+        today = A(os_gui.get_fa_icon('fa fa-calendar-o'), ' ', T("Today"),
+                 _href=url_today,
+                 _class='btn btn-default')
+
+    previous = A(I(_class='fa fa-angle-left'),
+                 _href=url_prev,
+                 _class='btn btn-default')
+    nxt = A(I(_class='fa fa-angle-right'),
+            _href=url_next,
+            _class='btn btn-default')
+
+    return DIV(previous, today, nxt, _class='btn-group pull-right')
+
+
+def attendance_classes_no_show_get_form_jump():
+    """
+        Returns a form to jump to a date
+    """
+    jump_date = session.finance_cashbook_date
+    form_jump = SQLFORM.factory(
+                Field('jump_date', 'date',
+                      requires=IS_DATE_IN_RANGE(
+                                format=DATE_FORMAT,
+                                minimum=datetime.date(1900,1,1),
+                                maximum=datetime.date(2999,1,1)),
+                      default=jump_date,
+                      label=T(""),
+                      widget=os_datepicker_widget_small),
+                submit_button=T('Go'),
+                )
+
+    submit_jump = form_jump.element('input[type=submit]')
+    submit_jump['_class'] = 'full-width'
+
+    form_jump = DIV(form_jump.custom.begin,
+                    DIV(form_jump.custom.widget.jump_date,
+                        DIV(form_jump.custom.submit,
+                            _class='input-group-btn'),
+                        _class='input-group'),
+                    form_jump.custom.end,
+                    _class='form_inline',
+                    _id='cashbook_form_jump_date')
+
+    return form_jump
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes_attendance'))
 def attendance_review_requested():
