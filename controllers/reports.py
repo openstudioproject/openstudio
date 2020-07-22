@@ -75,6 +75,9 @@ def attendance_get_menu(page=None):
         (['attendance_reconcile_later',
           T('Reconcile later'),
           URL('reports','attendance_reconcile_later')]),
+        (['attendance_no_show',
+          T('No show'),
+          URL('reports','attendance_no_show')]),
     ]
 
 
