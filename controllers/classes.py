@@ -5262,7 +5262,9 @@ def revenue():
 
     export = os_gui.get_button(
         'download',
-        URL('revenue_export', vars={'clsID':clsID, 'date':date.strftime(DATE_FORMAT_ISO8601)}),
+        URL('revenue_export', vars={'clsID':clsID,
+                                    'date':date.strftime(DATE_FORMAT_ISO8601),
+                                    'booking_status': booking_status}),
         btn_size='',
         _class='pull-right'
     )
@@ -5300,16 +5302,16 @@ def revenue_get_filter_form(booking_status):
 def revenue_export_preview():
     from openstudio.os_reports import Reports
 
-
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT_ISO8601, date_formatted)
+    booking_status = request.vars['booking_status'] or "attending_and_booked"
 
     reports = Reports()
 
     return reports._get_class_revenue_summary_pdf_template(clsID,
                                                            date,
-                                                           booking_status="booked_and_attending",
+                                                           booking_status=booking_status,
                                                            quick_stats=True)
 
 
