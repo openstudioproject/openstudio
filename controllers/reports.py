@@ -3105,7 +3105,7 @@ def attendance_classes_no_show():
     response.subtitle = T('Classes attendance - no show')
 
     form = "form here"
-    content = "content here"
+    content = attendance_classes_no_show_get_content(date)
 
     # year = TODAY_LOCAL.year
     # month = TODAY_LOCAL.month
@@ -3150,6 +3150,87 @@ def attendance_classes_no_show():
         # month_chooser='', # Month chooser doesn't work here as we require the form the be submitted before anything happens
         # submit=submit
     )
+
+
+def attendance_classes_no_show_get_content(date):
+    """
+    return a box and total of class profit or class revenue
+    :param list_type: one of 'revenue' or 'teacher_payments'
+    :param date: datetime.date
+    :return:
+    """
+    from general_helpers import max_string_length
+    from openstudio.os_reports import Reports
+
+    reports = Reports()
+    revenue = reports.get_classes_revenue_summary_day(session.finance_cashbook_date, "booked")
+
+    total = revenue['balance']
+
+    header = THEAD(TR(
+        TH(T("Time")),
+        TH(T("Location")),
+        TH(T("Classtype")),
+        TH(T("Attendance")),
+        TH(T("Amount")),
+    ))
+
+    table = TABLE(header, _class='table table-striped table-hover')
+    for cls in revenue['data']:
+        class_vars = {"clsID": cls["ClassesID"], "date": date.strftime(DATE_FORMAT)}
+        amount = represent_decimal_as_amount(cls['Balance'])
+
+        teachers = cls['Teachers']
+        if not 'teacher' in teachers or cls['Teachers']['error']:
+            teacher = T("No teacher")
+        else:
+            sub = T(" (sub)") if teachers['teacher_sub'] else ""
+            teacher = teachers['teacher'].display_name + sub
+
+        tr = TR(
+            TD(cls['Starttime']),
+            TD(max_string_length(cls['Location'], 18)),
+            TD(max_string_length(cls['ClassType'], 18), BR(),
+               SPAN(max_string_length(teacher, 28),
+                    _class="text-muted text_small"),
+               _title=teacher
+               ),
+            TD(A(cls['CountAttendance'],
+                 _href=URL("classes", "attendance", vars=class_vars),
+                 _target="_blank")),
+            TD(amount)
+        )
+
+        table.append(tr)
+
+    # Footer total
+    table.append(TFOOT(TR(
+        TH(),
+        TH(),
+        TH(),
+        TH(T('Total')),
+        TH(represent_decimal_as_amount(total))
+    )))
+
+    return table
+
+    # box = DIV(
+    #     DIV(H3(box_title, _class='box-title'),
+    #         DIV(A(I(_class='fa fa-minus'),
+    #               _href='#',
+    #               _class='btn btn-box-tool',
+    #               _title=T("Collapse"),
+    #               **{'_data-widget': 'collapse'}),
+    #             _class='box-tools pull-right'),
+    #         _class='box-header'),
+    #     DIV(table, _class='box-body no-padding'),
+    #     _class='box box-success',
+    # )
+    #
+    # return dict(
+    #     box=box,
+    #     total=total
+    # )
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

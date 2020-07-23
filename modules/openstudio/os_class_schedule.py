@@ -116,6 +116,12 @@ class ClassSchedule:
                  WHERE clatt.classes_id = cla.id AND
                        clatt.ClassDate = %(class_date)s AND
                        clatt.BookingStatus = 'attending') AS count_attendance """
+        elif self.attendance_count == "booked":
+            return """ ( SELECT count(clatt.id) as count_att
+                 FROM classes_attendance clatt
+                 WHERE clatt.classes_id = cla.id AND
+                       clatt.ClassDate = %(class_date)s AND
+                       clatt.BookingStatus = 'booked') AS count_attendance """
 
 
     def _get_day_row_status(self, row):
