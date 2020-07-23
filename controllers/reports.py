@@ -3140,6 +3140,7 @@ def attendance_classes_no_show():
     # current_month = form_subtitle['current_month']
     # submit = form_subtitle['submit']
     day_jumper = attendance_classes_no_show_get_form_jump()
+    day_chooser = attendance_classes_no_show_get_day_chooser(date)
 
     menu = attendance_get_menu(request.function)
 
@@ -3147,7 +3148,7 @@ def attendance_classes_no_show():
         form=form,
         menu=menu,
         content=content,
-        header_tools=DIV(day_jumper)
+        header_tools=DIV(day_jumper, day_chooser)
         # current_month='',
         # month_chooser='', # Month chooser doesn't work here as we require the form the be submitted before anything happens
         # submit=submit
