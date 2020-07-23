@@ -554,7 +554,7 @@ class Class:
         return db(query).count()
 
 
-    def get_attendance_count_paying_customers(self):
+    def get_attendance_count_by_booking_status(self, status="attending"):
         """
         Return attendance count of paying customers
 
@@ -577,11 +577,13 @@ class Class:
 
         query = (db.classes_attendance.classes_id == self.clsID) & \
                 (db.classes_attendance.ClassDate == self.date) & \
-                (db.classes_attendance.BookingStatus != 'cancelled') & \
                 ((db.classes_attendance.AttendanceType.belongs([1, 2, 3, 6])) |
                  (db.classes_attendance.AttendanceType == None)) & \
                 ((db.school_subscriptions.StaffSubscription == False) |
                  (db.school_subscriptions.StaffSubscription == None))
+
+        if status == "attending":
+            query &= (db.classes_attendance.BookingStatus == "attending")
 
         rows = db(query).select(
             db.classes_attendance.id,
@@ -803,7 +805,9 @@ class Class:
                 elif tprt == 'attendance':
                     # Get list for class type
                     # print("attendance")
-                    attendance_count_paying_customers = self.get_attendance_count_paying_customers()
+                    attendance_count_paying_customers = self.get_attendance_count_by_booking_status(
+                        status="attending"
+                    )
                     cltID = self.cls.school_classtypes_id
                     tpalst = db.teachers_payment_attendance_lists_school_classtypes(
                         school_classtypes_id=cltID

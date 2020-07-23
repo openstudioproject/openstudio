@@ -430,6 +430,9 @@ def test_teacher_payment_find_classes_attendance(client, web2py):
     populate_auth_user_teachers_fixed_rate_default(web2py)
     populate_teachers_payment_attendance_lists_school_classtypes(web2py)
 
+    web2py.db(web2py.db.classes_attendance.id > 0).update(BookingStatus="attending")
+    web2py.db.commit()
+
     url = '/finance/teacher_payment_find_classes'
     client.get(url)
     assert client.status == 200

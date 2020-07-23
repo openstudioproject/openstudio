@@ -5244,7 +5244,8 @@ def revenue():
     response.view = 'general/tabs_menu.html'
 
     reports = Reports()
-    result = reports.get_class_revenue_summary_formatted(clsID, date)
+    # TODO: Add booking status from request.var
+    result = reports.get_class_revenue_summary_formatted(clsID, date, "attending")
 
     content =  DIV(
         DIV(H4(T('Total')),
@@ -5282,7 +5283,10 @@ def revenue_export_preview():
 
     reports = Reports()
 
-    return reports._get_class_revenue_summary_pdf_template(clsID, date, quick_stats=True)
+    return reports._get_class_revenue_summary_pdf_template(clsID,
+                                                           date,
+                                                           booking_status="booked_and_attending",
+                                                           quick_stats=True)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -5294,6 +5298,7 @@ def revenue_export():
     """
     from openstudio.os_reports import Reports
 
+    booking_status = request.vars['booking_status'] or "attending_and_booked"
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT_ISO8601, date_formatted)
@@ -5303,6 +5308,6 @@ def revenue_export():
     response.headers['Content-disposition'] = 'attachment; filename=' + fname
 
     reports = Reports()
-    stream = reports.get_class_revenue_summary_pdf(clsID, date)
+    stream = reports.get_class_revenue_summary_pdf(clsID, date, booking_status=booking_status)
 
     return stream.getvalue()
