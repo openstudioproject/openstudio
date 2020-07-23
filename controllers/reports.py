@@ -64,9 +64,9 @@ def subscriptions_get_menu(page=None):
 
 def attendance_get_menu(page=None):
     pages = [
-        (['attendance_classes', T('Class Revenue - All'), URL('reports','attendance_classes')]),
+        (['attendance_classes', T('Revenue'), URL('reports','attendance_classes')]),
         (['attendance_classes_no_show',
-          T('Class Revenue - No show'),
+          T('Revenue - No show'),
           URL('reports', 'attendance_classes_no_show')]),
         (['attendance_classtypes', T('Classtypes'), URL('reports','attendance_classtypes')]),
         (['attendance_organizations',
@@ -3076,6 +3076,7 @@ def attendance_classes_get_form(year=TODAY_LOCAL.year,
                    organization,
                    form.custom.end,
                    _class='col-md-4'),
+               DIV(T("This report counts both attending and booked classes."), _class='col-md-8'),
                _class = 'row')
 
     return form
@@ -3104,7 +3105,7 @@ def attendance_classes_no_show():
     # form_subtitle = get_form_subtitle(function=request.function)
     response.subtitle = T('Classes attendance - no show')
 
-    form = "form here"
+    form = T("This report shows a daily overview of booked classes that weren't actually taken")
     content = attendance_classes_no_show_get_content(date)
 
     # year = TODAY_LOCAL.year
