@@ -3090,9 +3090,20 @@ def attendance_classes_no_show():
     response.title = T("Reports")
     response.view = 'reports/subscriptions.html'
 
-    session.reports_attendance_no_show = request.function
-    session.classes_attendance_back = 'reports_attendance_classes_no_show'
+    print("main page")
+    print(request.vars)
 
+    # session.reports_attendance_no_show = request.function
+    if 'jump_date' in request.vars:
+        # Set date
+        redirect(URL('attendance_classes_no_show_set_date', vars={ "date": request.vars['jump_date'] }))
+    elif session.reports_attendance_no_show_date:
+        date = session.reports_attendance_no_show_date
+    else:
+        date = TODAY_LOCAL
+        session.reports_attendance_no_show_date = date
+
+    session.classes_attendance_back = 'reports_attendance_classes_no_show'
     # form_subtitle = get_form_subtitle(function=request.function)
     response.subtitle = T('Classes attendance - no show')
 
@@ -3128,6 +3139,7 @@ def attendance_classes_no_show():
 
     # current_month = form_subtitle['current_month']
     # submit = form_subtitle['submit']
+    day_jumper = attendance_classes_no_show_get_form_jump()
 
     menu = attendance_get_menu(request.function)
 
@@ -3135,10 +3147,31 @@ def attendance_classes_no_show():
         form=form,
         menu=menu,
         content=content,
+        header_tools=DIV(day_jumper)
         # current_month='',
         # month_chooser='', # Month chooser doesn't work here as we require the form the be submitted before anything happens
         # submit=submit
     )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'reports_attendance'))
+def attendance_classes_no_show_set_date():
+    """
+    Set date for cashbook
+    :return:
+    """
+    from general_helpers import datestr_to_python
+
+    print("set date:")
+    print(request.vars)
+
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, request.vars['date'])
+
+    session.reports_attendance_no_show_date = date
+
+    redirect(URL('attendance_classes_no_show'))
 
 
 def attendance_classes_no_show_get_day_chooser(date):
@@ -3150,7 +3183,7 @@ def attendance_classes_no_show_get_day_chooser(date):
     yesterday = (date - datetime.timedelta(days=1)).strftime(DATE_FORMAT)
     tomorrow = (date + datetime.timedelta(days=1)).strftime(DATE_FORMAT)
 
-    link = 'set_date'
+    link = 'attendance_classes_no_show_set_date'
     url_prev = URL(link, vars={'date': yesterday})
     url_next = URL(link, vars={'date': tomorrow})
     url_today = URL(link, vars={'date': TODAY_LOCAL.strftime(DATE_FORMAT)})
@@ -3175,7 +3208,7 @@ def attendance_classes_no_show_get_form_jump():
     """
         Returns a form to jump to a date
     """
-    jump_date = session.finance_cashbook_date
+    jump_date = session.reports_attendance_no_show_date
     form_jump = SQLFORM.factory(
                 Field('jump_date', 'date',
                       requires=IS_DATE_IN_RANGE(
