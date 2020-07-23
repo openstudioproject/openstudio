@@ -3090,9 +3090,6 @@ def attendance_classes_no_show():
     response.title = T("Reports")
     response.view = 'reports/subscriptions.html'
 
-    print("main page")
-    print(request.vars)
-
     # session.reports_attendance_no_show = request.function
     if 'jump_date' in request.vars:
         # Set date
@@ -3163,9 +3160,6 @@ def attendance_classes_no_show_set_date():
     :return:
     """
     from general_helpers import datestr_to_python
-
-    print("set date:")
-    print(request.vars)
 
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, request.vars['date'])
