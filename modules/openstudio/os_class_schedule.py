@@ -871,8 +871,6 @@ class ClassSchedule:
             orderby_sql=orderby_sql
         )
 
-        print(query)
-
         placeholders = {
             "class_date": str(date),
             "week_day": str(weekday),
