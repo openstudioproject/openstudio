@@ -160,15 +160,18 @@ class Class:
             dropin_tax_membership = db.tax_rates(prices.tax_rates_id_dropin_membership)
 
             try:
-                trial_tax_rates_id    = trial_tax.id
                 dropin_tax_rates_id   = dropin_tax.id
-                trial_tax_percentage  = trial_tax.Percentage
                 dropin_tax_percentage = dropin_tax.Percentage
             except AttributeError:
-                trial_tax_rates_id    = None
                 dropin_tax_rates_id   = None
-                trial_tax_percentage  = None
                 dropin_tax_percentage = None
+
+            try:
+                trial_tax_rates_id    = trial_tax.id
+                trial_tax_percentage  = trial_tax.Percentage
+            except AttributeError:
+                trial_tax_rates_id    = None
+                trial_tax_percentage  = None
 
             try:
                 trial_tax_rates_id_membership = trial_tax_membership.id
