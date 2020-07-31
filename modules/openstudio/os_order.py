@@ -59,6 +59,44 @@ class Order:
             return False
 
 
+    def contains_class(self):
+        """
+        Returns True if there's a class in this order, else false
+        :return:
+        """
+        db = current.db
+
+        query = (db.customers_orders_items.customers_orders_id == self.coID) & \
+                (db.customers_orders_items.classes_id != None) & \
+                (db.customers_orders_items.ClassDate != None)
+
+        if db(query).count():
+            return True
+        else:
+            return False
+
+
+    def get_class_object_order_item(self):
+        """
+        Check if there's a class in the order, if so, return it's classes_id and date
+        else return None
+        :return: dict(clsID=clsID, date=class_date)
+        """
+        from .os_class import Class
+        db = current.db
+
+        if self.contains_class():
+            query = (db.customers_orders_items.customers_orders_id == self.coID) & \
+                    (db.customers_orders_items.classes_id != None) & \
+                    (db.customers_orders_items.ClassDate != None)
+
+            rows = db(query).select(db.customers_orders_items.ALL)
+            row = rows.first()
+            return Class(row.classes_id, row.ClassDate)
+        else:
+            return None
+
+
     def order_item_add_product_variant(self, shop_product_variant_id, quantity=1):
         """
         :param shop_product_variant_id: db.shop_products_variants.id

@@ -558,6 +558,12 @@ def order_pay():
         session.flash = T("Unable to show order")
         redirect(URL('profile', 'index'))
 
+    # Check if the order contains a class that's been fully booked in the main time
+    if order.contains_class():
+        cls = order.get_class_object_order_item()
+        if cls.get_full():
+            redirect(URL("shop", "class_full", vars={"clsID": cls.clsID,
+                                                     "date": cls.date.strftime(DATE_FORMAT)}))
 
     mollie = Client()
     mollie_api_key = get_sys_property('mollie_website_profile')

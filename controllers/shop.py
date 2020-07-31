@@ -2466,6 +2466,59 @@ def classes_book_options():
     return dict(content=content, back=back)
 
 
+@auth.requires_login()
+def class_full():
+    """
+        Lists ways to book classes
+         - subscriptions
+         - cards
+         - drop in (with price & add to cart button)
+    """
+    from openstudio.os_attendance_helper import AttendanceHelper
+    from openstudio.os_class import Class
+    from openstudio.os_customer import Customer
+    from openstudio.os_gui import OsGui
+
+    response.title= T('Shop')
+    response.subtitle = T('Class - No online spots remaining.')
+    response.view = 'shop/index.html'
+    os_gui = OsGui()
+
+    features = db.customers_shop_features(1)
+    if not features.Classes:
+        return T('This feature is disabled')
+
+    back = os_gui.get_button('back', URL('shop', 'classes'))
+
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, date_formatted)
+
+    # Get class data and populate info content
+    cls = Class(clsID, date)
+    class_header = class_book_get_class_header(clsID, date)
+    customer = Customer(auth.user.id)
+
+    content = DIV(H2(XML(class_header), _class='center'), BR(),
+                  H4(T('This class has been fully booked while processing your order.')),
+                  _class='center')
+
+    #TODO: Show available walk-in spaces here?
+    if cls.get_full():
+        content.append(DIV(B(T("There are no more online spaces are available for this class."))))
+        content.append(BR())
+        content.append(T("In case you created an order, your order has been cancelled automatically."))
+        content.append(BR())
+        content.append(T("Thank you for understanding."))
+        content.append(BR())
+        content.append(BR())
+        content.append(A(os_gui.get_fa_icon('fa-arrow-left'), ' ', T("Choose another class"),
+                         _href="/shop/classes"))
+        return dict(content=content, back=back)
+
+    return dict(content=content, back=back)
+
+
 def class_book_options_get_enrollment_options(clsID, date, date_formatted, features, customer):
     """
         List enrollment options
@@ -2777,6 +2830,11 @@ def class_book():
                                        'status':status}))
 
 
+def class_get_full_url(clsID, date_formatted):
+    return URL("shop", "class_full", vars={"clsID": clsID,
+                                           "date": date_formatted})
+
+
 @auth.requires_login()
 def class_checkout():
     """
@@ -2808,6 +2866,10 @@ def class_checkout():
             auth.user.id,
             _next=URL(request.controller, request.function, vars=request.vars)
         )
+
+    # Check if the class has become full in the mean time
+    if cls.get_full():
+        redirect(class_get_full_url(clsID, date_formatted))
 
     # automatic payment
     class_info = class_checkout_get_info(cls, dropin, trial)
@@ -2850,7 +2912,8 @@ def class_checkout():
 
     back = os_gui.get_button(
         'back',
-        URL('classcards')
+        URL('classes_book_options', vars={"clsID": clsID,
+                                          "date": date_formatted})
     )
 
     return dict(content=content, back=back, progress=checkout_get_progress(request.function))
@@ -2904,6 +2967,13 @@ def class_order():
     order = Order(coID)
     # Set status awaiting payment
     order.set_status_awaiting_payment()
+
+    # Check if the class has become full in the mean time
+    if cls.get_full():
+        # Cancel order
+        order.set_status_cancelled()
+        # Redirect customer to class full message
+        redirect(class_get_full_url(clsID, date_formatted))
 
     # Add items to order
     customer = Customer(auth.user.id)
