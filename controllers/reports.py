@@ -64,7 +64,10 @@ def subscriptions_get_menu(page=None):
 
 def attendance_get_menu(page=None):
     pages = [
-        (['attendance_classes', T('Class Revenue'), URL('reports','attendance_classes')]),
+        (['attendance_classes', T('Revenue'), URL('reports','attendance_classes')]),
+        (['attendance_classes_no_show',
+          T('Revenue - No show'),
+          URL('reports', 'attendance_classes_no_show')]),
         (['attendance_classtypes', T('Classtypes'), URL('reports','attendance_classtypes')]),
         (['attendance_organizations',
           T('Organizations'),
@@ -3073,9 +3076,241 @@ def attendance_classes_get_form(year=TODAY_LOCAL.year,
                    organization,
                    form.custom.end,
                    _class='col-md-4'),
+               DIV(T("This report counts both attending and booked classes."), _class='col-md-8'),
                _class = 'row')
 
     return form
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'reports_attendance'))
+def attendance_classes_no_show():
+    """
+        List classes for a selected month with revenue
+    """
+    response.title = T("Reports")
+    response.view = 'reports/subscriptions.html'
+
+    # session.reports_attendance_no_show = request.function
+    if 'jump_date' in request.vars:
+        # Set date
+        redirect(URL('attendance_classes_no_show_set_date', vars={ "date": request.vars['jump_date'] }))
+    elif session.reports_attendance_no_show_date:
+        date = session.reports_attendance_no_show_date
+    else:
+        date = TODAY_LOCAL
+        session.reports_attendance_no_show_date = date
+
+    session.classes_attendance_back = 'reports_attendance_classes_no_show'
+    # form_subtitle = get_form_subtitle(function=request.function)
+    response.subtitle = T('Classes attendance - no show')
+
+    form = T("This report shows a daily overview of booked classes that weren't actually taken")
+    content = attendance_classes_no_show_get_content(date)
+
+    # year = TODAY_LOCAL.year
+    # month = TODAY_LOCAL.month
+    # soID = None
+    # slID = None
+    # content = T("Please click 'Run Report' to generate a report. This might take a little while depending on the number of classes in the schedule for the selected month.")
+    # month_chooser = ''
+    # if 'year' in request.vars:
+    #     year = int(request.vars['year'])
+    #     month = int(request.vars['month'])
+    #     slID = request.vars['slID']
+    #     soID = request.vars['soID']
+    #
+    #     session.reports_att_year = year
+    #     session.reports_att_month = month
+    #
+    #     date = datetime.date(year, month, 1)
+    #     firstdaythismonth = date
+    #     next_month = date.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
+    #     lastdaythismonth = next_month - datetime.timedelta(days=next_month.day)
+    #     content = attendance_classes_get_content(firstdaythismonth, lastdaythismonth, slID, soID)
+    #
+    #     subtitle = get_month_subtitle(month, year)
+    #     response.subtitle = T('Classes attendance') + ' - ' + subtitle
+
+
+    # form = attendance_classes_get_form(year, month, slID, soID)
+
+    # current_month = form_subtitle['current_month']
+    # submit = form_subtitle['submit']
+    day_jumper = attendance_classes_no_show_get_form_jump()
+    day_chooser = attendance_classes_no_show_get_day_chooser(date)
+
+    menu = attendance_get_menu(request.function)
+
+    return dict(
+        form=form,
+        menu=menu,
+        content=content,
+        header_tools=DIV(day_jumper, day_chooser)
+        # current_month='',
+        # month_chooser='', # Month chooser doesn't work here as we require the form the be submitted before anything happens
+        # submit=submit
+    )
+
+
+def attendance_classes_no_show_get_content(date):
+    """
+    return a box and total of class profit or class revenue
+    :param list_type: one of 'revenue' or 'teacher_payments'
+    :param date: datetime.date
+    :return:
+    """
+    from general_helpers import max_string_length
+    from openstudio.os_reports import Reports
+
+    reports = Reports()
+    revenue = reports.get_classes_revenue_summary_day(session.finance_cashbook_date, "booked")
+
+    total = revenue['balance']
+
+    header = THEAD(TR(
+        TH(T("Time")),
+        TH(T("Location")),
+        TH(T("Classtype")),
+        TH(T("Attendance")),
+        TH(T("Amount")),
+    ))
+
+    table = TABLE(header, _class='table table-striped table-hover')
+    for cls in revenue['data']:
+        class_vars = {"clsID": cls["ClassesID"], "date": date.strftime(DATE_FORMAT)}
+        amount = represent_decimal_as_amount(cls['Balance'])
+
+        teachers = cls['Teachers']
+        if not 'teacher' in teachers or cls['Teachers']['error']:
+            teacher = T("No teacher")
+        else:
+            sub = T(" (sub)") if teachers['teacher_sub'] else ""
+            teacher = teachers['teacher'].display_name + sub
+
+        tr = TR(
+            TD(cls['Starttime']),
+            TD(max_string_length(cls['Location'], 18)),
+            TD(max_string_length(cls['ClassType'], 18), BR(),
+               SPAN(max_string_length(teacher, 28),
+                    _class="text-muted text_small"),
+               _title=teacher
+               ),
+            TD(A(cls['CountAttendance'],
+                 _href=URL("classes", "attendance", vars=class_vars),
+                 _target="_blank")),
+            TD(amount)
+        )
+
+        table.append(tr)
+
+    # Footer total
+    table.append(TFOOT(TR(
+        TH(),
+        TH(),
+        TH(),
+        TH(T('Total')),
+        TH(represent_decimal_as_amount(total))
+    )))
+
+    return table
+
+    # box = DIV(
+    #     DIV(H3(box_title, _class='box-title'),
+    #         DIV(A(I(_class='fa fa-minus'),
+    #               _href='#',
+    #               _class='btn btn-box-tool',
+    #               _title=T("Collapse"),
+    #               **{'_data-widget': 'collapse'}),
+    #             _class='box-tools pull-right'),
+    #         _class='box-header'),
+    #     DIV(table, _class='box-body no-padding'),
+    #     _class='box box-success',
+    # )
+    #
+    # return dict(
+    #     box=box,
+    #     total=total
+    # )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'reports_attendance'))
+def attendance_classes_no_show_set_date():
+    """
+    Set date for cashbook
+    :return:
+    """
+    from general_helpers import datestr_to_python
+
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, request.vars['date'])
+
+    session.reports_attendance_no_show_date = date
+
+    redirect(URL('attendance_classes_no_show'))
+
+
+def attendance_classes_no_show_get_day_chooser(date):
+    """
+    Set day for cashbook
+    :param date: datetime.date
+    :return: HTML prev/next buttons
+    """
+    yesterday = (date - datetime.timedelta(days=1)).strftime(DATE_FORMAT)
+    tomorrow = (date + datetime.timedelta(days=1)).strftime(DATE_FORMAT)
+
+    link = 'attendance_classes_no_show_set_date'
+    url_prev = URL(link, vars={'date': yesterday})
+    url_next = URL(link, vars={'date': tomorrow})
+    url_today = URL(link, vars={'date': TODAY_LOCAL.strftime(DATE_FORMAT)})
+
+    today = ''
+    if date != TODAY_LOCAL:
+        today = A(os_gui.get_fa_icon('fa fa-calendar-o'), ' ', T("Today"),
+                 _href=url_today,
+                 _class='btn btn-default')
+
+    previous = A(I(_class='fa fa-angle-left'),
+                 _href=url_prev,
+                 _class='btn btn-default')
+    nxt = A(I(_class='fa fa-angle-right'),
+            _href=url_next,
+            _class='btn btn-default')
+
+    return DIV(previous, today, nxt, _class='btn-group pull-right')
+
+
+def attendance_classes_no_show_get_form_jump():
+    """
+        Returns a form to jump to a date
+    """
+    jump_date = session.reports_attendance_no_show_date
+    form_jump = SQLFORM.factory(
+                Field('jump_date', 'date',
+                      requires=IS_DATE_IN_RANGE(
+                                format=DATE_FORMAT,
+                                minimum=datetime.date(1900,1,1),
+                                maximum=datetime.date(2999,1,1)),
+                      default=jump_date,
+                      label=T(""),
+                      widget=os_datepicker_widget_small),
+                submit_button=T('Go'),
+                )
+
+    submit_jump = form_jump.element('input[type=submit]')
+    submit_jump['_class'] = 'full-width'
+
+    form_jump = DIV(form_jump.custom.begin,
+                    DIV(form_jump.custom.widget.jump_date,
+                        DIV(form_jump.custom.submit,
+                            _class='input-group-btn'),
+                        _class='input-group'),
+                    form_jump.custom.end,
+                    _class='form_inline',
+                    _id='cashbook_form_jump_date')
+
+    return form_jump
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
