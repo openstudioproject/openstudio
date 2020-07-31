@@ -5238,6 +5238,7 @@ def revenue():
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, date_formatted)
+    booking_status = request.vars['booking_status'] or "booked_and_attending"
     response.title = T("Class")
     response.subtitle = get_classname(clsID) + ": " + date_formatted
 
@@ -5245,11 +5246,15 @@ def revenue():
 
     reports = Reports()
     # TODO: Add booking status from request.var
-    result = reports.get_class_revenue_summary_formatted(clsID, date, "attending")
+    result = reports.get_class_revenue_summary_formatted(clsID, date, booking_status)
+    filter = revenue_get_filter_form(booking_status)
 
     content =  DIV(
         DIV(H4(T('Total')),
-            result['table_total'], _class='col-md-12'),
+            result['table_total'], _class='col-md-8'),
+        DIV(H4(T("Display")),
+            filter,
+            _class='col-md-4'),
         DIV(H4(T('Revenue')),
             result['table_revenue'], _class='col-md-12'),
         _class='row'
@@ -5257,7 +5262,9 @@ def revenue():
 
     export = os_gui.get_button(
         'download',
-        URL('revenue_export', vars={'clsID':clsID, 'date':date.strftime(DATE_FORMAT_ISO8601)}),
+        URL('revenue_export', vars={'clsID':clsID,
+                                    'date':date.strftime(DATE_FORMAT_ISO8601),
+                                    'booking_status': booking_status}),
         btn_size='',
         _class='pull-right'
     )
@@ -5271,21 +5278,40 @@ def revenue():
                 menu=menu)
 
 
+def revenue_get_filter_form(booking_status):
+    form = SQLFORM.factory(
+        Field('booking_status',
+            requires=IS_IN_SET(attendance_booking_statuses_filter_values,
+                              zero=None),
+            default=booking_status,
+            label=T("Booking status")),
+        submit_button=T('Filter'),
+        formstyle='divs',
+        )
+
+    # sumbit form on change
+    selects = form.elements('select')
+    for select in selects:
+        select.attributes['_onchange'] = "this.form.submit();"
+
+    return form
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes_revenue'))
 def revenue_export_preview():
     from openstudio.os_reports import Reports
 
-
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT_ISO8601, date_formatted)
+    booking_status = request.vars['booking_status'] or "attending_and_booked"
 
     reports = Reports()
 
     return reports._get_class_revenue_summary_pdf_template(clsID,
                                                            date,
-                                                           booking_status="booked_and_attending",
+                                                           booking_status=booking_status,
                                                            quick_stats=True)
 
 
