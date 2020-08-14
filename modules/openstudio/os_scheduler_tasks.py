@@ -524,4 +524,4 @@ class OsSchedulerTasks:
                 errors += 1
 
 
-        return "Updated %s rows, %s pictures were not found" % (rows_processed, errors)
+        return "Generated thumbnails for %s pictures, %s pictures were not found" % (rows_processed, errors)
