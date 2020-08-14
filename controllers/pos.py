@@ -1471,7 +1471,6 @@ def update_customer_picture():
 
         status = 'success'
 
-
     return dict(result=status,
                 data=data)
 
