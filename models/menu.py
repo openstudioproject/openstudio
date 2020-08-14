@@ -668,6 +668,9 @@ def get_backend_menu():
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Customer memberships'))),
                             False,
                             URL('automation_customer_memberships', 'index', extension='')))
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Customer pictures'))),
+                            False,
+                            URL('automation_customer_pictures', 'index', extension='')))
 
 
             menu += [
