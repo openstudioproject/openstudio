@@ -503,3 +503,29 @@ class OsSchedulerTasks:
 
         return "Sent trial card follow up mails: %s" % mails_sent
 
+
+    def recreate_customer_thumbnails(self):
+        """
+        Force thumbnail recreation for records in the auth_user table.
+        :return: String: How many records were processed.
+        """
+        db = current.db
+        query = (db.auth_user.picture != None) & (db.auth_user.picture != "")
+
+        rows_processed = 0
+        errors = 0
+        rows = db(query).select(db.auth_user.ALL)
+        for row in rows:
+            try:
+                row.update_record(picture=row.picture)
+                rows_processed += 1
+            except FileNotFoundError:
+                row.update_record(picture = None)
+                errors += 1
+
+        ##
+        # For scheduled tasks db connection has to be committed manually
+        ##
+        db.commit()
+
+        return "Generated thumbnails for %s pictures, %s pictures were not found" % (rows_processed, errors)
