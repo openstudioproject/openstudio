@@ -6,6 +6,48 @@ from gluon import *
 
 
 class Reports:
+    def get_rows_classcards_sold_in_month(self, year, month):
+        """
+        returns
+        :return:
+        """
+        db = current.db
+
+        date = datetime.date(year, month, 1)
+        firstdaythismonth = date
+        next_month = date.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
+        lastdaythismonth = next_month - datetime.timedelta(days=next_month.day)
+
+
+        query = (db.customers_classcards.Startdate >= firstdaythismonth) & \
+                (db.customers_classcards.Startdate <= lastdaythismonth) & \
+                (db.school_classcards.Trialcard == False)
+
+        rows = db(query).select(
+            db.auth_user.id,
+            db.auth_user.trashed,
+            db.auth_user.thumbsmall,
+            db.auth_user.birthday,
+            db.auth_user.display_name,
+            db.auth_user.date_of_birth,
+            db.customers_classcards.id,
+            db.customers_classcards.Startdate,
+            db.customers_classcards.Enddate,
+            db.customers_classcards.school_classcards_id,
+            db.school_classcards.Name,
+            db.school_classcards.Classes,
+            db.school_classcards.Price,
+            db.school_classcards.Unlimited,
+            left=[db.auth_user.on(db.auth_user.id == \
+                                  db.customers_classcards.auth_customer_id),
+                  db.school_classcards.on(
+                      db.customers_classcards.school_classcards_id == \
+                      db.school_classcards.id)],
+            orderby=~db.customers_classcards.Startdate | ~db.auth_user.display_name
+        )
+
+        return rows
+
     def get_query_subscriptions_new_in_month(self,
                                              date,
                                              filter_school_locations_id=None):

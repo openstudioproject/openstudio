@@ -1160,6 +1160,9 @@ def overview_get_month_chooser(page):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'reports_classcards'))
 def classcards():
+    from openstudio.os_reports import Reports
+    reports = Reports()
+
     response.title = T("Reports")
     session.customers_back = 'classcards'
     response.view = 'reports/subscriptions.html'
@@ -1180,10 +1183,6 @@ def classcards():
         month = today.month
     session.reports_cc_month = month
 
-    date = datetime.date(year,month,1)
-    firstdaythismonth = date
-    next_month = date.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
-    lastdaythismonth = next_month - datetime.timedelta(days=next_month.day)
 
     result = get_form_subtitle(month, year, request.function)
     response.subtitle = T('Class cards') + ' - ' + result['subtitle']
@@ -1192,36 +1191,11 @@ def classcards():
     current_month = result['current_month']
     submit = result['submit']
 
-
-    query = (db.customers_classcards.Startdate >= firstdaythismonth) & \
-            (db.customers_classcards.Startdate <= lastdaythismonth) & \
-            (db.school_classcards.Trialcard == False)
-
-    rows = db(query).select(db.auth_user.id,
-                            db.auth_user.trashed,
-                            db.auth_user.thumbsmall,
-                            db.auth_user.birthday,
-                            db.auth_user.display_name,
-                            db.auth_user.date_of_birth,
-                            db.customers_classcards.id,
-                            db.customers_classcards.Startdate,
-                            db.customers_classcards.Enddate,
-                            db.customers_classcards.school_classcards_id,
-                            db.school_classcards.Name,
-                            db.school_classcards.Classes,
-                            db.school_classcards.Price,
-                            db.school_classcards.Unlimited,
-        left=[db.auth_user.on(db.auth_user.id==\
-                              db.customers_classcards.auth_customer_id),
-              db.school_classcards.on(
-                db.customers_classcards.school_classcards_id ==\
-                db.school_classcards.id)],
-        orderby=~db.customers_classcards.Startdate|~db.auth_user.display_name)
+    rows = reports.get_rows_classcards_sold_in_month(year, month)
 
     total_price = 0
     for row in rows:
         total_price += row.school_classcards.Price
-
 
     table = TABLE(_class="table table-striped table-hover")
     table.append(THEAD(TR(TH(), # image
@@ -1296,6 +1270,72 @@ def classcards():
                 current_month=current_month,
                 modals=modals,
                 submit=submit)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'reports_classcards'))
+def classcards_export():
+
+        """
+        Mailchimp compatible excel export
+        :return:
+        """
+        from openstudio.os_reports import Reports
+
+        reports = Reports()
+
+        date = datetime.date(
+            session.reports_subscriptions_year,
+            session.reports_subscriptions_month,
+            1
+        )
+
+        location_filter = False
+        filter_school_locations_id = None
+        if session.show_location:
+            location_filter = True
+            filter_school_locations_id = session.reports_subscriptions_school_locations_id
+
+        query = reports.get_query_subscriptions_new_in_month(
+            date,
+            filter_school_locations_id=filter_school_locations_id
+        )
+
+        fields = [
+            db.auth_user.id,
+            db.auth_user.trashed,
+            db.auth_user.thumbsmall,
+            db.auth_user.birthday,
+            db.auth_user.first_name,
+            db.auth_user.last_name,
+            db.auth_user.display_name,
+            db.auth_user.date_of_birth,
+            db.auth_user.email,
+            db.customers_subscriptions.school_subscriptions_id,
+            db.customers_subscriptions.Startdate,
+            db.customers_subscriptions.payment_methods_id
+        ]
+        rows = db.executesql(query, fields=fields)
+
+        # create filestream
+        stream = io.BytesIO()
+
+        # Create the workbook
+        wb = openpyxl.workbook.Workbook(write_only=True)
+        ws = wb.create_sheet(title='Mailinglist')
+
+        for row in rows:
+            ws.append([row.auth_user.first_name,
+                       row.auth_user.last_name,
+                       row.auth_user.email])
+
+        fname = T("Mailinglist") + '.xlsx'
+        wb.save(stream)
+
+        response.headers['Content-Type'] = 'application/vnd.ms-excel'
+        response.headers['Content-disposition'] = 'attachment; filename=' + fname
+
+        return stream.getvalue()
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
