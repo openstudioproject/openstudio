@@ -32,6 +32,8 @@ class Reports:
             db.auth_user.last_name,
             db.auth_user.display_name,
             db.auth_user.email,
+            db.auth_user.phone,
+            db.auth_user.mobile,
             db.auth_user.date_of_birth,
             db.customers_classcards.id,
             db.customers_classcards.Startdate,

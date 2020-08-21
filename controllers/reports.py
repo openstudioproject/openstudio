@@ -1296,10 +1296,37 @@ def classcards_export():
         wb = openpyxl.workbook.Workbook(write_only=True)
         ws = wb.create_sheet(title=title)
 
+        # write first row
+        header = [
+            "CustomerID",
+            "First name",
+            "Last name",
+            "Email",
+            "Phone",
+            "Mobile",
+            "CardID",
+            "Card",
+            "Start",
+            "End",
+            "Price",
+        ]
+        ws.append(header)
+
+        # write data
         for row in rows:
-            ws.append([row.auth_user.first_name,
-                       row.auth_user.last_name,
-                       row.auth_user.email])
+            ws.append([
+                row.auth_user.id,
+                row.auth_user.first_name,
+                row.auth_user.last_name,
+                row.auth_user.email,
+                row.auth_user.phone,
+                row.auth_user.mobile,
+                row.customers_classcards.id,
+                row.school_classcards.Name,
+                row.customers_classcards.Startdate,
+                row.customers_classcards.Enddate,
+                row.school_classcards.Price,
+            ])
 
         fname = title + '.xlsx'
         wb.save(stream)
