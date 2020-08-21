@@ -1271,11 +1271,26 @@ def classcards():
     total = result['button']
     modals = DIV(result['modal'])
 
+    link_all_customers = A(
+        SPAN(os_gui.get_fa_icon('fa-file-excel-o'), ' ', T("Sold cards this month")),
+        _href=URL('classcards_export'),
+        _class='textalign_left',
+        _title=T(''))
+
+    links = [ link_all_customers ]
+
+    export = os_gui.get_dropdown_menu(
+            links = links,
+            btn_text = '',
+            btn_icon = 'download',
+            menu_class='pull-right' )
+
     menu = classcards_get_menu(request.function)
 
     return dict(form=form,
                 menu=menu,
                 total=total,
+                export=export,
                 content=classcards,
                 month_chooser=month_chooser,
                 current_month=current_month,
