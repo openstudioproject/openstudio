@@ -1284,52 +1284,24 @@ def classcards_export():
 
         reports = Reports()
 
-        date = datetime.date(
-            session.reports_subscriptions_year,
-            session.reports_subscriptions_month,
-            1
-        )
-
-        location_filter = False
-        filter_school_locations_id = None
-        if session.show_location:
-            location_filter = True
-            filter_school_locations_id = session.reports_subscriptions_school_locations_id
-
-        query = reports.get_query_subscriptions_new_in_month(
-            date,
-            filter_school_locations_id=filter_school_locations_id
-        )
-
-        fields = [
-            db.auth_user.id,
-            db.auth_user.trashed,
-            db.auth_user.thumbsmall,
-            db.auth_user.birthday,
-            db.auth_user.first_name,
-            db.auth_user.last_name,
-            db.auth_user.display_name,
-            db.auth_user.date_of_birth,
-            db.auth_user.email,
-            db.customers_subscriptions.school_subscriptions_id,
-            db.customers_subscriptions.Startdate,
-            db.customers_subscriptions.payment_methods_id
-        ]
-        rows = db.executesql(query, fields=fields)
+        year = session.reports_cc_year
+        month = session.reports_cc_month
+        rows = reports.get_rows_classcards_sold_in_month(year, month)
 
         # create filestream
         stream = io.BytesIO()
 
         # Create the workbook
+        title = 'Sold_cards_%s_%s' % (year, month)
         wb = openpyxl.workbook.Workbook(write_only=True)
-        ws = wb.create_sheet(title='Mailinglist')
+        ws = wb.create_sheet(title=title)
 
         for row in rows:
             ws.append([row.auth_user.first_name,
                        row.auth_user.last_name,
                        row.auth_user.email])
 
-        fname = T("Mailinglist") + '.xlsx'
+        fname = title + '.xlsx'
         wb.save(stream)
 
         response.headers['Content-Type'] = 'application/vnd.ms-excel'
