@@ -4,6 +4,8 @@ function tinymce_init_default() {
     tinymce.init({
       selector: 'textarea.tmced',
       height: 200,
+      relative_urls : false,
+      remove_script_host : true,
       plugins: [
         'advlist autolink lists link image charmap print preview anchor',
         'searchreplace visualblocks hr code fullscreen',
