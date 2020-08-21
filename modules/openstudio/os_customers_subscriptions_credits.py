@@ -268,6 +268,8 @@ class CustomersSubscriptionsCredits:
         rows = self.add_credits_get_subscription_rows_month(year, month)
 
         for row in rows:
+            # Don't do anything if this subscription already got credits for this month is paused
+            # or has no classes or subscription unit defined
             if row.customers_subscriptions_credits.id:
                 continue
             if row.customers_subscriptions_paused.id:
@@ -275,8 +277,6 @@ class CustomersSubscriptionsCredits:
             if row.school_subscriptions.Classes == 0 or row.school_subscriptions.Classes is None:
                 continue
             if row.school_subscriptions.SubscriptionUnit is None:
-                # Don't do anything if this subscription already got credits for this month or is paused
-                # or has no classes or subscription unit defined
                 continue
 
             # calculate number of credits

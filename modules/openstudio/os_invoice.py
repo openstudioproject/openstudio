@@ -826,7 +826,6 @@ class Invoice:
                 if pause_end >= period_range.end:
                     pause_end = period_range.end
 
-
                 pause_range = Range(start=pause.Startdate, end=pause_end)
                 latest_start = max(period_range.start, pause_range.start)
                 earliest_end = min(pause_range.end, pause_range.end)

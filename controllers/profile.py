@@ -297,7 +297,7 @@ def index_get_classcards(customer):
                      T("Click "),
                      A(T("here"),
                        _href=URL('shop', 'classcards')), ' ',
-                     T("to buy a class card."))
+                     T("to get a class card."))
     else:
         header = DIV(
             DIV(T("Card"), _class='col-md-1'),
