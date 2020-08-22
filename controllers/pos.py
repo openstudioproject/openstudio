@@ -209,7 +209,7 @@ def get_class_attendance():
     attendance = ah.get_attendance_rows(clsID, date).as_list()
 
     for row in attendance:
-        row['auth_user']['thumbsmall'] = get_customers_thumbnail_url(row['auth_user']['thumbsmall'])
+        row['auth_user']['thumbsmall'] = get_customers_thumbnail_url(row['auth_user']['thumbsmall'], size="small")
 
     return dict(attendance=attendance)
 
@@ -765,8 +765,8 @@ def delete_customer_note():
     return dict(id=cnID, error=error)
 
 
-def get_customers_thumbnail_url(row_data):
-    if not row_data:
+def get_customers_thumbnail_url(row_data, size="large"):
+    if not row_data or size == "small":
         return URL(
             'static', 'images/person.png',
             scheme=True,
@@ -858,7 +858,7 @@ def _get_customers(var=None):
             'mobile': row.mobile,
             # 'emergency': row.emergency,
             # 'company': row.company,
-            'thumbsmall': get_customers_thumbnail_url(row.thumbsmall),
+            'thumbsmall': get_customers_thumbnail_url(row.thumbsmall, size="small"),
             'thumblarge': get_customers_thumbnail_url(row.thumblarge),
             'barcode_id': row.barcode_id
         }
@@ -1334,7 +1334,7 @@ def create_customer():
             'mobile': row.mobile,
             'emergency': row.emergency,
             'company': row.company,
-            'thumbsmall': get_customers_thumbnail_url(row.thumbsmall),
+            'thumbsmall': get_customers_thumbnail_url(row.thumbsmall, size="small"),
             'thumblarge': get_customers_thumbnail_url(row.thumblarge)
         }
 
@@ -1419,7 +1419,7 @@ def update_customer():
                 'mobile': row.mobile,
                 'emergency': row.emergency,
                 'company': row.company,
-                'thumbsmall': get_customers_thumbnail_url(row.thumbsmall),
+                'thumbsmall': get_customers_thumbnail_url(row.thumbsmall, size="small"),
                 'thumblarge': get_customers_thumbnail_url(row.thumblarge)
             }
 
@@ -1434,6 +1434,8 @@ def update_customer_picture():
     """
     :return: dict containing data of new auth_user
     """
+    from openstudio.os_cache_manager import OsCacheManager
+
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
@@ -1443,6 +1445,7 @@ def update_customer_picture():
 
     status = 'fail'
     data = {}
+    ocm = OsCacheManager()
 
     cuID = request.vars['cuID']
     picture = request.vars['picture'].split(',')[1] # Remove description from b64 encoded image
@@ -1465,11 +1468,12 @@ def update_customer_picture():
         row = db.auth_user(cuID)
         data = {
             'id': cuID,
-            'thumbsmall': get_customers_thumbnail_url(row.thumbsmall),
+            'thumbsmall': get_customers_thumbnail_url(row.thumbsmall, size="small"),
             'thumblarge': get_customers_thumbnail_url(row.thumblarge)
         }
 
         status = 'success'
+        ocm.clear_customers()
 
     return dict(result=status,
                 data=data)
