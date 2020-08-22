@@ -1157,7 +1157,8 @@ def edit_picture():
         crud.settings.update_onvalidation.customers.append(_edit_clear_old_thumbs)
         crud.settings.update_onaccept.customers.extend(
             [ _edit_check_picture,
-              cache_clear_school_teachers
+              cache_clear_school_teachers,
+              cache_clear_customers
             ]
         )
 
