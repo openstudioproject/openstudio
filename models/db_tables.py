@@ -1,6 +1,7 @@
 # coding: utf8
 import datetime
 import pytz
+import os
 from decimal import Decimal, ROUND_HALF_UP
 
 from gluon.scheduler import Scheduler
@@ -6655,11 +6656,13 @@ auth.settings.extra_fields['auth_user'] = [
         represent=lambda value, row: languages_dict.get(value, None),
         label=T("Language")),
     Field('picture', 'upload', autodelete=True,
-        requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
-                                       IS_LENGTH(maxsize=4194304)]),
-        label=T("Customer")),
+          uploadfolder=os.path.join(request.folder, 'static', 'thumbnails'),
+          requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
+                                IS_LENGTH(maxsize=4194304)]),
+          label=T("Customer")),
     Field('thumbsmall', 'upload', # generate 50*50 for list view
         autodelete=True, writable=False,
+        uploadfolder=os.path.join(request.folder, 'static', 'thumbnails'),
         compute = lambda row: SMARTHUMB(row.picture,
                                         (50, 50),
                                          name="Small",
@@ -6668,6 +6671,7 @@ auth.settings.extra_fields['auth_user'] = [
         label=T("Customer")),
     Field('thumblarge', 'upload', # generate 400*400 for edit view
         autodelete=True, writable=False,
+        uploadfolder=os.path.join(request.folder, 'static', 'thumbnails'),
         compute = lambda row: SMARTHUMB(row.picture,
                                          (400, 400),
                                          name="Large",

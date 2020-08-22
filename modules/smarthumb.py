@@ -21,7 +21,12 @@ def SMARTHUMB(image, box, fit=True, name="thumb", field_string=None):
         db = current.db
         field = _get_db_field(field_string)
         request = current.request
-        img = Image.open(os.path.join(request.folder, 'uploads', image))
+        try:
+            img = Image.open(os.path.join(request.folder, 'uploads', image))
+            file_path = os.path.join(request.folder, 'uploads')
+        except FileNotFoundError:
+            img = Image.open(os.path.join(request.folder, 'static', 'thumbnails', image))
+            file_path = os.path.join(request.folder, 'static', 'thumbnails')
         #preresize image with factor 2, 4, 8 and fast algorithm
         factor = 1
         while img.size[0] / factor > 2 * box[0] and img.size[1] * 2 / factor > 2 * box[1]:
@@ -62,7 +67,7 @@ def SMARTHUMB(image, box, fit=True, name="thumb", field_string=None):
         # Get db field value
         filevalue = field.store(temp_stream, filename)
         # write file to disk
-        new_file_path = os.path.join(request.folder, 'uploads', filevalue)
+        new_file_path = os.path.join(file_path, filevalue)
         img.save(new_file_path)
 
         return filevalue

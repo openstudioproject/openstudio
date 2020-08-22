@@ -773,8 +773,14 @@ def get_customers_thumbnail_url(row_data):
             host=True
         )
     else:
+        # return URL(
+        #     'default', 'download', args=[row_data],
+        #     extension='',
+        #     host=True,
+        #     scheme=True
+        # )
         return URL(
-            'default', 'download', args=[row_data],
+            'static', 'thumbnails', args=[row_data],
             extension='',
             host=True,
             scheme=True
