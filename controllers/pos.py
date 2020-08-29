@@ -1358,14 +1358,14 @@ def update_customer():
     ocm = OsCacheManager()
 
     db.auth_user.password.requires = None
-    print(request.vars)
+    # print(request.vars)
 
     cuID = request.vars.pop('id', None)
 
-    print(cuID)
-    print(request.vars)
+    # print(cuID)
+    # print(request.vars)
 
-    print(db.auth_user.email.requires)
+    # print(db.auth_user.email.requires)
 
     # The default validator returns an error in this case
     # It says an account already exists for this email
@@ -1385,17 +1385,42 @@ def update_customer():
     ]
 
     if cuID:
-        query = (db.auth_user.id == cuID)
-        result = db(query).validate_and_update(**request.vars)
-        ocm.clear_customers()
-        print(result)
+        first_name = request.vars['first_name']
+        last_name = request.vars['last_name']
+        email = request.vars['email']
+        mobile = request.vars['mobile']
+        date_of_birth = request.vars['date_of_birth']
+
+        errors = {}
+        first_name, error = db.auth_user.first_name.validate(first_name)
+        if error:
+            errors['first_name'] = error
+        last_name, error = db.auth_user.last_name.validate(last_name)
+        if error:
+            errors['last_name'] = error
+        email, error = db.auth_user.email.validate(email)
+        if error:
+            errors['email'] = error
+        mobile, error = db.auth_user.mobile.validate(mobile)
+        if error:
+            errors['mobile'] = error
+        date_of_birth, error = db.auth_user.date_of_birth.validate(date_of_birth)
+        if error:
+            errors['date_of_birth'] = error
+
+        # print(result)
         error = False
-        if result.errors:
+        if errors:
             error = True
             customer_data = {}
 
         if not error:
             row = db.auth_user(cuID)
+            row.first_name = first_name
+            row.last_name = last_name
+            row.email = email
+            row.mobile = mobile
+            row.date_of_birth = row.date_of_birth
 
             dob = ''
             if row.date_of_birth:
@@ -1423,7 +1448,7 @@ def update_customer():
                 'thumblarge': get_customers_thumbnail_url(row.thumblarge)
             }
 
-        return dict(result=result,
+        return dict(result={'errors': errors},
                     error=error,
                     customer_data=customer_data,
                     id=cuID)
