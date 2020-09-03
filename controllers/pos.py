@@ -209,7 +209,7 @@ def get_class_attendance():
     attendance = ah.get_attendance_rows(clsID, date).as_list()
 
     for row in attendance:
-        row['auth_user']['thumbsmall'] = get_customers_thumbnail_url(row['auth_user']['thumbsmall'], size="small")
+        row['auth_user']['thumbsmall'] = get_customers_thumbnail_url(row['auth_user']['thumbsmall'])
 
     return dict(attendance=attendance)
 
@@ -765,8 +765,8 @@ def delete_customer_note():
     return dict(id=cnID, error=error)
 
 
-def get_customers_thumbnail_url(row_data, size="large"):
-    if not row_data or size == "small":
+def get_customers_thumbnail_url(row_data, always_show_static_image=False):
+    if not row_data or always_show_static_image:
         return URL(
             'static', 'images/person.png',
             scheme=True,
@@ -858,7 +858,7 @@ def _get_customers(var=None):
             'mobile': row.mobile,
             # 'emergency': row.emergency,
             # 'company': row.company,
-            'thumbsmall': get_customers_thumbnail_url(row.thumbsmall, size="small"),
+            'thumbsmall': get_customers_thumbnail_url(row.thumbsmall, always_show_static_image=True),
             'thumblarge': get_customers_thumbnail_url(row.thumblarge),
             'barcode_id': row.barcode_id
         }
@@ -1334,7 +1334,7 @@ def create_customer():
             'mobile': row.mobile,
             'emergency': row.emergency,
             'company': row.company,
-            'thumbsmall': get_customers_thumbnail_url(row.thumbsmall, size="small"),
+            'thumbsmall': get_customers_thumbnail_url(row.thumbsmall, always_show_static_image=True),
             'thumblarge': get_customers_thumbnail_url(row.thumblarge)
         }
 
@@ -1444,7 +1444,7 @@ def update_customer():
                 'mobile': row.mobile,
                 'emergency': row.emergency,
                 'company': row.company,
-                'thumbsmall': get_customers_thumbnail_url(row.thumbsmall, size="small"),
+                'thumbsmall': get_customers_thumbnail_url(row.thumbsmall, always_show_static_image=True),
                 'thumblarge': get_customers_thumbnail_url(row.thumblarge)
             }
 
@@ -1493,7 +1493,7 @@ def update_customer_picture():
         row = db.auth_user(cuID)
         data = {
             'id': cuID,
-            'thumbsmall': get_customers_thumbnail_url(row.thumbsmall, size="small"),
+            'thumbsmall': get_customers_thumbnail_url(row.thumbsmall, always_show_static_image=True),
             'thumblarge': get_customers_thumbnail_url(row.thumblarge)
         }
 
