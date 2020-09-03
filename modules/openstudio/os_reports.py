@@ -18,10 +18,8 @@ class Reports:
         next_month = date.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
         lastdaythismonth = next_month - datetime.timedelta(days=next_month.day)
 
-
         query = (db.customers_classcards.Startdate >= firstdaythismonth) & \
-                (db.customers_classcards.Startdate <= lastdaythismonth) & \
-                (db.school_classcards.Trialcard == False)
+                (db.customers_classcards.Startdate <= lastdaythismonth)
 
         rows = db(query).select(
             db.auth_user.id,
