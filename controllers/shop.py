@@ -2436,7 +2436,7 @@ def classes_book_options():
         content.append(DIV(B(T("You've already booked this class"))))
         return dict(content=content, back=back)
 
-    if cls.get_full():
+    if cls.get_full() or cls.get_full_bookings_shop():
         content.append(DIV(B(T("This class is fully booked."))))
         content.append(BR())
         content.append(A(os_gui.get_fa_icon('fa-arrow-left'), ' ', T("Choose another class"),
@@ -2504,7 +2504,7 @@ def class_full():
                   _class='center')
 
     #TODO: Show available walk-in spaces here?
-    if cls.get_full():
+    if cls.get_full() or cls.get_full_bookings_shop():
         content.append(DIV(B(T("There are no more online spaces are available for this class."))))
         content.append(BR())
         content.append(T("In case you created an order, your order has been cancelled automatically."))
@@ -2868,7 +2868,7 @@ def class_checkout():
         )
 
     # Check if the class has become full in the mean time
-    if cls.get_full():
+    if cls.get_full() or cls.get_full_bookings_shop():
         redirect(class_get_full_url(clsID, date_formatted))
 
     # automatic payment
@@ -2969,7 +2969,7 @@ def class_order():
     order.set_status_awaiting_payment()
 
     # Check if the class has become full in the mean time
-    if cls.get_full():
+    if cls.get_full() or cls.get_full_bookings_shop():
         # Cancel order
         order.set_status_cancelled()
         # Redirect customer to class full message

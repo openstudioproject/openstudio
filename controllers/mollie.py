@@ -561,7 +561,7 @@ def order_pay():
     # Check if the order contains a class that's been fully booked in the main time
     if order.contains_class():
         cls = order.get_class_object_order_item()
-        if cls.get_full():
+        if cls.get_full() or cls.get_full_bookings_shop():
             redirect(URL("shop", "class_full", vars={"clsID": cls.clsID,
                                                      "date": cls.date.strftime(DATE_FORMAT)}))
 

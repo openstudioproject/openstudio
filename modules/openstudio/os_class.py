@@ -322,17 +322,38 @@ class Class:
         """
         db = current.db
 
-        spaces = self.cls.Maxstudents - self.cls.WalkInSpaces
+        # spaces = self.cls.Maxstudents - self.cls.WalkInSpaces
         query = (db.classes_attendance.classes_id == self.clsID) & \
                 (db.classes_attendance.ClassDate == self.date) & \
                 (db.classes_attendance.online_booking == True) & \
                 (db.classes_attendance.BookingStatus != 'cancelled')
         filled = db(query).count()
 
-        full = True if filled >= spaces else False
+        # full = True if filled >= spaces else False
+        #
+        # return full
+        total_spaces = self.cls.Maxstudents or 0
+        walk_in_spaces = self.cls.WalkInSpaces or 0
 
-        return full
+        # Attendance = count of all bookings with status booked or attending
+        attendance = filled or 0
 
+        # Spaces available for online booking
+        online_spaces = total_spaces - walk_in_spaces
+
+        # Subtract attendance
+        available_spaces = online_spaces - attendance
+
+        # # Never return negatives, just 0
+        if available_spaces < 1:
+            available_spaces = 0
+
+        if available_spaces:
+            # Not full
+            return False
+        else:
+            # Full
+            return True
 
     def get_invoice_order_description(self, attendance_type):
         """        
