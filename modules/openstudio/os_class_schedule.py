@@ -638,6 +638,7 @@ class ClassSchedule:
 
     def _get_day_list_booking_spaces(self, row):
         """
+        Returns number of online booking spaces available
         :param row: :param row: ClassSchedule.get_day_rows() row
         :return: int - available online booking spaces for a class
         """
