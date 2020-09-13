@@ -1661,6 +1661,42 @@ def subscription_credits():
 
 
 @auth.requires_login()
+def subscription_cancel():
+    """
+        Page to list permissions for a subscription
+    """
+    from openstudio.tools import OsTools
+
+    csID = request.vars['csID']
+    response.title = T('Profile')
+    response.subtitle = T('Cancel subscription')
+    response.view = 'shop/index.html'
+    tools = OsTools()
+
+    # Check if the subscriptions feature is enabled
+    features = db.customers_profile_features(1)
+    if not features.Subscriptions:
+        redirect(URL('profile', 'index'))
+
+    # Check if customers are allowed to cancel subscriptions
+    if not tools.get_sys_property("shop_customers_can_cancel_subscriptions") == "on":
+        redirect(URL('profile', 'index'))
+
+    # Check if this subscription belongs to the currently signed in user
+    cs = CustomerSubscription(csID)
+    if cs.cs.auth_customer_id != auth.user.id:
+        session.flash = T("That subscription doesn't belong to this user")
+        return URL('profile', 'index')
+
+    content = "Hello world!"
+
+    back = os_gui.get_button('back', URL('profile', 'index'))
+
+    return dict(content=content, back=back)
+
+
+
+@auth.requires_login()
 def subscription_info():
     """
         Page to list permissions for a subscription
