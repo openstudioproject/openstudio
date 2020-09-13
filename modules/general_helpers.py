@@ -756,6 +756,23 @@ def represent_subscription_units(value, row):
 
     return return_value
 
+def represent_subscription_cancellation_period_units(value, row):
+    """
+        Function to represent validity units
+    """
+    SUBSCRIPTION_CANCELLATION_PERIOD_UNITS = current.globalenv['SUBSCRIPTION_CANCELLATION_PERIOD_UNITS']
+
+    return_value = ''
+    for unit in SUBSCRIPTION_CANCELLATION_PERIOD_UNITS:
+        if value == unit[0]:
+            return_value = unit[1]
+            # if row.Validity == 1:
+            #     # Cut the 's' at the end
+            #     return_value = return_value[:-1]
+            break
+
+    return return_value
+
 
 def get_download_url(db_upload_field_value):
     """

@@ -1523,6 +1523,15 @@ def define_school_subscriptions():
             represent=represent_school_subscriptions_minduration,
             label=T("Minimum duration"),
             comment=T("Minimum duration of this subscription in months")),
+        Field("CancellationPeriod", "integer",
+              default=1,
+              label=T("Cancellation period"),
+              comment=T("Cancellation period for this subscription.")
+              ),
+        Field('CancellationPeriodUnit',
+              requires=IS_IN_SET(SUBSCRIPTION_CANCELLATION_PERIOD_UNITS, zero=None),
+              represent=represent_subscription_cancellation_period_units,
+              label=T('Cancellation period in')),
         Field('Classes', 'integer', required=False,
             requires=IS_INT_IN_RANGE(1, 99999999, error_message=T("Please enter a number between 1 and 99999999")),
             represent=represent_school_subscriptions_classes, # return Unlimited instead of number if row.Unlimited
