@@ -410,9 +410,17 @@ def subscription_get_dropdown(row):
     Return dropdown with subscription options
     :return:
     """
+    from openstudio.tools import OsTools
+
+    tools = OsTools()
+
     links = []
     links.append(subscription_get_link_info(row))
     links.append(subscription_get_link_invoices(row))
+
+    if tools.get_sys_property("shop_customers_can_cancel_subscriptions") == "on":
+        links.append('divider')
+        links.append(subscription_get_link_cancel(row))
 
     dd = os_gui.get_dropdown_menu(
             links=links,
@@ -519,6 +527,18 @@ def subscription_get_link_invoices(row):
     return A(os_gui.get_fa_icon('fa-file-text-o'), ' ', T("Invoices"),
              _href=URL('subscription_invoices', vars={'csID':csID}),
              _title=T('Invoices for this subscription'))
+
+
+def subscription_get_link_cancel(row):
+    """
+        Returns cancel link for a subscription
+    """
+    csID = row.customers_subscriptions.id
+
+    return A(os_gui.get_fa_icon('fa-ban'), ' ', T("Cancel subscription"),
+             _href=URL('subscription_cancel', vars={'csID':csID}),
+             _title=T('Cancel this subscription'),
+             _class="text-red")
 
 
 def me_requires_complete_profile(auID):
