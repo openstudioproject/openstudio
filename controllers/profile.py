@@ -358,9 +358,9 @@ def index_get_subscriptions(customer):
     else:
         header = DIV(
             DIV(T("#"), _class='col-md-1'),
-            DIV(T("Subscription"), _class='col-md-4'),
-            DIV(T("Credits"), _class='col-md-3'),
-            DIV(T(""), _class='col-md-4'), # Actions
+            DIV(T("Subscription"), _class='col-md-6'),
+            DIV(T("Credits"), _class='col-md-4'),
+            DIV(T(""), _class='col-md-1'), # Actions
             _class="row bold hidden-sm hidden-xs"
         )
 
@@ -370,8 +370,7 @@ def index_get_subscriptions(customer):
             repr_row = list(rows[i:i+1].render())[0]
 
             credits = subscription_get_link_credits(row)
-            info = subscription_get_link_info(row)
-            invoices = subscription_get_link_invoices(row)
+            dropdown = subscription_get_dropdown(row)
 
             row = DIV(
                 DIV(SPAN('# ', _class="bold hidden-md hidden-lg"),
@@ -381,12 +380,13 @@ def index_get_subscriptions(customer):
                     SPAN(T("Started on"), ": ",
                          repr_row.customers_subscriptions.Startdate,
                          _class="text-muted"),
-                    _class='col-md-4'),
+                    _class='col-md-6'),
                 DIV(credits, SPAN(' ', T("credit(s)"), _class="hidden-md text-muted hidden-lg"),
-                    _class='col-md-3'),
-                DIV(invoices,
-                    info,
                     _class='col-md-4'),
+                DIV(dropdown, _class='col-md-1'),
+                # DIV(invoices,
+                #     info,
+                #     _class='col-md-4'),
                 _class='row'
             )
 
@@ -403,6 +403,29 @@ def index_get_subscriptions(customer):
                                                _class='btn btn-link pull-right'),
                                                _title=T('List all subscriptions'),
                                              _class='center'))
+
+
+def subscription_get_dropdown(row):
+    """
+    Return dropdown with subscription options
+    :return:
+    """
+    links = []
+    links.append(subscription_get_link_info(row))
+    links.append(subscription_get_link_invoices(row))
+
+    dd = os_gui.get_dropdown_menu(
+            links=links,
+            btn_text=T(''),
+            btn_size='btn-sm',
+            btn_icon='option-horizontal',
+            btn_class="btn-link",
+            menu_class='btn-group pull-right',
+            show_caret=False
+    )
+
+    return DIV(dd, _class='pull-right')
+
 
 
 def index_get_memberships(customer):
@@ -484,8 +507,7 @@ def subscription_get_link_info(row):
 
     return A(os_gui.get_fa_icon('fa-check'), ' ', T("Access"),
              _href=URL('subscription_info', vars={'csID':csID}),
-             _title=T('Subscription details'),
-             _class='btn btn-sm btn-link pull-right')
+             _title=T('Subscription details'))
 
 
 def subscription_get_link_invoices(row):
@@ -496,8 +518,7 @@ def subscription_get_link_invoices(row):
 
     return A(os_gui.get_fa_icon('fa-file-text-o'), ' ', T("Invoices"),
              _href=URL('subscription_invoices', vars={'csID':csID}),
-             _title=T('Invoices for this subscription'),
-             _class='btn btn-sm btn-link')
+             _title=T('Invoices for this subscription'))
 
 
 def me_requires_complete_profile(auID):
@@ -1572,7 +1593,10 @@ def subscriptions():
 
     back = os_gui.get_button('back', URL('index'))
 
-    return dict(rows=rows, back=back, fcredits=subscription_get_link_credits, finfo=subscription_get_link_info)
+    return dict(rows=rows,
+                back=back,
+                fcredits=subscription_get_link_credits,
+                f_dropdown=subscription_get_dropdown)
 
 
 @auth.requires_login()

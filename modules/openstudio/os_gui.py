@@ -651,7 +651,8 @@ class OsGui:
                           btn_size='',
                           btn_icon='',
                           btn_class='btn-default',
-                          menu_class=''):
+                          menu_class='',
+                          show_caret=True):
         """
             Returns drop down menu with configurable text.
             Links is expected to be a list links
@@ -682,7 +683,10 @@ class OsGui:
             button += ' ' # space between icon and text on left side of text
         button += btn_text
         button += ' '
-        button += '<span class="caret"></span></button>'
+
+        if show_caret:
+            button += '<span class="caret"></span>'
+        button += '</button>'
 
         button = XML(button)
 

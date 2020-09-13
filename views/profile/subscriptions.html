@@ -21,13 +21,13 @@
                     {{for i, row in enumerate(rows):}}
                         {{repr_row = list(rows[i:i+1].render())[0]}}
                         {{credits = fcredits(row)}}
-                        {{info = SPAN(finfo(row), _class="pull-right")}}
+                        {{dropdown = SPAN(f_dropdown(row), _class="pull-right")}}
                         {{table.append(TR(TD(row.customers_subscriptions.id),
                                           TD(repr_row.school_subscriptions.Name),
                                           TD(repr_row.customers_subscriptions.Startdate),
                                           TD(repr_row.customers_subscriptions.Enddate),
                                           TD(credits),
-                                          TD(info))
+                                          TD(dropdown))
                                        )}}
                     {{pass}}
                 {{pass}}
