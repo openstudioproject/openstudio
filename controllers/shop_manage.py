@@ -18,6 +18,7 @@ def workflow():
     shop_requires_complete_profile_classcards = get_sys_property('shop_requires_complete_profile_classcards')
     shop_requires_complete_profile_events = get_sys_property('shop_requires_complete_profile_events')
     shop_requires_complete_profile_subscriptions = get_sys_property('shop_requires_complete_profile_subscriptions')
+    shop_customers_can_cancel_subscriptions = get_sys_property('shop_customers_can_cancel_subscriptions')
     shop_allow_trial_cards_for_existing_customers = get_sys_property('shop_allow_trial_cards_for_existing_customers')
     shop_allow_trial_classes_for_existing_customers = get_sys_property('shop_allow_trial_classes_for_existing_customers')
     shop_classes_trial_limit = get_sys_property('shop_classes_trial_limit')
@@ -52,6 +53,10 @@ def workflow():
               default=shop_requires_complete_profile_subscriptions,
               label=T('Subscriptions require complete profiles'),
               comment=T('Require complete profiles before customers can sign up for a subscription')),
+        Field('shop_customers_can_cancel_subscriptions', 'boolean',
+              default=shop_customers_can_cancel_subscriptions,
+              label=T('Customers can cancel subscriptions'),
+              comment=T('Allow customers to cancel their subscriptions from their shop profile.')),
         Field('shop_allow_trial_cards_for_existing_customers', 'boolean',
               default=shop_allow_trial_cards_for_existing_customers,
               label=T('Allow existing customers to buy a trial card'),
@@ -101,6 +106,7 @@ def workflow():
             'shop_requires_complete_profile_classcards',
             'shop_requires_complete_profile_events',
             'shop_requires_complete_profile_subscriptions',
+            'shop_customers_can_cancel_subscriptions',
             'shop_allow_trial_cards_for_existing_customers',
             'shop_allow_trial_classes_for_existing_customers',
             'shop_classes_trial_limit',
