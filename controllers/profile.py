@@ -1666,6 +1666,7 @@ def subscription_cancel():
         Page to list permissions for a subscription
     """
     from openstudio.tools import OsTools
+    from openstudio.os_customer_subscription import CustomerSubscription
 
     csID = request.vars['csID']
     response.title = T('Profile')
@@ -1688,7 +1689,17 @@ def subscription_cancel():
         session.flash = T("That subscription doesn't belong to this user")
         return URL('profile', 'index')
 
-    content = "Hello world!"
+    # Show cancel subscription page
+    cs = CustomerSubscription(csID)
+
+    content = DIV(
+        H3("Please confirm you'd like to cancel the subscription below"),
+        "subscription info here; INCL cancellation terms, min date and period", BR(),
+        "form with reasons here", BR(), BR(),
+        "Cancel & Continue buttons"
+    )
+
+
 
     back = os_gui.get_button('back', URL('profile', 'index'))
 
