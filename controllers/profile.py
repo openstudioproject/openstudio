@@ -1704,6 +1704,14 @@ def subscription_cancel():
         T("Other reason or any message you'd like to send us")
     db.customers_subscriptions.CancelReasonNote.writable = True
 
+    subscription_cancel_reasons_query = (db.school_subscriptions_cancel_reasons.Archived == False)
+    school_subscription_cancel_reason_format = '%(Reason)s'
+    db.customers_subscriptions.school_subscriptions_cancel_reasons_id.requires = \
+        IS_IN_DB(db(subscription_cancel_reasons_query),
+                 'school_subscriptions_cancel_reasons.id',
+                 school_subscription_cancel_reason_format,
+                 error_message=T("Please select a reason above"))
+
     form = SQLFORM(db.customers_subscriptions, csID,
                    submit_button = T('Cancel subscription'),
                    formstyle='divs')
