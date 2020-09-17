@@ -1617,6 +1617,13 @@ def define_school_subscriptions_cancel_reasons():
             writable=False,
             default=False,
             label=T("Archived")),
+        Field('SortOrder', 'integer',
+              requires=IS_INT_IN_RANGE(0, 5001, error_message=T('Enter a number between 0 and 5000')),
+              default=0,
+              label=T('Sort order'),
+              comment=T(
+                  "Order in which subscriptions are shown in the OpenStudio shop. Higher is shown first. Subscriptions with the same sort order number are sorted by name."),
+              ),
         Field('Reason', required=True,
             requires=IS_NOT_EMPTY(),
             label=T("Reason")),
