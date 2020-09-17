@@ -2965,10 +2965,12 @@ def define_customers_memberships():
 
 
 def define_customers_subscriptions():
+    subscription_cancel_reasons_query = (db.school_subscriptions_cancel_reasons.Archived == False)
     subscriptions_query = (db.school_subscriptions.Archived == False)
     pm_query = (db.payment_methods.Archived == False)
 
     school_subscription_format = '%(Name)s'
+    school_subscription_cancel_reason_format = '%(Reason)s'
 
     db.define_table('customers_subscriptions',
         Field('auth_customer_id', db.auth_user, required=True,
@@ -2982,6 +2984,12 @@ def define_customers_subscriptions():
             #represent=lambda value, row: mstypes_dict.get(value, None),
             #represent=lambda value, row: value or '',
             label=T("Subscription")),
+        Field('school_subscriptions_cancel_reasons_id', db.school_subscriptions_cancel_reasons,
+            requires = IS_IN_DB(db(subscription_cancel_reasons_query),
+                'school_subscriptions_cancel_reasons.id', school_subscription_cancel_reason_format),
+            #represent=lambda value, row: mstypes_dict.get(value, None),
+            #represent=lambda value, row: value or '',
+            label=T("Cancel reason")),
         Field('Startdate', 'date', required=True,
             requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
                                       minimum=datetime.date(1900,1,1),
