@@ -1611,7 +1611,7 @@ def subscriptions_cancel_reasons():
 
     links = [ lambda row: os_gui.get_button('edit',
                                      URL('subscription_cancel_reason_edit',
-                                         vars={'ssuID':row.id}),
+                                         vars={'ssucrID':row.id}),
                                      T("Edit this subscription cancel reason")),
               subscriptions_cancel_reason_get_link_archive ]
     maxtextlengths = {'school_subscriptions.Reason' : 40}
@@ -1662,6 +1662,85 @@ def subscriptions_cancel_reason_get_link_archive(row):
                              URL('subscriptions_cancel_reason_archive',
                                  vars={'ssuID':row.id}),
                              tooltip=tt)
+
+
+@auth.requires_login()
+def subscription_cancel_reason_add():
+    """
+        This function shows an add page for a subscription
+    """
+    response.title = T("New subscription cancel reason")
+    response.subtitle = T('')
+    response.view = 'general/only_content.html'
+
+    db.school_subscriptions.Archived.readable=False
+    db.school_subscriptions.Archived.writable=False
+
+    return_url = URL('subscriptions_cancel_reasons')
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_created = T("Added subscription cancel reason")
+    crud.settings.create_next = return_url
+    # crud.settings.create_onaccept = [cache_clear_school_subscriptions]
+    crud.settings.formstyle = 'bootstrap3_stacked'
+    form = crud.create(db.school_subscriptions_cancel_reasons)
+
+    # textareas = form.elements('textarea')
+    # for textarea in textareas:
+    #     textarea['_class'] += ' tmced'
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    # subscription_form_set_placeholders(form)
+
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=form, back=back, save=submit)
+
+
+@auth.requires_login()
+def subscription_cancel_reason_edit():
+    """
+        This function shows an edit page for a subscription
+        request.vars['ssuID'] is expected to be the subscriptionID (ssuID)
+    """
+    ssucrID = request.vars['ssucrID']
+    response.title = T("Edit subscription cancel reason")
+    ssucr = db.school_subscriptions_cancel_reasons(ssucrID)
+    response.subtitle = ssucr.Reason
+    response.view = 'general/only_content.html'
+
+    return_url = URL('subscriptions_cancel_reasons')
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_updated = T("Updated subscription cancel reason")
+    crud.settings.update_next = return_url
+    crud.settings.update_deletable = False
+    # crud.settings.update_onaccept = [cache_clear_school_subscriptions]
+    crud.settings.formstyle = 'bootstrap3_stacked'
+    form = crud.update(db.school_subscriptions_cancel_reasons, ssucrID)
+
+    textareas = form.elements('textarea')
+    for textarea in textareas:
+        textarea['_class'] += ' tmced'
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    # subscription_form_set_placeholders(form)
+
+    # input_classes = form.element('#school_subscriptions_NRofClasses')
+    # input_classes['_placeholder'] = T('Unlimited')
+
+    back = subscription_edit_get_back(return_url)
+
+    return dict(content=form,
+                back=back,
+                save=submit)
+
 
 # @auth.requires(auth.has_membership(group_id='Admins') or \
 #                auth.has_permission('read', 'school_subscriptions_cancel_reasons'))
