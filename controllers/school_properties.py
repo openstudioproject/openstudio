@@ -1607,7 +1607,8 @@ def subscriptions_cancel_reasons():
 
     db.school_subscriptions_cancel_reasons.id.readable=False
 
-    fields = [ db.school_subscriptions_cancel_reasons.Reason ]
+    fields = [ db.school_subscriptions_cancel_reasons.Reason,
+               db.school_subscriptions_cancel_reasons.SortOrder ]
 
     links = [ lambda row: os_gui.get_button('edit',
                                      URL('subscription_cancel_reason_edit',
