@@ -1692,9 +1692,21 @@ def subscription_cancel():
     # Show cancel subscription page
     cs = CustomerSubscription(csID)
 
+    # Get MinEndDate; while taking it into account
+
     for field in db.customers_subscriptions:
         field.writable = False
         field.readable = False
+
+    db.customers_subscriptions.Enddate.label = \
+        T("When would you like to end your subscription?")
+    db.customers_subscriptions.Enddate.writable = True
+    db.customers_subscriptions.Enddate.Default = #TODO: Add cancellation possible from date here
+    db.customers_subscriptions.Enddate.requires = \
+        IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                         minimum=datetime.date(1900,1,1), #TODO: Add cancellation possible from date here
+                         maximum=datetime.date(2999,1,1),
+                         error_message=T("Please input a date on or after 'cancelation possible from' date"))
 
     db.customers_subscriptions.school_subscriptions_cancel_reasons_id.label = \
         T("Why would you like to cancel your subscription?")
@@ -1731,6 +1743,8 @@ def subscription_cancel():
     elif form.errors:
         response.flash = ''
 
+
+
     content = DIV(
         H3("Please confirm you'd like to cancel the subscription below"),
         "subscription info here; INCL cancellation terms, min date and period", BR(),
@@ -1740,6 +1754,25 @@ def subscription_cancel():
     back = os_gui.get_button('back', URL('profile', 'index'))
 
     return dict(content=content, back=back)
+
+
+def subscription_cancellation_get_info(cs):
+    """
+    Get cancellation info for subscription
+    :param csID:
+    :return:
+    """
+    # Calculate Cancellation date using cancellation terms
+
+    # If cancellation date < cs.MinEndDate:
+    # Return MinEndDate
+
+
+    # If we're before MinEndDate, use MinEndDate
+
+    # If we're within one month of MinEndDate or after, apply cancellation term
+
+
 
 
 
