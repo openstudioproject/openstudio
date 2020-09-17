@@ -1610,6 +1610,19 @@ def represent_school_subscriptions_classes(value, row):
         return value
 
 
+def define_school_subscriptions_cancel_reasons():
+    db.define_table('school_subscriptions_cancel_reasons',
+        Field('Archived', 'boolean',
+            readable=False,
+            writable=False,
+            default=False,
+            label=T("Archived")),
+        Field('Reason', required=True,
+            requires=IS_NOT_EMPTY(),
+            label=T("Reason")),
+        format='%(Reason)s')
+
+
 def define_school_subscriptions_groups():
     """
         Table to hold subscription groups
