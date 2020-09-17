@@ -1692,14 +1692,42 @@ def subscription_cancel():
     # Show cancel subscription page
     cs = CustomerSubscription(csID)
 
+    for field in db.customers_subscriptions:
+        field.writable = False
+        field.readable = False
+
+    db.customers_subscriptions.school_subscriptions_cancel_reasons_id.label = \
+        T("Why would you like to cancel your subscription?")
+    db.customers_subscriptions.school_subscriptions_cancel_reasons_id.comment = ""
+    db.customers_subscriptions.school_subscriptions_cancel_reasons_id.writable = True
+    db.customers_subscriptions.CancelReasonNote.label = \
+        T("Other reason or any message you'd like to send us")
+    db.customers_subscriptions.CancelReasonNote.writable = True
+
+    form = SQLFORM(db.customers_subscriptions, csID,
+                   submit_button = T('Cancel subscription'),
+                   formstyle='divs')
+
+    if form.process().accepted:
+        from openstudio.os_cache_manager import OsCacheManager
+        response.flash = T('Saved')
+
+        ocm = OsCacheManager()
+        ocm.clear_customers_subscriptions(auth.user.id)
+
+        redirect(URL("subscription_cancelled"))
+
+        # if _next:
+        #     redirect(_next)
+
+    elif form.errors:
+        response.flash = ''
+
     content = DIV(
         H3("Please confirm you'd like to cancel the subscription below"),
         "subscription info here; INCL cancellation terms, min date and period", BR(),
-        "form with reasons here", BR(), BR(),
-        "Cancel & Continue buttons"
+        form
     )
-
-
 
     back = os_gui.get_button('back', URL('profile', 'index'))
 
