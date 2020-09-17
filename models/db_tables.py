@@ -1622,11 +1622,11 @@ def define_school_subscriptions_cancel_reasons():
               default=0,
               label=T('Sort order'),
               comment=T(
-                  "Order in which subscriptions are shown in the OpenStudio shop. Higher is shown first. Subscriptions with the same sort order number are sorted by name."),
+                  "Order in which cancel reasons are shown in the OpenStudio shop. Higher is shown first. Cancel reasons with the same sort order number are sorted by name."),
               ),
         Field('Reason', required=True,
             requires=IS_NOT_EMPTY(),
-            label=T("Reason")),
+            label=T("Cancel reason")),
         format='%(Reason)s')
 
 
