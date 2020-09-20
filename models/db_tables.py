@@ -1529,6 +1529,7 @@ def define_school_subscriptions():
               comment=T("Cancellation period for this subscription.")
               ),
         Field('CancellationPeriodUnit',
+              default="month",
               requires=IS_IN_SET(SUBSCRIPTION_CANCELLATION_PERIOD_UNITS, zero=None),
               represent=represent_subscription_cancellation_period_units,
               label=T('Cancellation period in')),

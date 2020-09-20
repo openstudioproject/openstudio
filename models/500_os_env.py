@@ -469,7 +469,7 @@ def set_subscription_cancellation_period_units():
         Returns a list of validity times
     """
     units = [ ['month', T('Months (eg. 05 Jan - 04 Feb)')],
-                       ['calendar_month', T('Calendar months (eg. 01 Jan - 31 Jan)')] ]
+              ['calendar_month', T('Calendar months (eg. 01 Jan - 31 Jan)')] ]
 
     return units
 
