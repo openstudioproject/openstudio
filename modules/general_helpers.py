@@ -153,6 +153,31 @@ def get_months_list():
             (12,current.T("December"))]
 
 
+def add_months_to_date(date, months):
+    """
+    Add months to date
+    :param date: datetime.date
+    :param months: int - representing nr of months
+    :return: date with months added.
+    """
+    month = date.month - 1 + months
+    year = int(date.year + month / 12)
+    month = month % 12 + 1
+    last_day_new = calendar.monthrange(year, month)[1]
+    day = min(date.day, last_day_new)
+
+    ret_val = datetime.date(year, month, day)
+
+    last_day_source = calendar.monthrange(date.year,
+                                          date.month)[1]
+
+    if date.day == last_day_source and last_day_source > last_day_new:
+        return ret_val
+    else:
+        delta = datetime.timedelta(days=1)
+        return ret_val - delta
+
+
 def get_number_weekdays_in_month(year, month, iso_weekday):
     """
     :param year: year
