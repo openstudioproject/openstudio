@@ -1693,18 +1693,21 @@ def subscription_cancel():
     cs = CustomerSubscription(csID)
 
     # Get MinEndDate; while taking it into account
+    can_cancel_from_date = cs.get_cancel_from_date()
+    print(can_cancel_from_date)
 
     for field in db.customers_subscriptions:
         field.writable = False
         field.readable = False
 
+
     db.customers_subscriptions.Enddate.label = \
         T("When would you like to end your subscription?")
     db.customers_subscriptions.Enddate.writable = True
-    db.customers_subscriptions.Enddate.Default = #TODO: Add cancellation possible from date here
+    db.customers_subscriptions.Enddate.Default = can_cancel_from_date
     db.customers_subscriptions.Enddate.requires = \
         IS_DATE_IN_RANGE(format=DATE_FORMAT,
-                         minimum=datetime.date(1900,1,1), #TODO: Add cancellation possible from date here
+                         minimum=can_cancel_from_date,
                          maximum=datetime.date(2999,1,1),
                          error_message=T("Please input a date on or after 'cancelation possible from' date"))
 

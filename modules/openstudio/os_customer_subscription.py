@@ -28,7 +28,7 @@ class CustomerSubscription:
         self.payment_methods_id = self.cs.payment_methods_id
         self.startdate = self.cs.Startdate
         self.enddate = self.cs.Enddate
-        self.min_enddate = self.MinEnddate
+        self.min_enddate = self.cs.MinEnddate
 
 
     def create_invoice_for_month(self, SubscriptionYear, SubscriptionMonth, description=None, invoice_date='today'):
@@ -589,7 +589,7 @@ class CustomerSubscription:
 
         TODAY_LOCAL = current.TODAY_LOCAL
         if not cancel_request_date:
-            request_date = TODAY_LOCAL
+            cancel_request_date = TODAY_LOCAL
 
         cancel_period = self.ssu.CancellationPeriod or 0
         period_unit = self.ssu.CancellationPeriodUnit
