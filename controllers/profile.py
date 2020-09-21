@@ -1700,19 +1700,19 @@ def subscription_cancel():
         field.writable = False
         field.readable = False
 
-
     db.customers_subscriptions.Enddate.label = \
-        T("When would you like to end your subscription?")
+        T("When would you like to end this subscription?")
     db.customers_subscriptions.Enddate.writable = True
-    db.customers_subscriptions.Enddate.Default = can_cancel_from_date
+    # This line doesn't do anything because "None" is read from the db for this field.
+    #    db.customers_subscriptions.Enddate.default = can_cancel_from_date
     db.customers_subscriptions.Enddate.requires = \
         IS_DATE_IN_RANGE(format=DATE_FORMAT,
                          minimum=can_cancel_from_date,
                          maximum=datetime.date(2999,1,1),
-                         error_message=T("Please input a date on or after 'cancelation possible from' date"))
+                         error_message=T("Please input a date on or after %s") % can_cancel_from_date.strftime(DATE_FORMAT))
 
     db.customers_subscriptions.school_subscriptions_cancel_reasons_id.label = \
-        T("Why would you like to cancel your subscription?")
+        T("Why would you like to cancel this subscription?")
     db.customers_subscriptions.school_subscriptions_cancel_reasons_id.comment = ""
     db.customers_subscriptions.school_subscriptions_cancel_reasons_id.writable = True
     db.customers_subscriptions.CancelReasonNote.label = \
@@ -1749,9 +1749,14 @@ def subscription_cancel():
 
 
     content = DIV(
-        H3("Please confirm you'd like to cancel the subscription below"),
-        "subscription info here; INCL cancellation terms, min date and period", BR(),
-        form
+        H3(T("Please confirm you'd like to cancel the subscription below")),
+        H4(T("Subscription:")),
+        UL(
+            LI(cs.name),
+            LI(T("Started on: %s") % cs.startdate.strftime(DATE_FORMAT)),
+            LI(T("Can be cancelled from: %s") % can_cancel_from_date.strftime(DATE_FORMAT))
+        ), BR(),
+        DIV(form, _class="col-md-12")
     )
 
     back = os_gui.get_button('back', URL('profile', 'index'))
