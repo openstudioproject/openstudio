@@ -1694,7 +1694,6 @@ def subscription_cancel():
 
     # Get MinEndDate; while taking it into account
     can_cancel_from_date = cs.get_cancel_from_date()
-    print(can_cancel_from_date)
 
     for field in db.customers_subscriptions:
         field.writable = False
