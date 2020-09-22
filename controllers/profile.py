@@ -1660,6 +1660,25 @@ def subscription_credits():
     return dict(content=DIV(total, mutations), back=back)
 
 
+def subscription_cancel_checks(cs):
+    from openstudio.tools import OsTools
+
+    tools = OsTools()
+    # Check if the subscriptions feature is enabled
+    features = db.customers_profile_features(1)
+    if not features.Subscriptions:
+        redirect(URL('profile', 'index'))
+
+    # Check if customers are allowed to cancel subscriptions
+    if not tools.get_sys_property("shop_customers_can_cancel_subscriptions") == "on":
+        redirect(URL('profile', 'index'))
+
+    # Check if this subscription belongs to the currently signed in user
+    if cs.cs.auth_customer_id != auth.user.id:
+        session.flash = T("That subscription doesn't belong to this user")
+        return URL('profile', 'index')
+
+
 @auth.requires_login()
 def subscription_cancel():
     """
@@ -1674,23 +1693,8 @@ def subscription_cancel():
     response.view = 'shop/index.html'
     tools = OsTools()
 
-    # Check if the subscriptions feature is enabled
-    features = db.customers_profile_features(1)
-    if not features.Subscriptions:
-        redirect(URL('profile', 'index'))
-
-    # Check if customers are allowed to cancel subscriptions
-    if not tools.get_sys_property("shop_customers_can_cancel_subscriptions") == "on":
-        redirect(URL('profile', 'index'))
-
-    # Check if this subscription belongs to the currently signed in user
     cs = CustomerSubscription(csID)
-    if cs.cs.auth_customer_id != auth.user.id:
-        session.flash = T("That subscription doesn't belong to this user")
-        return URL('profile', 'index')
-
-    # Show cancel subscription page
-    cs = CustomerSubscription(csID)
+    subscription_cancel_checks(cs)
 
     # Get MinEndDate; while taking it into account
     can_cancel_from_date = cs.get_cancel_from_date()
@@ -1737,7 +1741,7 @@ def subscription_cancel():
         ocm = OsCacheManager()
         ocm.clear_customers_subscriptions(auth.user.id)
 
-        redirect(URL("subscription_cancelled"))
+        redirect(URL("subscription_cancelled", vars={'csID': csID}))
 
         # if _next:
         #     redirect(_next)
@@ -1763,21 +1767,45 @@ def subscription_cancel():
     return dict(content=content, back=back)
 
 
-def subscription_cancellation_get_info(cs):
+def subscription_cancelled():
     """
-    Get cancellation info for subscription
-    :param csID:
+    Display cancellation confirmation page
     :return:
     """
-    # Calculate Cancellation date using cancellation terms
+    from openstudio.tools import OsTools
+    from openstudio.os_customer_subscription import CustomerSubscription
 
-    # If cancellation date < cs.MinEndDate:
-    # Return MinEndDate
+    csID = request.vars['csID']
+    response.title = T('Profile')
+    response.subtitle = T('Cancelled subscription')
+    response.view = 'shop/index.html'
+
+    cs = CustomerSubscription(csID)
+    subscription_cancel_checks(cs)
+
+    content = DIV(
+        H3(T("Your subscription has been cancelled")),
+        H4(T("Subscription:")),
+        UL(
+            LI(cs.name),
+            LI(T("Started on: %s") % cs.startdate.strftime(DATE_FORMAT)),
+            LI(T("Cancelled from: %s") % cs.enddate.strftime(DATE_FORMAT))
+        ), BR(),
+        DIV(os_gui.get_button(
+            button_type="noicon",
+            url=URL("profile", "index"),
+            title=T("Return to profile"),
+            btn_size=""
+        ), _class="col-md-12")
+    )
+
+    # back = os_gui.get_button('back', URL('profile', 'index'))
+
+    return dict(content=content)
 
 
-    # If we're before MinEndDate, use MinEndDate
 
-    # If we're within one month of MinEndDate or after, apply cancellation term
+
 
 
 
