@@ -1627,7 +1627,11 @@ def access_group_permissions():
                     ['school_subscriptions_groups-delete', T('Delete subscription groups')],
                     ['school_subscriptions_groups_subscriptions-read', T('View subscription group subscriptions')],
                     ['school_subscriptions_groups_subscriptions-create', T('Add subscription group subscriptions')],
-                    ['school_subscriptions_groups_subscriptions-delete', T('Delete subscription group subscriptions')]]]
+                    ['school_subscriptions_groups_subscriptions-delete', T('Delete subscription group subscriptions')]]],
+                ['school_subscriptions_cancel_reasons-read', T("View subscription cancel reasons"), [
+                    ['school_subscriptions_cancel_reasons-create', T("Add subscription cancel reasons")],
+                    ['school_subscriptions_cancel_reasons-update', T("Edit subscription cancel reasons")],
+                ]]
             ]],
 
             ['school_classcards-read', T("Class cards"), [

@@ -7,7 +7,8 @@ import pytz
 
 from openstudio.os_gui import OsGui
 from general_helpers import represent_validity_units
-from general_helpers import represent_subscription_units
+from general_helpers import represent_subscription_units, \
+    represent_subscription_cancellation_period_units
 
 
 # -------------------------------------------------------------------------
@@ -463,6 +464,16 @@ def set_subscription_units():
     return validity_units
 
 
+def set_subscription_cancellation_period_units():
+    """
+        Returns a list of validity times
+    """
+    units = [ ['month', T('Months (eg. 05 Jan - 04 Feb)')],
+              ['calendar_month', T('Calendar months (eg. 01 Jan - 31 Jan)')] ]
+
+    return units
+
+
 def set_booking_statuses():
     """
         Returns a list of classes_attendance booking statuses
@@ -645,6 +656,7 @@ CACHE_LONG = int(configuration.get('cache.max_cache_time')) # 3 days
 GENDERS = set_genders()
 VALIDITY_UNITS = set_validity_units()
 SUBSCRIPTION_UNITS = set_subscription_units()
+SUBSCRIPTION_CANCELLATION_PERIOD_UNITS = set_subscription_cancellation_period_units()
 attendance_booking_statuses_filter_values = set_attendance_booking_statuses_filter_values()
 teachers_roles = set_teachers_roles()
 payment_statuses = set_payment_statuses()

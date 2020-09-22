@@ -3,6 +3,8 @@
 """
     py.test test cases to test the Profile controller (profile.py)
 """
+import datetime
+import calendar
 
 from gluon.contrib.populate import populate
 
@@ -16,10 +18,10 @@ from populate_os_tables import populate_customers_with_classcards
 from populate_os_tables import populate_customers_with_subscriptions
 from populate_os_tables import populate_customers_with_memberships
 from populate_os_tables import populate_workshops_products_customers
+from populate_os_tables import populate_school_subscriptions
+from populate_os_tables import populate_define_school_subscriptions_cancel_reasons
 from populate_os_tables import populate_settings_shop_customers_profile_announcements
 from setup_profile_tests import setup_profile_tests
-
-import datetime
 
 # Function to find next weekday after given date
 def next_weekday(d, weekday):
@@ -51,6 +53,39 @@ def next_weekday(d, weekday):
 #     client.post('/default/user/login', data=data)
 #     assert client.status == 200
 #     assert '<li class="header">Account</li>' in client.text
+
+def get_last_day_month(date):
+    """
+        This function returns the last day of the month as a datetime.date object
+    """
+    return datetime.date(date.year,
+                         date.month,
+                         calendar.monthrange(date.year,date.month)[1])
+
+
+def add_months_to_date(date, months):
+    """
+    Add months to date
+    :param date: datetime.date
+    :param months: int - representing nr of months
+    :return: date with months added.
+    """
+    month = date.month - 1 + months
+    year = int(date.year + month / 12)
+    month = month % 12 + 1
+    last_day_new = calendar.monthrange(year, month)[1]
+    day = min(date.day, last_day_new)
+
+    ret_val = datetime.date(year, month, day)
+
+    last_day_source = calendar.monthrange(date.year,
+                                          date.month)[1]
+
+    if date.day == last_day_source and last_day_source > last_day_new:
+        return ret_val
+    else:
+        delta = datetime.timedelta(days=1)
+        return ret_val - delta
 
 
 def test_index_announcements(client, web2py):
@@ -789,6 +824,248 @@ def test_subscription_info(client, web2py):
     assert client.status == 200
 
     assert client.text.count('<span class="text-green"><i class="fa fa-check">') == 3
+
+
+def test_subscription_cancel_not_enabled(client, web2py):
+    """
+    Is the "can cancel from date" correctly calculated when setting the period to calendar months
+    """
+    setup_profile_tests(web2py)
+    populate_school_subscriptions(web2py)
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    csID = web2py.db.customers_subscriptions.insert(
+        auth_customer_id = 300,
+        school_subscriptions_id = 1,
+        Startdate = '2014-01-01',
+        MinEnddate = '2999-12-31',
+        payment_methods_id = 1
+    )
+
+    web2py.db.commit()
+
+    url = '/profile/subscription_cancel?csID=%s' % csID
+    client.get(url)
+    assert client.status == 200
+
+    assert "When would you like to end this subscription?".lower() not in client.text.lower()
+
+
+def test_subscription_cancel_enabled(client, web2py):
+    """
+    Is the "can cancel from date" correctly calculated when setting the period to calendar months
+    """
+    setup_profile_tests(web2py)
+    populate_school_subscriptions(web2py)
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    web2py.db.sys_properties.insert(
+        Property="shop_customers_can_cancel_subscriptions",
+        PropertyValue="on"
+    )
+
+    csID = web2py.db.customers_subscriptions.insert(
+        auth_customer_id = 300,
+        school_subscriptions_id = 1,
+        Startdate = '2014-01-01',
+        MinEnddate = '2999-12-31',
+        payment_methods_id = 1
+    )
+
+    web2py.db.commit()
+
+    url = '/profile/subscription_cancel?csID=%s' % csID
+    client.get(url)
+    assert client.status == 200
+
+    assert "When would you like to end this subscription?".lower() in client.text.lower()
+
+
+def test_subscription_cancel_months_min_enddate_used(client, web2py):
+    """
+    Is the "can cancel from date" correctly calculated when setting the period to months
+    """
+    setup_profile_tests(web2py)
+    populate_school_subscriptions(web2py)
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    web2py.db.sys_properties.insert(
+        Property="shop_customers_can_cancel_subscriptions",
+        PropertyValue="on"
+    )
+
+    csID = web2py.db.customers_subscriptions.insert(
+        auth_customer_id = 300,
+        school_subscriptions_id = 1,
+        Startdate = '2014-01-01',
+        MinEnddate = '2999-12-31',
+        payment_methods_id = 1
+    )
+
+    web2py.db.commit()
+
+    url = '/profile/subscription_cancel?csID=' + str(csID)
+    client.get(url)
+    assert client.status == 200
+
+    assert "2999-12-31" in client.text
+
+
+def test_subscription_cancel_months(client, web2py):
+    """
+    Is the "can cancel from date" correctly calculated when setting the period to months
+    """
+    setup_profile_tests(web2py)
+    populate_school_subscriptions(web2py)
+    populate_define_school_subscriptions_cancel_reasons(web2py)
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    web2py.db.sys_properties.insert(
+        Property="shop_customers_can_cancel_subscriptions",
+        PropertyValue="on"
+    )
+
+    csID = web2py.db.customers_subscriptions.insert(
+        auth_customer_id = 300,
+        school_subscriptions_id = 1,
+        Startdate = '2014-01-01',
+        MinEnddate = '2015-12-31',
+        payment_methods_id = 1
+    )
+
+    web2py.db.commit()
+
+    url = '/profile/subscription_cancel?csID=' + str(csID)
+    client.get(url)
+    assert client.status == 200
+
+    today = datetime.date.today()
+    can_cancel_from_date = add_months_to_date(today, 1)
+
+    assert str(can_cancel_from_date) in client.text
+
+    data = {
+        'id': csID,
+        'Enddate': can_cancel_from_date,
+        'school_subscriptions_cancel_reasons_id': '1',
+        'CancelReasonNote': "Hello world"
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    cs = web2py.db.customers_subscriptions(csID)
+    assert cs.Enddate == can_cancel_from_date
+    assert cs.school_subscriptions_cancel_reasons_id == 1
+    assert cs.CancelReasonNote == data['CancelReasonNote']
+
+    assert "Your subscription has been cancelled".lower() in client.text.lower()
+
+
+def test_subscription_cancel_calendar_months(client, web2py):
+    """
+    Is the "can cancel from date" correctly calculated when setting the period to months
+    """
+    setup_profile_tests(web2py)
+    populate_school_subscriptions(web2py)
+    populate_define_school_subscriptions_cancel_reasons(web2py)
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    web2py.db.sys_properties.insert(
+        Property="shop_customers_can_cancel_subscriptions",
+        PropertyValue="on"
+    )
+
+    ssu = web2py.db.school_subscriptions(1)
+    ssu.CancellationPeriodUnit = 'calendar_month'
+    ssu.update_record()
+
+    csID = web2py.db.customers_subscriptions.insert(
+        auth_customer_id = 300,
+        school_subscriptions_id = 1,
+        Startdate = '2014-01-01',
+        MinEnddate = '2015-12-31',
+        payment_methods_id = 1
+    )
+
+    web2py.db.commit()
+
+    url = '/profile/subscription_cancel?csID=' + str(csID)
+    client.get(url)
+    assert client.status == 200
+
+    today = datetime.date.today()
+    can_cancel_from_date = add_months_to_date(today, 1)
+    # Get last day of month for calendar month check
+    can_cancel_from_date = get_last_day_month(can_cancel_from_date)
+
+    assert str(can_cancel_from_date) in client.text
+
+    data = {
+        'id': csID,
+        'Enddate': can_cancel_from_date,
+        'school_subscriptions_cancel_reasons_id': '1',
+        'CancelReasonNote': "Hello world"
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    cs = web2py.db.customers_subscriptions(csID)
+    assert cs.Enddate == can_cancel_from_date
+    assert cs.school_subscriptions_cancel_reasons_id == 1
+    assert cs.CancelReasonNote == data['CancelReasonNote']
+
+# def test_subscription_cancel_calendar_months(client, web2py):
+#     """
+#     Is the "can cancel from date" correctly calculated when setting the period to calendar months
+#     """
+#     setup_profile_tests(web2py)
+#
+#     url = '/default/user/login'
+#     client.get(url)
+#     assert client.status == 200
+#
+#     prepare_classes(web2py)
+#
+#     csID = web2py.db.customers_subscriptions.insert(
+#         auth_customer_id = 300,
+#         school_subscriptions_id = 1,
+#         Startdate = '2014-01-01',
+#         Enddate = '2999-12-31',
+#         payment_methods_id = 1
+#     )
+#
+#     web2py.db.classes_school_subscriptions_groups.insert(
+#         classes_id = 1,
+#         school_subscriptions_groups_id = 1,
+#         Enroll = True,
+#         ShopBook = True,
+#         Attend = True
+#     )
+#
+#     web2py.db.commit()
+#
+#     url = '/profile/subscription_info?csID=' + str(csID)
+#     client.get(url)
+#     assert client.status == 200
+#
+#     assert client.text.count('<span class="text-green"><i class="fa fa-check">') == 3
 
 
 def test_events(client, web2py):

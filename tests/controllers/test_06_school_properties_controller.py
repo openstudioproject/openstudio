@@ -170,6 +170,8 @@ def test_subscription_add(client, web2py):
     data = dict(Name='1 Class a week',
                 Classes='1',
                 SubscriptionUnit='week',
+                CancellationPeriod=1,
+                CancellationPeriodUnit="month",
                 ReconciliationClasses=0,
                 SortOrder=0)
                 #Unlimited='on')
@@ -200,6 +202,8 @@ def test_subscription_edit(client, web2py):
     data = dict(Name='1 Class a week',
                 Classes='1',
                 SubscriptionUnit='week',
+                CancellationPeriod=1,
+                CancellationPeriodUnit="month",
                 ReconciliationClasses=0)
     client.post(url, data=data)
     assert client.status == 200

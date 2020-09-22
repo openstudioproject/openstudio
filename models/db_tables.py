@@ -1523,6 +1523,16 @@ def define_school_subscriptions():
             represent=represent_school_subscriptions_minduration,
             label=T("Minimum duration"),
             comment=T("Minimum duration of this subscription in months")),
+        Field("CancellationPeriod", "integer",
+              default=1,
+              label=T("Cancellation period"),
+              comment=T("Cancellation period for this subscription.")
+              ),
+        Field('CancellationPeriodUnit',
+              default="month",
+              requires=IS_IN_SET(SUBSCRIPTION_CANCELLATION_PERIOD_UNITS, zero=None),
+              represent=represent_subscription_cancellation_period_units,
+              label=T('Cancellation period in')),
         Field('Classes', 'integer', required=False,
             requires=IS_INT_IN_RANGE(1, 99999999, error_message=T("Please enter a number between 1 and 99999999")),
             represent=represent_school_subscriptions_classes, # return Unlimited instead of number if row.Unlimited
@@ -1599,6 +1609,26 @@ def represent_school_subscriptions_classes(value, row):
         return T('Unlimited')
     else:
         return value
+
+
+def define_school_subscriptions_cancel_reasons():
+    db.define_table('school_subscriptions_cancel_reasons',
+        Field('Archived', 'boolean',
+            readable=False,
+            writable=False,
+            default=False,
+            label=T("Archived")),
+        Field('SortOrder', 'integer',
+              requires=IS_INT_IN_RANGE(0, 5001, error_message=T('Enter a number between 0 and 5000')),
+              default=0,
+              label=T('Sort order'),
+              comment=T(
+                  "Order in which cancel reasons are shown in the OpenStudio shop. Higher is shown first. Cancel reasons with the same sort order number are sorted by name."),
+              ),
+        Field('Reason', required=True,
+            requires=IS_NOT_EMPTY(),
+            label=T("Cancel reason")),
+        format='%(Reason)s')
 
 
 def define_school_subscriptions_groups():
@@ -2943,10 +2973,12 @@ def define_customers_memberships():
 
 
 def define_customers_subscriptions():
+    subscription_cancel_reasons_query = (db.school_subscriptions_cancel_reasons.Archived == False)
     subscriptions_query = (db.school_subscriptions.Archived == False)
     pm_query = (db.payment_methods.Archived == False)
 
     school_subscription_format = '%(Name)s'
+    school_subscription_cancel_reason_format = '%(Reason)s'
 
     db.define_table('customers_subscriptions',
         Field('auth_customer_id', db.auth_user, required=True,
@@ -2960,6 +2992,11 @@ def define_customers_subscriptions():
             #represent=lambda value, row: mstypes_dict.get(value, None),
             #represent=lambda value, row: value or '',
             label=T("Subscription")),
+        Field('payment_methods_id', db.payment_methods, required=True,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(pm_query), 'payment_methods.id', '%(Name)s',
+                                            zero=T("Please select..."))),
+              represent=lambda value, row: payment_methods_dict.get(value),
+              label=T("Payment method")),
         Field('Startdate', 'date', required=True,
             requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
                                       minimum=datetime.date(1900,1,1),
@@ -2977,18 +3014,24 @@ def define_customers_subscriptions():
             widget=os_datepicker_widget),
         Field('MinEnddate', 'date', required=False,
             readable=False,
-            writable=False,
-            requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
+            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
                                       minimum=datetime.date(1900,1,1),
-                                      maximum=datetime.date(2999,1,1))),
+                                      maximum=datetime.date(2999,1,1)),
             represent=represent_date,
             label=T("Can cancel from"),
             widget=os_datepicker_widget),
-        Field('payment_methods_id', db.payment_methods, required=True,
-            requires=IS_EMPTY_OR(IS_IN_DB(db(pm_query),'payment_methods.id','%(Name)s',
-                                          zero=T("Please select..."))),
-            represent=lambda value, row: payment_methods_dict.get(value),
-            label=T("Payment method")),
+        Field('school_subscriptions_cancel_reasons_id', db.school_subscriptions_cancel_reasons,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(subscription_cancel_reasons_query),
+                                'school_subscriptions_cancel_reasons.id',
+                                school_subscription_cancel_reason_format,
+                                error_message=T("Please select a reason above"))),
+              # represent=lambda value, row: mstypes_dict.get(value, None),
+              # represent=lambda value, row: value or '',
+              comment=T("This field helps to track why a customer ended a subscription"),
+              label=T("Cancel reason")),
+        Field('CancelReasonNote', 'text',
+              represent=lambda value, row: value or '',
+              label=T("Cancel reason note")),
         Field('Note', 'text',
             represent=lambda value, row: value or '',
             label=T("Note")),
@@ -6774,6 +6817,7 @@ define_school_memberships()
 define_school_subscriptions()
 #mstypes_dict = create_mstypes_dict()
 define_school_subscriptions_price()
+define_school_subscriptions_cancel_reasons()
 define_school_subscriptions_groups()
 define_school_subscriptions_groups_subscriptions()
 define_school_classcards()

@@ -23,11 +23,12 @@ class CustomerSubscription:
         self.ssuID = self.cs.school_subscriptions_id
         self.ssu = db.school_subscriptions(self.ssuID)
 
-        self.name               = self.ssu.Name
-        self.auth_customer_id   = self.cs.auth_customer_id
+        self.name = self.ssu.Name
+        self.auth_customer_id = self.cs.auth_customer_id
         self.payment_methods_id = self.cs.payment_methods_id
-        self.startdate          = self.cs.Startdate
-        self.enddate            = self.cs.Enddate
+        self.startdate = self.cs.Startdate
+        self.enddate = self.cs.Enddate
+        self.min_enddate = self.cs.MinEnddate
 
 
     def create_invoice_for_month(self, SubscriptionYear, SubscriptionMonth, description=None, invoice_date='today'):
@@ -575,6 +576,35 @@ class CustomerSubscription:
             return True
         else:
             return False
+
+
+    def get_cancel_from_date(self, cancel_request_date=None):
+        """
+        Get date from which this subscription can be cancelled (incl. cancellation period)
+        :param cancel_request_date: Date from which to start calculating the date the subscription can be stopped,
+        including the cancellation period
+        :return: datetime.date
+        """
+        from ..general_helpers import add_months_to_date, get_last_day_month
+
+        TODAY_LOCAL = current.TODAY_LOCAL
+        if not cancel_request_date:
+            cancel_request_date = TODAY_LOCAL
+
+        cancel_period = self.ssu.CancellationPeriod or 0
+        period_unit = self.ssu.CancellationPeriodUnit
+
+        # This also takes care of the "months" period unit
+        can_cancel_from_date = add_months_to_date(cancel_request_date, cancel_period)
+        # Go to the last day of the month for the "calendar month" period unit
+        if period_unit == "calendar_month":
+            can_cancel_from_date = get_last_day_month(can_cancel_from_date)
+
+        # Check if the returned date isn't before the minimum end date
+        if can_cancel_from_date < self.min_enddate:
+            can_cancel_from_date = self.min_enddate
+
+        return can_cancel_from_date
 
 
     def set_min_enddate(self):

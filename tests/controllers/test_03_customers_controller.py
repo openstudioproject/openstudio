@@ -683,6 +683,7 @@ def test_subscription_add(client, web2py):
 
     data = dict(school_subscriptions_id='1',
                 Startdate='2014-01-01',
+                MinEnddate="2014-01-31"
                 )
     client.post(url, data=data)
     assert client.status == 200
@@ -778,11 +779,14 @@ def test_subscription_edit(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    data = dict(id=1,
-                school_subscriptions_id = '1',
-                Startdate               = '2013-01-01',
-                Enddate                 = '2013-12-31'
-                )
+    cs = web2py.db.customers_subscriptions(1)
+    data = dict(
+        id=1,
+        school_subscriptions_id = '1',
+        Startdate               = '2013-01-01',
+        Enddate                 = '2013-12-31',
+        MinEnddate = str(cs.MinEnddate)
+    )
     client.post(url, data=data)
     assert client.status == 200
 

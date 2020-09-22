@@ -871,6 +871,11 @@ def subscriptions_get_menu(page=None):
         pages.append(['subscriptions_groups',
                       T("Groups"),
                       URL("school_properties","subscriptions_groups",)])
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'school_subscriptions_cancel_reasons'):
+        pages.append(['subscriptions_cancel_reasons',
+                      T("Cancel reasons"),
+                      URL("school_properties","subscriptions_cancel_reasons",)])
 
     return os_gui.get_submenu(pages, page, _id='os-customers_edit_menu', horizontal=True, htype='tabs')
 
@@ -1573,6 +1578,209 @@ def subscriptions_group_subscription_add_get_already_added(ssgID):
         ids.append(row.school_subscriptions_id)
 
     return ids
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'school_subscriptions_cancel_reasons'))
+def subscriptions_cancel_reasons():
+    """
+        This function shows a page to list subscriptions.
+    """
+    response.title = T("School")
+    response.subtitle = T("Subscriptions")
+    response.view = 'general/tabs_menu.html'
+
+    show = 'current'
+    query = (db.school_subscriptions_cancel_reasons.Archived == False)
+
+    if 'show_archive' in request.vars:
+        show = request.vars['show_archive']
+        session.school_subscriptions_cancel_reasons_show = show
+        if show == 'current':
+            query = (db.school_subscriptions_cancel_reasons.Archived == False)
+        elif show == 'archive':
+            query = (db.school_subscriptions_cancel_reasons.Archived == True)
+    elif session.school_subscriptions_cancel_reasons_show == 'archive':
+            query = (db.school_subscriptions_cancel_reasons.Archived == True)
+    else:
+        session.school_subscriptions_cancel_reasons_show = show
+
+    db.school_subscriptions_cancel_reasons.id.readable=False
+
+    fields = [ db.school_subscriptions_cancel_reasons.Reason,
+               db.school_subscriptions_cancel_reasons.SortOrder ]
+
+    links = [ lambda row: os_gui.get_button('edit',
+                                     URL('subscription_cancel_reason_edit',
+                                         vars={'ssucrID':row.id}),
+                                     T("Edit this subscription cancel reason")),
+              subscriptions_cancel_reason_get_link_archive ]
+    maxtextlengths = {'school_subscriptions.Reason' : 40}
+    headers = {'school_subscriptions_cancel_reasons.SortOrder':'Sorting'}
+    grid = SQLFORM.grid(query, fields=fields, links=links,
+        maxtextlengths=maxtextlengths,
+        headers=headers,
+        create=False,
+        editable=False,
+        deletable=False,
+        details=False,
+        searchable=False,
+        csv=False,
+        orderby = db.school_subscriptions_cancel_reasons.SortOrder|\
+                  db.school_subscriptions_cancel_reasons.Reason,
+        ui = grid_ui)
+    grid.element('.web2py_counter', replace=None) # remove the counter
+    grid.elements('span[title=Delete]', replace=None) # remove text from delete button
+
+    add_url = URL('subscription_cancel_reason_add')
+    add = os_gui.get_button('add', add_url, T("Add a new reason"), _class='pull-right')
+    archive_buttons = os_gui.get_archived_radio_buttons(
+        session.school_subscriptions_show)
+
+    back = DIV(add, archive_buttons)
+    menu = subscriptions_get_menu(request.function)
+
+    content = grid
+
+    return dict(back=back,
+                menu=menu,
+                content=content)
+
+
+def subscriptions_cancel_reason_get_link_archive(row):
+    """
+        Called from the index function. Changes title of archive button
+        depending on whether a cancel reason is archived or not
+    """
+    row = db.school_subscriptions_cancel_reasons(row.id)
+
+    if row.Archived:
+        tt = T("Move to current")
+    else:
+        tt = T("Archive")
+
+    return os_gui.get_button('archive',
+                             URL('subscriptions_cancel_reason_archive',
+                                 vars={'ssuID':row.id}),
+                             tooltip=tt)
+
+
+@auth.requires_login()
+def subscription_cancel_reason_add():
+    """
+        This function shows an add page for a subscription
+    """
+    response.title = T("New subscription cancel reason")
+    response.subtitle = T('')
+    response.view = 'general/only_content.html'
+
+    db.school_subscriptions.Archived.readable=False
+    db.school_subscriptions.Archived.writable=False
+
+    return_url = URL('subscriptions_cancel_reasons')
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_created = T("Added subscription cancel reason")
+    crud.settings.create_next = return_url
+    # crud.settings.create_onaccept = [cache_clear_school_subscriptions]
+    crud.settings.formstyle = 'bootstrap3_stacked'
+    form = crud.create(db.school_subscriptions_cancel_reasons)
+
+    # textareas = form.elements('textarea')
+    # for textarea in textareas:
+    #     textarea['_class'] += ' tmced'
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    # subscription_form_set_placeholders(form)
+
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=form, back=back, save=submit)
+
+
+@auth.requires_login()
+def subscription_cancel_reason_edit():
+    """
+        This function shows an edit page for a subscription
+        request.vars['ssuID'] is expected to be the subscriptionID (ssuID)
+    """
+    ssucrID = request.vars['ssucrID']
+    response.title = T("Edit subscription cancel reason")
+    ssucr = db.school_subscriptions_cancel_reasons(ssucrID)
+    response.subtitle = ssucr.Reason
+    response.view = 'general/only_content.html'
+
+    return_url = URL('subscriptions_cancel_reasons')
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_updated = T("Updated subscription cancel reason")
+    crud.settings.update_next = return_url
+    crud.settings.update_deletable = False
+    # crud.settings.update_onaccept = [cache_clear_school_subscriptions]
+    crud.settings.formstyle = 'bootstrap3_stacked'
+    form = crud.update(db.school_subscriptions_cancel_reasons, ssucrID)
+
+    textareas = form.elements('textarea')
+    for textarea in textareas:
+        textarea['_class'] += ' tmced'
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    # subscription_form_set_placeholders(form)
+
+    # input_classes = form.element('#school_subscriptions_NRofClasses')
+    # input_classes['_placeholder'] = T('Unlimited')
+
+    back = subscription_edit_get_back(return_url)
+
+    return dict(content=form,
+                back=back,
+                save=submit)
+
+
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('read', 'school_subscriptions_cancel_reasons'))
+# def subscriptions_cancel_reasons():
+#     """
+#         This function shows a page to list subscriptions.
+#     """
+#     response.title = T("School")
+#     response.subtitle = T("Subscriptions")
+#     response.view = 'general/tabs_menu.html'
+#
+#
+#     header = THEAD(TR(TH(T('Reason'))))
+#     table = TABLE(header, _class='table table-striped table-hover')
+#
+#     query = db.school_subscriptions_cancel_reasons
+#     rows = db(query).select(db.school_subscriptions_groups.ALL)
+#
+#     for i, row in enumerate(rows):
+#         tr = TR(TD(row.Name),
+#                 TD(row.Description),
+#                 TD(subscriptions_groups_get_link_subscriptions(row)),
+#                 TD(subscriptions_groups_get_link_delete(row),
+#                    subscriptions_groups_get_link_edit(row)))
+#
+#         table.append(tr)
+#
+#     add_url = URL('subscriptions_group_add')
+#     add = os_gui.get_button('add', add_url, T("Add a new subscription group"), _class='pull-right')
+#     archive_buttons = os_gui.get_archived_radio_buttons(
+#         session.school_subscriptions_show)
+#
+#     back = add
+#     menu = subscriptions_get_menu(request.function)
+#
+#     return dict(back=back,
+#                 menu=menu,
+#                 content=table)
+
 
 
 def classcards_get_menu(page=None):

@@ -193,26 +193,11 @@ def index_get_upcoming_classes(customer):
             cancel = ''
             clatt = ClassAttendance(row.classes_attendance.id)
 
-            info = A(os_gui.get_fa_icon('fa-info'), ' ', T("Booking"),
-                _href=URL('shop', 'class_booked',
-                          vars={'clsID': row.classes.id,
-                                'date': repr_row.classes_attendance.ClassDate,
-                                'clattID': clatt.id,
-                                'status':"ok"})
-            )
-
-            if clatt.get_cancellation_possible() and not row.classes_attendance.BookingStatus == 'cancelled':
-                cancel = A(T("Cancel"),
-                           _href=URL('class_cancel_confirm', vars={'clattID': row.classes_attendance.id}),
-                           _class='pull-right',
-                           _title=T('Cancel booking'))
-
             tr = TR(TD(repr_row.classes_attendance.ClassDate, BR(),
                        SPAN(repr_row.classes.Starttime, _class="text-muted")),
                     TD(repr_row.classes.school_classtypes_id, BR(),
                        SPAN(repr_row.classes.school_locations_id, _class="text-muted")),
-                    TD(info),
-                    TD(cancel))
+                    TD(classes_get_dropdown(row, clatt)))
 
             table.append(tr)
 
@@ -311,9 +296,7 @@ def index_get_classcards(customer):
 
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i+1].render())[0]
-
             remaining = classcard_get_remaining(row)
-            info = classcard_get_link_info(row)
 
             row = DIV(
                 DIV(SPAN('# ', _class="bold hidden-md hidden-lg"),
@@ -323,7 +306,7 @@ def index_get_classcards(customer):
                     _class='col-md-5'),
                 DIV(classcard_get_remaining(row),
                     _class='col-md-4'),
-                DIV(info,
+                DIV(classcard_get_dropdown(row),
                     _class='col-md-2'),
                 _class='row'
             )
@@ -358,9 +341,9 @@ def index_get_subscriptions(customer):
     else:
         header = DIV(
             DIV(T("#"), _class='col-md-1'),
-            DIV(T("Subscription"), _class='col-md-4'),
-            DIV(T("Credits"), _class='col-md-3'),
-            DIV(T(""), _class='col-md-4'), # Actions
+            DIV(T("Subscription"), _class='col-md-6'),
+            DIV(T("Credits"), _class='col-md-4'),
+            DIV(T(""), _class='col-md-1'), # Actions
             _class="row bold hidden-sm hidden-xs"
         )
 
@@ -370,8 +353,15 @@ def index_get_subscriptions(customer):
             repr_row = list(rows[i:i+1].render())[0]
 
             credits = subscription_get_link_credits(row)
-            info = subscription_get_link_info(row)
-            invoices = subscription_get_link_invoices(row)
+            dropdown = subscription_get_dropdown(row)
+
+            ends_on = DIV()
+            if row.customers_subscriptions.Enddate:
+                ends_on.append(SPAN(
+                    T("Ends on"), ": ",
+                    repr_row.customers_subscriptions.Enddate,
+                    _class="text-muted"
+                ))
 
             row = DIV(
                 DIV(SPAN('# ', _class="bold hidden-md hidden-lg"),
@@ -381,12 +371,14 @@ def index_get_subscriptions(customer):
                     SPAN(T("Started on"), ": ",
                          repr_row.customers_subscriptions.Startdate,
                          _class="text-muted"),
-                    _class='col-md-4'),
+                    ends_on,
+                    _class='col-md-6'),
                 DIV(credits, SPAN(' ', T("credit(s)"), _class="hidden-md text-muted hidden-lg"),
-                    _class='col-md-3'),
-                DIV(invoices,
-                    info,
                     _class='col-md-4'),
+                DIV(dropdown, _class='col-md-1'),
+                # DIV(invoices,
+                #     info,
+                #     _class='col-md-4'),
                 _class='row'
             )
 
@@ -403,6 +395,39 @@ def index_get_subscriptions(customer):
                                                _class='btn btn-link pull-right'),
                                                _title=T('List all subscriptions'),
                                              _class='center'))
+
+
+def subscription_get_dropdown(row):
+    """
+    Return dropdown with subscription options
+    :return:
+    """
+    from openstudio.tools import OsTools
+
+    tools = OsTools()
+
+    links = []
+    links.append(subscription_get_link_info(row))
+    links.append(subscription_get_link_invoices(row))
+
+    if ( tools.get_sys_property("shop_customers_can_cancel_subscriptions") == "on"
+        and not row.customers_subscriptions.Enddate ):
+
+        links.append('divider')
+        links.append(subscription_get_link_cancel(row))
+
+    dd = os_gui.get_dropdown_menu(
+            links=links,
+            btn_text=T(''),
+            btn_size='btn-sm',
+            btn_icon='option-horizontal',
+            btn_class="btn-link",
+            menu_class='btn-group pull-right',
+            show_caret=False
+    )
+
+    return DIV(dd, _class='pull-right')
+
 
 
 def index_get_memberships(customer):
@@ -484,8 +509,7 @@ def subscription_get_link_info(row):
 
     return A(os_gui.get_fa_icon('fa-check'), ' ', T("Access"),
              _href=URL('subscription_info', vars={'csID':csID}),
-             _title=T('Subscription details'),
-             _class='btn btn-sm btn-link pull-right')
+             _title=T('Subscription details'))
 
 
 def subscription_get_link_invoices(row):
@@ -496,8 +520,19 @@ def subscription_get_link_invoices(row):
 
     return A(os_gui.get_fa_icon('fa-file-text-o'), ' ', T("Invoices"),
              _href=URL('subscription_invoices', vars={'csID':csID}),
-             _title=T('Invoices for this subscription'),
-             _class='btn btn-sm btn-link')
+             _title=T('Invoices for this subscription'))
+
+
+def subscription_get_link_cancel(row):
+    """
+        Returns cancel link for a subscription
+    """
+    csID = row.customers_subscriptions.id
+
+    return A(os_gui.get_fa_icon('fa-ban'), ' ', T("Cancel subscription"),
+             _href=URL('subscription_cancel', vars={'csID':csID}),
+             _title=T('Cancel this subscription'),
+             _class="text-red")
 
 
 def me_requires_complete_profile(auID):
@@ -857,7 +892,7 @@ def classcards():
                 TD(repr_row.customers_classcards.Startdate),
                 TD(repr_row.customers_classcards.Enddate),
                 TD(remaining),
-                TD(classcard_get_link_info(row)))
+                TD(classcard_get_dropdown(row)))
 
         tbody.append(tr)
 
@@ -890,6 +925,31 @@ def classcard_get_remaining(row):
     return remaining
 
 
+def classcard_get_dropdown(row):
+    """
+    Return dropdown with subscription options
+    :return:
+    """
+    from openstudio.tools import OsTools
+
+    tools = OsTools()
+
+    links = []
+    links.append(classcard_get_link_info(row))
+
+    dd = os_gui.get_dropdown_menu(
+            links=links,
+            btn_text=T(''),
+            btn_size='btn-sm',
+            btn_icon='option-horizontal',
+            btn_class="btn-link",
+            menu_class='btn-group pull-right',
+            show_caret=False
+    )
+
+    return DIV(dd, _class='pull-right')
+
+
 def classcard_get_link_info(row):
     """
         Returns info link for a subscription
@@ -898,8 +958,7 @@ def classcard_get_link_info(row):
 
     return A(os_gui.get_fa_icon('fa-check'), ' ', T("Access"),
              _href=URL('classcard_info', vars={'ccdID':ccdID}),
-             _title=T('Class card details'),
-             _class='btn btn-link btn-sm pull-right')
+             _title=T('Class card details'))
 
 
 @auth.requires_login()
@@ -1399,23 +1458,26 @@ def classes():
             att_type = SPAN(row.school_classcards.Name,
                             _title=T('Class card') + ' ' + str(row.classes_attendance.customers_classcards_id))
 
-
-        cancel = ''
         clatt = ClassAttendance(row.classes_attendance.id)
-        if clatt.get_cancellation_possible() and not row.classes_attendance.BookingStatus == 'cancelled':
-            cancel = A(T('Cancel'),
-                       _href=URL('class_cancel_confirm', vars={'clattID':row.classes_attendance.id}),
-                       _class='pull-right')
 
-        status = SPAN(repr_row.classes_attendance.BookingStatus, _class='pull-right')
+
+        # cancel = ''
+        # clatt = ClassAttendance(row.classes_attendance.id)
+        # if clatt.get_cancellation_possible() and not row.classes_attendance.BookingStatus == 'cancelled':
+        #     cancel = A(T('Cancel'),
+        #                _href=URL('class_cancel_confirm', vars={'clattID':row.classes_attendance.id}),
+        #                _class='pull-right')
+
+        status = SPAN(repr_row.classes_attendance.BookingStatus)
+        dd = classes_get_dropdown(row, clatt)
 
         table.append(TR(TD(repr_row.classes_attendance.ClassDate),
                       TD(SPAN(repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime)),
                       TD(repr_row.classes.school_classtypes_id),
                       TD(repr_row.classes.school_locations_id),
                       TD(att_type),
-                      TD(cancel),
-                      TD(status)))
+                      TD(status),
+                      TD(dd)))
 
     # determine whether to show show all link
     if limit:
@@ -1431,6 +1493,56 @@ def classes():
     back = os_gui.get_button('back', URL('profile', 'index'))
 
     return dict(content=table, link_all=link_all, link_shop=link_shop, back=back)
+
+
+def classes_get_dropdown(row, clatt):
+    """
+    Return dropdown with subscription options
+    :return:
+    """
+    from openstudio.tools import OsTools
+
+    tools = OsTools()
+
+    links = []
+    links.append(class_get_link_info(row, clatt))
+    link_cancel = class_get_link_cancel(row, clatt)
+    if link_cancel:
+        links.append('divider')
+        links.append(link_cancel)
+
+    dd = os_gui.get_dropdown_menu(
+            links=links,
+            btn_text=T(''),
+            btn_size='btn-sm',
+            btn_icon='option-horizontal',
+            btn_class="btn-link",
+            menu_class='btn-group pull-right',
+            show_caret=False
+    )
+
+    return DIV(dd, _class='pull-right')
+
+
+def class_get_link_info(row, clatt):
+    return A(os_gui.get_fa_icon('fa-info'), ' ', T("Booking"),
+             _href=URL('shop', 'class_booked',
+                       vars={'clsID': row.classes.id,
+                             'date': row.classes_attendance.ClassDate.strftime(DATE_FORMAT),
+                             'clattID': clatt.id,
+                             'status': "ok"})
+             )
+
+
+def class_get_link_cancel(row, clatt):
+    cancel = ""
+
+    if clatt.get_cancellation_possible() and not row.classes_attendance.BookingStatus == 'cancelled':
+        cancel = A(os_gui.get_fa_icon('fa-ban'), ' ',T("Cancel"),
+                   _href=URL('class_cancel_confirm', vars={'clattID': row.classes_attendance.id}),
+                   _title=T('Cancel booking'))
+
+    return cancel
 
 
 def class_cancel_get_return_url(var=None):
@@ -1572,7 +1684,10 @@ def subscriptions():
 
     back = os_gui.get_button('back', URL('index'))
 
-    return dict(rows=rows, back=back, fcredits=subscription_get_link_credits, finfo=subscription_get_link_info)
+    return dict(rows=rows,
+                back=back,
+                fcredits=subscription_get_link_credits,
+                f_dropdown=subscription_get_dropdown)
 
 
 @auth.requires_login()
@@ -1614,6 +1729,148 @@ def subscription_credits():
     back = os_gui.get_button('back',return_url)
 
     return dict(content=DIV(total, mutations), back=back)
+
+
+def subscription_cancel_checks(cs):
+    from openstudio.tools import OsTools
+
+    tools = OsTools()
+    # Check if the subscriptions feature is enabled
+    features = db.customers_profile_features(1)
+    if not features.Subscriptions:
+        redirect(URL('profile', 'index'))
+
+    # Check if customers are allowed to cancel subscriptions
+    if not tools.get_sys_property("shop_customers_can_cancel_subscriptions") == "on":
+        redirect(URL('profile', 'index'))
+
+    # Check if this subscription belongs to the currently signed in user
+    if cs.cs.auth_customer_id != auth.user.id:
+        session.flash = T("That subscription doesn't belong to this user")
+        return URL('profile', 'index')
+
+
+@auth.requires_login()
+def subscription_cancel():
+    """
+        Page to list permissions for a subscription
+    """
+    from openstudio.tools import OsTools
+    from openstudio.os_customer_subscription import CustomerSubscription
+
+    csID = request.vars['csID']
+    response.title = T('Profile')
+    response.subtitle = T('Cancel subscription')
+    response.view = 'shop/index.html'
+    tools = OsTools()
+
+    cs = CustomerSubscription(csID)
+    subscription_cancel_checks(cs)
+
+    # Get MinEndDate; while taking it into account
+    can_cancel_from_date = cs.get_cancel_from_date()
+
+    for field in db.customers_subscriptions:
+        field.writable = False
+        field.readable = False
+
+    db.customers_subscriptions.Enddate.label = \
+        T("When would you like to end this subscription?")
+    db.customers_subscriptions.Enddate.writable = True
+    # This line doesn't do anything because "None" is read from the db for this field.
+    #    db.customers_subscriptions.Enddate.default = can_cancel_from_date
+    db.customers_subscriptions.Enddate.requires = \
+        IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                         minimum=can_cancel_from_date,
+                         maximum=datetime.date(2999,1,1),
+                         error_message=T("Please input a date on or after %s") % can_cancel_from_date.strftime(DATE_FORMAT))
+
+    db.customers_subscriptions.school_subscriptions_cancel_reasons_id.label = \
+        T("Why would you like to cancel this subscription?")
+    db.customers_subscriptions.school_subscriptions_cancel_reasons_id.comment = ""
+    db.customers_subscriptions.school_subscriptions_cancel_reasons_id.writable = True
+    db.customers_subscriptions.CancelReasonNote.label = \
+        T("Other reason or any message you'd like to send us")
+    db.customers_subscriptions.CancelReasonNote.writable = True
+
+    subscription_cancel_reasons_query = (db.school_subscriptions_cancel_reasons.Archived == False)
+    school_subscription_cancel_reason_format = '%(Reason)s'
+    db.customers_subscriptions.school_subscriptions_cancel_reasons_id.requires = \
+        IS_IN_DB(db(subscription_cancel_reasons_query),
+                 'school_subscriptions_cancel_reasons.id',
+                 school_subscription_cancel_reason_format,
+                 error_message=T("Please select a reason above"))
+
+    form = SQLFORM(db.customers_subscriptions, csID,
+                   submit_button = T('Cancel subscription'),
+                   formstyle='divs')
+
+    if form.process().accepted:
+        from openstudio.os_cache_manager import OsCacheManager
+        response.flash = T('Saved')
+
+        ocm = OsCacheManager()
+        ocm.clear_customers_subscriptions(auth.user.id)
+
+        redirect(URL("subscription_cancelled", vars={'csID': csID}))
+
+        # if _next:
+        #     redirect(_next)
+
+    elif form.errors:
+        response.flash = ''
+
+
+
+    content = DIV(
+        H3(T("Please confirm you'd like to cancel the subscription below")),
+        H4(T("Subscription:")),
+        UL(
+            LI(cs.name),
+            LI(T("Started on: %s") % cs.startdate.strftime(DATE_FORMAT)),
+            LI(T("Can be cancelled from: %s") % can_cancel_from_date.strftime(DATE_FORMAT))
+        ), BR(),
+        DIV(form, _class="col-md-12")
+    )
+
+    back = os_gui.get_button('back', URL('profile', 'index'))
+
+    return dict(content=content, back=back)
+
+
+def subscription_cancelled():
+    """
+    Display cancellation confirmation page
+    :return:
+    """
+    from openstudio.tools import OsTools
+    from openstudio.os_customer_subscription import CustomerSubscription
+
+    csID = request.vars['csID']
+    response.title = T('Profile')
+    response.subtitle = T('Cancelled subscription')
+    response.view = 'shop/index.html'
+
+    cs = CustomerSubscription(csID)
+    subscription_cancel_checks(cs)
+
+    content = DIV(
+        H3(T("Your subscription has been cancelled")),
+        H4(T("Subscription:")),
+        UL(
+            LI(cs.name),
+            LI(T("Started on: %s") % cs.startdate.strftime(DATE_FORMAT)),
+            LI(T("Cancelled from: %s") % cs.enddate.strftime(DATE_FORMAT))
+        ), BR(),
+        DIV(os_gui.get_button(
+            button_type="noicon",
+            url=URL("profile", "index"),
+            title=T("Return to profile"),
+            btn_size=""
+        ), _class="col-md-12")
+    )
+
+    return dict(content=content)
 
 
 @auth.requires_login()
