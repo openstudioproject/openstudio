@@ -44,6 +44,10 @@ def index():
             print(version)
             upgrade_to_202004()
             session.flash = T("Upgraded db to 2020.04")
+        if version < 2020.06:
+            print(version)
+            upgrade_to_202006()
+            session.flash = T("Upgraded db to 2020.06")
         else:
             session.flash = T('Already up to date')
 
@@ -115,7 +119,7 @@ def upgrade_to_202003():
 
 def upgrade_to_202004():
     """
-        Upgrade operations to 2020.03
+        Upgrade operations to 2020.04
     """
     ###
     # Add default value for subscription_first_invoice_two_terms_from_day
@@ -128,3 +132,35 @@ def upgrade_to_202004():
         Property = 'system_allow_trial_classes_for_existing_customers',
         PropertyValue = 'on'
     )
+
+
+def upgrade_to_202006():
+    """
+        Upgrade operations to 2020.06
+    """
+    from openstudio.os_customer_subscription import CustomerSubscription
+    ###
+    # Set default value for CancellationPeriod in school subscriptions
+    ###
+    query = (db.school_subscriptions.CancellationPeriod == None)
+    db(query).update(
+        CancellationPeriod = 1,
+        CancellationPeriodUnit = "month"
+    )
+
+    ###
+    # Set default value for MinDuration in school subscriptions
+    ###
+    query = (db.school_subscriptions.MinDuration == None)
+    db(query).update(
+        MinDuration=1,
+    )
+
+    ###
+    # Set default value for MinEnddate in customer subscriptions (when not set)
+    ###
+    query = (db.customers_subscriptions.MinEnddate == None)
+    rows = db(query).select(db.customers_subscriptions.id)
+    for row in rows:
+        cs = CustomerSubscription(row.id)
+        cs.set_min_enddate()
