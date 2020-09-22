@@ -372,6 +372,14 @@ def index_get_subscriptions(customer):
             credits = subscription_get_link_credits(row)
             dropdown = subscription_get_dropdown(row)
 
+            ends_on = DIV()
+            if row.customers_subscriptions.Enddate:
+                ends_on.append(SPAN(
+                    T("Ends on"), ": ",
+                    repr_row.customers_subscriptions.Enddate,
+                    _class="text-muted"
+                ))
+
             row = DIV(
                 DIV(SPAN('# ', _class="bold hidden-md hidden-lg"),
                     row.customers_subscriptions.id,
@@ -380,6 +388,7 @@ def index_get_subscriptions(customer):
                     SPAN(T("Started on"), ": ",
                          repr_row.customers_subscriptions.Startdate,
                          _class="text-muted"),
+                    ends_on,
                     _class='col-md-6'),
                 DIV(credits, SPAN(' ', T("credit(s)"), _class="hidden-md text-muted hidden-lg"),
                     _class='col-md-4'),
