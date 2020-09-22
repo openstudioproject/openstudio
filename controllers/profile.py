@@ -193,26 +193,11 @@ def index_get_upcoming_classes(customer):
             cancel = ''
             clatt = ClassAttendance(row.classes_attendance.id)
 
-            info = A(os_gui.get_fa_icon('fa-info'), ' ', T("Booking"),
-                _href=URL('shop', 'class_booked',
-                          vars={'clsID': row.classes.id,
-                                'date': repr_row.classes_attendance.ClassDate,
-                                'clattID': clatt.id,
-                                'status':"ok"})
-            )
-
-            if clatt.get_cancellation_possible() and not row.classes_attendance.BookingStatus == 'cancelled':
-                cancel = A(T("Cancel"),
-                           _href=URL('class_cancel_confirm', vars={'clattID': row.classes_attendance.id}),
-                           _class='pull-right',
-                           _title=T('Cancel booking'))
-
             tr = TR(TD(repr_row.classes_attendance.ClassDate, BR(),
                        SPAN(repr_row.classes.Starttime, _class="text-muted")),
                     TD(repr_row.classes.school_classtypes_id, BR(),
                        SPAN(repr_row.classes.school_locations_id, _class="text-muted")),
-                    TD(info),
-                    TD(cancel))
+                    TD(classes_get_dropdown(row, clatt)))
 
             table.append(tr)
 
