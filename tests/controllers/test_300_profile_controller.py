@@ -922,7 +922,9 @@ def test_subscription_cancel_months_min_enddate_used(client, web2py):
 
 def test_subscription_cancel_months(client, web2py):
     """
-    Is the "can cancel from date" correctly calculated when setting the period to months
+    Is the "can cancel from date" correctly calculated when setting the period to months.
+    The end date set in the code depends on the system time. When run on a development system with a non UTC
+    timezone, it might fail after a certain hour of the day.
     """
     setup_profile_tests(web2py)
     populate_school_subscriptions(web2py)
