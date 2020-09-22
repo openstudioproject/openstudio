@@ -296,9 +296,7 @@ def index_get_classcards(customer):
 
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i+1].render())[0]
-
             remaining = classcard_get_remaining(row)
-            info = classcard_get_link_info(row)
 
             row = DIV(
                 DIV(SPAN('# ', _class="bold hidden-md hidden-lg"),
@@ -308,7 +306,7 @@ def index_get_classcards(customer):
                     _class='col-md-5'),
                 DIV(classcard_get_remaining(row),
                     _class='col-md-4'),
-                DIV(info,
+                DIV(classcard_get_dropdown(row),
                     _class='col-md-2'),
                 _class='row'
             )
@@ -894,7 +892,7 @@ def classcards():
                 TD(repr_row.customers_classcards.Startdate),
                 TD(repr_row.customers_classcards.Enddate),
                 TD(remaining),
-                TD(classcard_get_link_info(row)))
+                TD(classcard_get_dropdown(row)))
 
         tbody.append(tr)
 
@@ -927,6 +925,31 @@ def classcard_get_remaining(row):
     return remaining
 
 
+def classcard_get_dropdown(row):
+    """
+    Return dropdown with subscription options
+    :return:
+    """
+    from openstudio.tools import OsTools
+
+    tools = OsTools()
+
+    links = []
+    links.append(classcard_get_link_info(row))
+
+    dd = os_gui.get_dropdown_menu(
+            links=links,
+            btn_text=T(''),
+            btn_size='btn-sm',
+            btn_icon='option-horizontal',
+            btn_class="btn-link",
+            menu_class='btn-group pull-right',
+            show_caret=False
+    )
+
+    return DIV(dd, _class='pull-right')
+
+
 def classcard_get_link_info(row):
     """
         Returns info link for a subscription
@@ -935,8 +958,7 @@ def classcard_get_link_info(row):
 
     return A(os_gui.get_fa_icon('fa-check'), ' ', T("Access"),
              _href=URL('classcard_info', vars={'ccdID':ccdID}),
-             _title=T('Class card details'),
-             _class='btn btn-link btn-sm pull-right')
+             _title=T('Class card details'))
 
 
 @auth.requires_login()
