@@ -971,6 +971,8 @@ def test_subscription_cancel_months(client, web2py):
     assert cs.school_subscriptions_cancel_reasons_id == 1
     assert cs.CancelReasonNote == data['CancelReasonNote']
 
+    assert "Your subscription has been cancelled".lower() in client.text.lower()
+
 
 def test_subscription_cancel_calendar_months(client, web2py):
     """

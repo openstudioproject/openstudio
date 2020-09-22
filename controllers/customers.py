@@ -3396,7 +3396,6 @@ def subscription_edit_onaccept(form):
         db(query).update(BookingStatus = 'cancelled')
 
 
-
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('delete', 'customers_subscriptions'))
 def subscription_delete():

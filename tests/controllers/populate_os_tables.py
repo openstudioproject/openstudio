@@ -247,6 +247,7 @@ def populate_customers_with_subscriptions(web2py,
             school_subscriptions_id = 1,
             Startdate               = '2014-01-01',
             Enddate                 = None,
+            MinEnddate = '2014-01-31',
             payment_methods_id      = 3) # 3 = direct debit
 
 
@@ -297,6 +298,7 @@ def populate_customers_with_subscriptions(web2py,
         school_subscriptions_id = 2,
         Startdate               = '2014-01-01',
         Enddate                 = None,
+        MinEnddate='2014-01-31',
         payment_methods_id      = 3) # 3 = direct debit
 
     # ssu 3 monthly credits
@@ -305,6 +307,7 @@ def populate_customers_with_subscriptions(web2py,
         school_subscriptions_id = 3,
         Startdate               = '2014-01-01',
         Enddate                 = None,
+        MinEnddate='2014-01-31',
         payment_methods_id      = 3) # 3 = direct debit
 
     # ssu 4 no subscription unit defined
@@ -313,6 +316,7 @@ def populate_customers_with_subscriptions(web2py,
         school_subscriptions_id = 4,
         Startdate               = '2014-01-01',
         Enddate                 = None,
+        MinEnddate='2014-01-31',
         payment_methods_id      = 3) # 3 = direct debit
     # ssu 5 no classes defined
     web2py.db.customers_subscriptions.insert(
@@ -320,8 +324,8 @@ def populate_customers_with_subscriptions(web2py,
         school_subscriptions_id = 5,
         Startdate               = '2014-01-01',
         Enddate                 = None,
+        MinEnddate='2014-01-31',
         payment_methods_id      = 3) # 3 = direct debit
-
 
 
     # add alt. price for first subscription to check automatic creation of invoices
@@ -1622,6 +1626,8 @@ def populate_school_subscriptions(web2py, school_memberships_id=None):
         Name        = 'Unlimited for free',
         Classes     = 0,
         CreditValidity=28,  # 4 weeks
+        CancellationPeriod=1,
+        CancellationPeriodUnit="month",
         Unlimited   = True,
         SortOrder=0,
         QuickStatsAmount=15
@@ -1634,6 +1640,8 @@ def populate_school_subscriptions(web2py, school_memberships_id=None):
         Name               = 'one class a month',
         Classes            = 1,
         CreditValidity=28,  # 4 weeks
+        CancellationPeriod=1,
+        CancellationPeriodUnit="month",
         SubscriptionUnit   = 'month',
         SortOrder=0,
         QuickStatsAmount=17.5
@@ -1646,6 +1654,8 @@ def populate_school_subscriptions(web2py, school_memberships_id=None):
         Name='Unit not defined',
         Classes=1,
         CreditValidity=28,  # 4 weeks
+        CancellationPeriod=1,
+        CancellationPeriodUnit="month",
         SubscriptionUnit=None,
         SortOrder=0,
         QuickStatsAmount=12.5
@@ -1658,6 +1668,8 @@ def populate_school_subscriptions(web2py, school_memberships_id=None):
         Name = 'Classes not defined',
         Classes = None,
         CreditValidity=28,  # 4 weeks
+        CancellationPeriod=1,
+        CancellationPeriodUnit="month",
         SubscriptionUnit = 'month',
         SortOrder=0,
         QuickStatsAmount=5
