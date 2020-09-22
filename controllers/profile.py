@@ -1799,16 +1799,7 @@ def subscription_cancelled():
         ), _class="col-md-12")
     )
 
-    # back = os_gui.get_button('back', URL('profile', 'index'))
-
     return dict(content=content)
-
-
-
-
-
-
-
 
 
 @auth.requires_login()
