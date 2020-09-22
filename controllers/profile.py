@@ -1451,23 +1451,26 @@ def classes():
             att_type = SPAN(row.school_classcards.Name,
                             _title=T('Class card') + ' ' + str(row.classes_attendance.customers_classcards_id))
 
-
-        cancel = ''
         clatt = ClassAttendance(row.classes_attendance.id)
-        if clatt.get_cancellation_possible() and not row.classes_attendance.BookingStatus == 'cancelled':
-            cancel = A(T('Cancel'),
-                       _href=URL('class_cancel_confirm', vars={'clattID':row.classes_attendance.id}),
-                       _class='pull-right')
 
-        status = SPAN(repr_row.classes_attendance.BookingStatus, _class='pull-right')
+
+        # cancel = ''
+        # clatt = ClassAttendance(row.classes_attendance.id)
+        # if clatt.get_cancellation_possible() and not row.classes_attendance.BookingStatus == 'cancelled':
+        #     cancel = A(T('Cancel'),
+        #                _href=URL('class_cancel_confirm', vars={'clattID':row.classes_attendance.id}),
+        #                _class='pull-right')
+
+        status = SPAN(repr_row.classes_attendance.BookingStatus)
+        dd = classes_get_dropdown(row, clatt)
 
         table.append(TR(TD(repr_row.classes_attendance.ClassDate),
                       TD(SPAN(repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime)),
                       TD(repr_row.classes.school_classtypes_id),
                       TD(repr_row.classes.school_locations_id),
                       TD(att_type),
-                      TD(cancel),
-                      TD(status)))
+                      TD(status),
+                      TD(dd)))
 
     # determine whether to show show all link
     if limit:
@@ -1483,6 +1486,56 @@ def classes():
     back = os_gui.get_button('back', URL('profile', 'index'))
 
     return dict(content=table, link_all=link_all, link_shop=link_shop, back=back)
+
+
+def classes_get_dropdown(row, clatt):
+    """
+    Return dropdown with subscription options
+    :return:
+    """
+    from openstudio.tools import OsTools
+
+    tools = OsTools()
+
+    links = []
+    links.append(class_get_link_info(row, clatt))
+    link_cancel = class_get_link_cancel(row, clatt)
+    if link_cancel:
+        links.append('divider')
+        links.append(link_cancel)
+
+    dd = os_gui.get_dropdown_menu(
+            links=links,
+            btn_text=T(''),
+            btn_size='btn-sm',
+            btn_icon='option-horizontal',
+            btn_class="btn-link",
+            menu_class='btn-group pull-right',
+            show_caret=False
+    )
+
+    return DIV(dd, _class='pull-right')
+
+
+def class_get_link_info(row, clatt):
+    return A(os_gui.get_fa_icon('fa-info'), ' ', T("Booking"),
+             _href=URL('shop', 'class_booked',
+                       vars={'clsID': row.classes.id,
+                             'date': row.classes_attendance.ClassDate.strftime(DATE_FORMAT),
+                             'clattID': clatt.id,
+                             'status': "ok"})
+             )
+
+
+def class_get_link_cancel(row, clatt):
+    cancel = ""
+
+    if clatt.get_cancellation_possible() and not row.classes_attendance.BookingStatus == 'cancelled':
+        cancel = A(os_gui.get_fa_icon('fa-ban'), ' ',T("Cancel"),
+                   _href=URL('class_cancel_confirm', vars={'clattID': row.classes_attendance.id}),
+                   _title=T('Cancel booking'))
+
+    return cancel
 
 
 def class_cancel_get_return_url(var=None):
