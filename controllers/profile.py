@@ -418,7 +418,9 @@ def subscription_get_dropdown(row):
     links.append(subscription_get_link_info(row))
     links.append(subscription_get_link_invoices(row))
 
-    if tools.get_sys_property("shop_customers_can_cancel_subscriptions") == "on":
+    if ( tools.get_sys_property("shop_customers_can_cancel_subscriptions") == "on"
+        and not row.customers_subscriptions.Enddate ):
+
         links.append('divider')
         links.append(subscription_get_link_cancel(row))
 
