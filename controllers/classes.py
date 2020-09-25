@@ -3410,7 +3410,7 @@ def reservation_edit_remove_booked_classes(form):
         from openstudio.os_classes_reservation import ClassesReservation
 
         reservation = ClassesReservation(form.vars.id)
-        bookings_removed = reservation.remove_attendance_booked_classes(TODAY_LOCAL)
+        bookings_removed = reservation.remove_attendance_booked_classes(form.vars.Enddate)
 
 
 def reservation_get_cancelled(crID, date):
