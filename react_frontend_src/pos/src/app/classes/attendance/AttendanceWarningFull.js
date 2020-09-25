@@ -48,9 +48,15 @@ const AttendanceWarningFull = ({attendance_items, classes, clsID, intl}) =>
         (over_spaces(attendance_items, classes, clsID) ? 
           <div class="alert alert-success" role="alert">
             <i className="fa fa-check"></i> {" "}
-            This class is full. All {get_class_spaces(classes, clsID)} spaces are filled.
+            <b>This class is full.</b> All {get_class_spaces(classes, clsID)} spaces are filled.
           </div>
-          : "")
+          : 
+          <div class="alert alert-info" role="alert">
+            <i className="fa fa-info-circle"></i> {" "}
+            <b>Spaces Available.</b> Remaining spaces in this class: {" "}
+            {get_class_spaces(classes, clsID) - count_attending(attendance_items, classes)}
+          </div>
+          )
       }
     </div>
   </div>
