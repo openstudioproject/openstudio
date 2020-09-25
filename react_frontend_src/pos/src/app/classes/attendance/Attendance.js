@@ -11,6 +11,7 @@ import ButtonBack from "../../../components/ui/ButtonBack"
 import ClassNameDisplay from "../../../components/ui/ClassNameDisplay"
 
 import AttendanceList from "./AttendanceList"
+import AttendanceWarningFull from "./AttendanceWarningFull"
 
 import CustomersList from "../../../components/ui/CustomersList"
 
@@ -162,6 +163,7 @@ class Attendance extends Component {
     render() {
         const attendance = this.props.attendance
         const customers = this.props.customers
+        const classes = this.props.classes
         const intl = this.props.intl
         // const memberships = this.props.memberships
 
@@ -186,48 +188,54 @@ class Attendance extends Component {
         return (
             <PageTemplate app_state={this.props.app}>
                 { 
-                    (!attendance.loaded) ? 
-                        <div>Loading attendance, please wait...</div> :
-                        <section className="classes_attendance">
-                            <div className="row">
-                                <div className='col-md-12'>
-                                    <div className="pull-right">
-                                        <button className='btn btn-default'
-                                                onClick={this.onClickVerifyTeacherPayment.bind(this)} >
-                                            <i className="fa fa-graduation-cap"></i> { ' ' }
-                                            {this.props.intl.formatMessage({ id: "app.pos.classes.attendane.verify_teacher_payment"})}
-                                        </button>
-                                    </div>
-                                    <ButtonBack onClick={this.onClickButtonBack.bind(this)} 
-                                                classAdditional="pull-left btn-margin-right">
-                                        Classes
-                                    </ButtonBack>
-                                    {/* <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
-                                                    onChange={this.onChangeSearch.bind(this)}
-                                                    onClear={this.onClearSearch.bind(this)}
-                                                    value={attendance.searchValue} /> 
-                                    { (attendance.searchCustomerID || attendance.searchValue) ?
-                                        <CustomersList customers={customers_display}
-                                                    title="Add customers"
-                                                    intl={intl}
-                                                    onClick={this.onClickCustomersListItem.bind(this)} />
-                                        : ''
-                                    } */}
+                  (!attendance.loaded || !classes.loaded) ? 
+                    <div>Loading attendance, please wait...</div> :
+                    <section className="classes_attendance">
+                        <div className="row">
+                            <div className='col-md-12'>
+                                <div className="pull-right">
+                                    <button className='btn btn-default'
+                                            onClick={this.onClickVerifyTeacherPayment.bind(this)} >
+                                        <i className="fa fa-graduation-cap"></i> { ' ' }
+                                        {this.props.intl.formatMessage({ id: "app.pos.classes.attendane.verify_teacher_payment"})}
+                                    </button>
                                 </div>
-                            </div><br />
-                            <div className="row">
-                                <div className='col-md-12'>
-                                    {console.log('attendance count')}
-                                    {console.log(this.props.attendance.data)}
-                                    {console.log(this.props.attendance.data.length)}
-                                    <AttendanceList attendance_items={this.props.attendance.data}
-                                                    intl={intl}
-                                                    title="Attendance"
-                                                    onClick={this.onClickAttendanceButtonManageStatus.bind(this)}
-                                                    onClickRemove={this.onClickAttendanceButtonRemove.bind(this)} />
-                                </div>
+                                <ButtonBack onClick={this.onClickButtonBack.bind(this)} 
+                                            classAdditional="pull-left btn-margin-right">
+                                    Classes
+                                </ButtonBack>
+                                {/* <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
+                                                onChange={this.onChangeSearch.bind(this)}
+                                                onClear={this.onClearSearch.bind(this)}
+                                                value={attendance.searchValue} /> 
+                                { (attendance.searchCustomerID || attendance.searchValue) ?
+                                    <CustomersList customers={customers_display}
+                                                title="Add customers"
+                                                intl={intl}
+                                                onClick={this.onClickCustomersListItem.bind(this)} />
+                                    : ''
+                                } */}
                             </div>
-                        </section>
+                        </div><br />
+                        <AttendanceWarningFull 
+                          attendance_items={this.props.attendance.data}
+                          classes={this.props.classes.data}
+                          clsID={this.props.match.params.clsID}
+                          intl={intl}
+                        />
+                        <div className="row">
+                          <div className='col-md-12'>
+                              {console.log('attendance count')}
+                              {console.log(this.props.attendance.data)}
+                              {console.log(this.props.attendance.data.length)}
+                              <AttendanceList attendance_items={this.props.attendance.data}
+                                              intl={intl}
+                                              title="Attendance"
+                                              onClick={this.onClickAttendanceButtonManageStatus.bind(this)}
+                                              onClickRemove={this.onClickAttendanceButtonRemove.bind(this)} />
+                          </div>
+                        </div>
+                      </section>
                 }
             </PageTemplate>
         )
