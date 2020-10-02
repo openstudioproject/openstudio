@@ -1661,8 +1661,32 @@ def subscriptions_cancel_reason_get_link_archive(row):
 
     return os_gui.get_button('archive',
                              URL('subscriptions_cancel_reason_archive',
-                                 vars={'ssuID':row.id}),
+                                 vars={'ssucrID':row.id}),
                              tooltip=tt)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'school_subscriptions_cancel_reasons'))
+def subscriptions_cancel_reason_archive():
+    """
+        This function archives a subscription
+        request.vars[ssucrID] is expected to be the school_subscriptions_cancel_reasons ID
+    """
+    ssucrID = request.vars['ssucrID']
+    if not ssucrID:
+        session.flash = T('Unable to (un)archive reason')
+    else:
+        row = db.school_subscriptions_cancel_reasons(ssucrID)
+
+        if row.Archived:
+            session.flash = T('Moved to current')
+        else:
+            session.flash = T('Archived')
+
+        row.Archived = not row.Archived
+        row.update_record()
+
+    redirect(URL('subscriptions_cancel_reasons'))
 
 
 @auth.requires_login()
@@ -1741,45 +1765,6 @@ def subscription_cancel_reason_edit():
     return dict(content=form,
                 back=back,
                 save=submit)
-
-
-# @auth.requires(auth.has_membership(group_id='Admins') or \
-#                auth.has_permission('read', 'school_subscriptions_cancel_reasons'))
-# def subscriptions_cancel_reasons():
-#     """
-#         This function shows a page to list subscriptions.
-#     """
-#     response.title = T("School")
-#     response.subtitle = T("Subscriptions")
-#     response.view = 'general/tabs_menu.html'
-#
-#
-#     header = THEAD(TR(TH(T('Reason'))))
-#     table = TABLE(header, _class='table table-striped table-hover')
-#
-#     query = db.school_subscriptions_cancel_reasons
-#     rows = db(query).select(db.school_subscriptions_groups.ALL)
-#
-#     for i, row in enumerate(rows):
-#         tr = TR(TD(row.Name),
-#                 TD(row.Description),
-#                 TD(subscriptions_groups_get_link_subscriptions(row)),
-#                 TD(subscriptions_groups_get_link_delete(row),
-#                    subscriptions_groups_get_link_edit(row)))
-#
-#         table.append(tr)
-#
-#     add_url = URL('subscriptions_group_add')
-#     add = os_gui.get_button('add', add_url, T("Add a new subscription group"), _class='pull-right')
-#     archive_buttons = os_gui.get_archived_radio_buttons(
-#         session.school_subscriptions_show)
-#
-#     back = add
-#     menu = subscriptions_get_menu(request.function)
-#
-#     return dict(back=back,
-#                 menu=menu,
-#                 content=table)
 
 
 
