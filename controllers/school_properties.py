@@ -1615,7 +1615,7 @@ def subscriptions_cancel_reasons():
                                          vars={'ssucrID':row.id}),
                                      T("Edit this subscription cancel reason")),
               subscriptions_cancel_reason_get_link_archive ]
-    maxtextlengths = {'school_subscriptions.Reason' : 40}
+    maxtextlengths = {'school_subscriptions_cancel_reasons.Reason' : 60}
     headers = {'school_subscriptions_cancel_reasons.SortOrder':'Sorting'}
     grid = SQLFORM.grid(query, fields=fields, links=links,
         maxtextlengths=maxtextlengths,
