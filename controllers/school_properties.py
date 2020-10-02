@@ -1635,7 +1635,8 @@ def subscriptions_cancel_reasons():
     add_url = URL('subscription_cancel_reason_add')
     add = os_gui.get_button('add', add_url, T("Add a new reason"), _class='pull-right')
     archive_buttons = os_gui.get_archived_radio_buttons(
-        session.school_subscriptions_show)
+        session.school_subscriptions_cancel_reasons_show
+    )
 
     back = DIV(add, archive_buttons)
     menu = subscriptions_get_menu(request.function)
