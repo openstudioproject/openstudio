@@ -1799,6 +1799,8 @@ def subscription_cancel():
         IS_IN_DB(db(subscription_cancel_reasons_query),
                  'school_subscriptions_cancel_reasons.id',
                  school_subscription_cancel_reason_format,
+                 orderby=db.school_subscriptions_cancel_reasons.SortOrder|\
+                         db.school_subscriptions_cancel_reasons.Reason,
                  error_message=T("Please select a reason above"))
 
     form = SQLFORM(db.customers_subscriptions, csID,
