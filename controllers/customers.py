@@ -36,7 +36,6 @@ import calendar
 import codecs
 
 # helper functions
-
 def _edit_check_picture(form):
     if form.vars['Picture'] == '':
         row = db.auth_user[form.vars['id']]
@@ -3248,13 +3247,18 @@ def subscription_add():
     response.subtitle = T("New subscription")
 
     db.customers_subscriptions.auth_customer_id.default = customers_id
+    db.customers_subscriptions.MinEnddate.readable = False
+    db.customers_subscriptions.MinEnddate.writable = False
+    db.customers_subscriptions.school_subscriptions_cancel_reasons_id.writable = False
+    db.customers_subscriptions.CancelReasonNote.writable = False
 
     return_url = subscriptions_get_return_url(customers_id)
+    next_url = '/customers/subscription_edit?cuID=%s&csID=[id]' % customers_id
 
     crud.messages.submit_button = T("Save")
-    crud.messages.record_created = T("Added subscription")
+    crud.messages.record_created = T("Added subscription, you're now editing the new subscription.")
     crud.settings.formstyle = "bootstrap3_stacked"
-    crud.settings.create_next = return_url
+    crud.settings.create_next = next_url
     crud.settings.create_onaccept = [
         subscriptions_clear_cache,
         subscription_add_add_credits,
@@ -3272,7 +3276,7 @@ def subscription_add():
 
     submit = form.element('input[type=submit]')
 
-    back = os_gui.get_button('back', URL('subscriptions', vars={'cuID':customers_id}))
+    back = os_gui.get_button('back', return_url)
     content = DIV(
         H4(T("Add subscription")), BR(),
         form
@@ -3303,8 +3307,6 @@ def subscription_add_set_min_enddate(form):
 
     cs = CustomerSubscription(csID)
     cs.set_min_enddate()
-
-
 
 # def subscription_add_create_invoice(form):
 #     """
