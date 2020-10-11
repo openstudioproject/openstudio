@@ -3281,6 +3281,3 @@ def check_add_to_cart_requires_complete_profile(auID, _next=''):
                 T('After completing your profile information you will be redirected to the next step.')
             )
             redirect(URL('profile', 'me', vars={'_next': _next}))
-
-
-    #TODO: The rest of the code...
