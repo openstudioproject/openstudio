@@ -2783,8 +2783,12 @@ def class_book():
 
         # Redirect back to book options page in case class booking in advance isn't allowed on this card
         if not int(clsID) in ccd.get_allowed_classes_booking():
-
             redirect(url_booking_options)
+
+        # Check for required membership here.
+        if not ccd.customer_has_required_membership_on_date(date):
+            print("Here we should redirect to the buy a nice new membership page...")
+
 
         result = ah.attendance_sign_in_classcard(cuID, clsID, ccdID, date, online_booking=True)
         if result['status'] == 'fail':
