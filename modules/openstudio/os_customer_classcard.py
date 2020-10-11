@@ -384,4 +384,29 @@ class CustomerClasscard:
             return permissions
         else:
             return self._get_class_permissions_format(permissions)
-        
+
+
+    def customer_has_required_membership_on_date(self, date):
+        """
+        Check if the customer this card is linked to has the required membership to be able to check-in to classes
+        :param date: datetime.date - date on which to check for the required classcard
+        :return: Boolean; True if the customer has the required membership or no membership is defined. Otherwise false.
+        """
+        from .os_customer import Customer
+
+        if not self.school_classcard.school_memberships_id:
+            return True
+
+        customer = Customer(self.classcard.auth_customer_id)
+
+        memberships = customer.get_memberships_on_date(date)
+        if not memberships:
+            return False
+
+        return_value = False
+        for membership in memberships:
+            if membership.id == self.school_classcard.auth_customer_id:
+                return_value = True
+                break
+
+        return return_value
