@@ -753,6 +753,9 @@ class Order:
                     if sme.row.Price:
                         iiID = invoice.item_add_membership(cmID)
 
+                if row.customers_orders_items.customers_classcards_id:
+                    ccdID = row.customers_orders_items.customers_classcards_id
+
             # Check for workshop
             if row.customers_orders_items.workshops_products_id:
                 # Deliver workshop product
@@ -806,7 +809,7 @@ class Order:
                         booking_status="booked"
                     )
                 elif attendance_type == 3 and ccdID:
-                    # classcard checkin
+                    # class card checkin
                     result = ah.attendance_sign_in_classcard(
                         self.order.auth_customer_id,
                         row.customers_orders_items.classes_id,
