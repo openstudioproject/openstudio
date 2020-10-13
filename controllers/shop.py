@@ -1086,7 +1086,8 @@ def membership():
     ccdID = request.vars['ccdID']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
-    date = datestr_to_python(DATE_FORMAT, date_formatted)
+    if date_formatted:
+        date = datestr_to_python(DATE_FORMAT, date_formatted)
     expired = request.vars['expired']
 
     features = db.customers_shop_features(1)
@@ -1102,7 +1103,9 @@ def membership():
         )
 
     # Check if we should display the expired_message
-    expired_info = membership_get_expired_info(clsID, date)
+    expired_info = ""
+    if expired == "True":
+        expired_info = membership_get_expired_info(clsID, date)
 
     sm = SchoolMembership(smID)
     price = sm.row.Price
