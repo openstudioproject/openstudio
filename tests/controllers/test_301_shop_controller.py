@@ -113,7 +113,6 @@ def test_classcard(client, web2py):
     assert web2py.db(web2py.db.customers_orders).count() > 0
 
 
-
 def test_subscription(client, web2py):
     """
     Test classcard info page
@@ -1118,6 +1117,113 @@ def test_class_book_classcard(client, web2py):
     client.get(url)
     assert client.status == 200
 
+    query = (web2py.db.classes_attendance.auth_customer_id == 300)
+    assert web2py.db(query).count() == 1
+
+    assert 'reserved' in client.text # Check redirection after booking a class using a card
+
+
+def test_class_book_classcard_no_valid_membership(client, web2py):
+    """
+        Can we book a class on a class card from the shop?
+    """
+    url = '/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_profile_tests(web2py)
+    prepare_classes(web2py)
+    populate_school_classcards(web2py, nr=2)
+    populate_school_memberships(web2py)
+
+    # Add membership to school class card
+    query = (web2py.db.school_classcards.id > 0)
+    web2py.db(query).update(school_memberships_id = 1)
+    web2py.db.commit()
+
+    web2py.db.classes_school_classcards_groups.insert(
+        classes_id = 1,
+        school_classcards_group = 1,
+        Enroll = True,
+        ShopBook = True,
+        Attend = True
+    )
+
+    ccdID = web2py.db.customers_classcards.insert(
+        auth_customer_id = 300,
+        school_classcards_id = 1,
+        Startdate = '2014-01-01',
+        Enddate = '2099-12-31'
+    )
+
+    web2py.db.commit()
+
+    next_monday = next_weekday(datetime.date.today(), 0)
+    # check class card booking
+    url = '/shop/class_book?clsID=1&date=' + str(next_monday) + '&ccdID=' + str(ccdID)
+    client.get(url)
+    assert client.status == 200
+
+    # Customer shouldn't be checked in
+    query = (web2py.db.classes_attendance.auth_customer_id == 300)
+    assert web2py.db(query).count() == 0
+
+    # Customer should have been redirected to /shop/membership?smID=1
+    # and the "expired" text should be shown.
+    assert 'Your membership has expired' in client.text
+
+
+def test_class_book_classcard_valid_membership(client, web2py):
+    """
+        Can we book a class on a class card from the shop?
+    """
+    url = '/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_profile_tests(web2py)
+    prepare_classes(web2py)
+    populate_school_classcards(web2py, nr=2)
+    populate_school_memberships(web2py)
+
+    # Add membership to school classcard
+    query = (web2py.db.school_classcards.id > 0)
+    web2py.db(query).update(school_memberships_id = 1)
+    web2py.db.commit()
+
+    # Add membership to customer
+    web2py.db.customers_memberships.insert(
+        auth_customer_id = 300,
+        school_memberships_id = 1,
+        payment_methods_id = 3,
+        Startdate='2014-01-01',
+        Enddate='2099-12-31'
+    )
+
+    web2py.db.classes_school_classcards_groups.insert(
+        classes_id = 1,
+        school_classcards_group = 1,
+        Enroll = True,
+        ShopBook = True,
+        Attend = True
+    )
+
+    ccdID = web2py.db.customers_classcards.insert(
+        auth_customer_id = 300,
+        school_classcards_id = 1,
+        Startdate = '2014-01-01',
+        Enddate = '2099-12-31',
+    )
+
+    web2py.db.commit()
+
+    next_monday = next_weekday(datetime.date.today(), 0)
+    # check class card booking
+    url = '/shop/class_book?clsID=1&date=' + str(next_monday) + '&ccdID=' + str(ccdID)
+    client.get(url)
+    assert client.status == 200
+
+    # Class should be booked as usual, as the customer has a valid membership
     query = (web2py.db.classes_attendance.auth_customer_id == 300)
     assert web2py.db(query).count() == 1
 

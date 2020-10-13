@@ -405,7 +405,7 @@ class CustomerClasscard:
 
         return_value = False
         for membership in memberships:
-            if membership.id == self.school_classcard.auth_customer_id:
+            if membership.id == self.school_classcard.school_memberships_id:
                 return_value = True
                 break
 

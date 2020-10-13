@@ -1086,6 +1086,7 @@ def membership():
     ccdID = request.vars['ccdID']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
+    date = None
     if date_formatted:
         date = datestr_to_python(DATE_FORMAT, date_formatted)
     expired = request.vars['expired']
@@ -1128,12 +1129,20 @@ def membership():
 
     form = checkout_get_form_order()
     if form.process().accepted:
+        vars = {'coID': form.vars.id,
+                'smID': smID}
+
+        if ccdID:
+            vars['ccdID'] = ccdID
+
+        if clsID:
+            vars['clsID'] = clsID
+
+        if date:
+            vars['date'] = date_formatted
+
         redirect(URL('shop', 'membership_order',
-                     vars={'coID': form.vars.id,
-                           'smID': smID,
-                           'ccdID': ccdID,
-                           'clsID': clsID,
-                           'date': date_formatted}))
+                     vars=vars))
 
     checkout_message_memberships = get_sys_property('shop_checkout_message_memberships') or ''
     checkout_message = ''
@@ -1265,7 +1274,9 @@ def membership_order():
     ccdID = request.vars['ccdID']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
-    date = datestr_to_python(DATE_FORMAT, date_formatted)
+    date = None
+    if date_formatted:
+        date = datestr_to_python(DATE_FORMAT, date_formatted)
 
     sm = SchoolMembership(smID)
     order = Order(coID)
@@ -1671,7 +1682,9 @@ def subscription_order():
     customer = Customer(auth.user.id)
     checkout_order_subscription(ssuID, order)
     if ssu.school_memberships_id and not customer.has_given_membership_on_date(ssu.school_memberships_id, TODAY_LOCAL):
-        checkout_order_membership(ssu.school_memberships_id, order)
+        checkout_order_membership(smID=ssu.school_memberships_id, order=order)
+
+
 
     # Check registration fee
     if ssu.RegistrationFee:
@@ -2055,8 +2068,10 @@ def classcard_order():
     # Add items to order
     customer = Customer(auth.user.id)
     checkout_order_classcard(scdID, order)
-    if scd.row.school_memberships_id and not customer.has_given_membership_on_date(scd.row.school_memberships_id, TODAY_LOCAL):
-        checkout_order_membership(scd.row.school_memberships_id, order)
+    if (scd.row.school_memberships_id
+            and not customer.has_given_membership_on_date(scd.row.school_memberships_id, TODAY_LOCAL)):
+        checkout_order_membership(order=order,
+                                  smID=scd.row.school_memberships_id)
 
 
     # mail order to customer
