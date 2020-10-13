@@ -278,7 +278,7 @@ def order_received_mail_customer(coID):
     osmail.send_and_archive(msgID, auth.user.id)
 
 
-def checkout_order_membership(smID, order):
+def checkout_order_membership(order, smID, ccdID=None, clsID=None, class_date=None):
     """
         Add class card to order
     """
@@ -289,8 +289,19 @@ def checkout_order_membership(smID, order):
             membership_already_ordered = True
             break
 
+    attendance_type = None
+    if ccdID:
+        attendance_type = 3
+
     if not membership_already_ordered:
-        order.order_item_add_membership(smID, TODAY_LOCAL)
+        order.order_item_add_membership(
+            school_memberships_id=smID,
+            startdate=TODAY_LOCAL,
+            customers_classcards_id=ccdID,
+            classes_id=clsID,
+            class_date=class_date,
+            attendance_type=attendance_type
+        )
 
 
 def checkout_order_classcard(scdID, order):
@@ -1072,6 +1083,13 @@ def membership():
     response.view = 'shop/index.html'
 
     smID = request.vars['smID']
+    ccdID = request.vars['ccdID']
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    date = None
+    if date_formatted:
+        date = datestr_to_python(DATE_FORMAT, date_formatted)
+    expired = request.vars['expired']
 
     features = db.customers_shop_features(1)
     if not features.Memberships:
@@ -1084,6 +1102,11 @@ def membership():
             auth.user.id,
             _next = URL(request.controller, request.function, vars={'smID': smID})
         )
+
+    # Check if we should display the expired_message
+    expired_info = ""
+    if expired == "True":
+        expired_info = membership_get_expired_info(clsID, date)
 
     sm = SchoolMembership(smID)
     price = sm.row.Price
@@ -1106,9 +1129,20 @@ def membership():
 
     form = checkout_get_form_order()
     if form.process().accepted:
+        vars = {'coID': form.vars.id,
+                'smID': smID}
+
+        if ccdID:
+            vars['ccdID'] = ccdID
+
+        if clsID:
+            vars['clsID'] = clsID
+
+        if date:
+            vars['date'] = date_formatted
+
         redirect(URL('shop', 'membership_order',
-                     vars={'coID': form.vars.id,
-                           'smID': smID}))
+                     vars=vars))
 
     checkout_message_memberships = get_sys_property('shop_checkout_message_memberships') or ''
     checkout_message = ''
@@ -1133,6 +1167,7 @@ def membership():
     )
 
     content = DIV(
+        expired_info,
         DIV(
             DIV(H4(T("Selected membership")), BR(),
                 membership_get_info(membership),
@@ -1175,6 +1210,30 @@ def membership():
     return dict(content=content)
 
 
+def membership_get_expired_info(clsID, date):
+    """
+
+    :param var:
+    :return:
+    """
+    from openstudio.os_class import Class
+
+    cls = Class(clsID, date)
+
+    info = DIV(
+        DIV(H4(T('Your membership has expired')),
+            T("In order to continue using your class card, your membership needs to be renewed."), BR(),
+            T("After completing the order process for your new membership, you'll be checked in to the following class:"),
+            BR(),BR(),
+            UL(LI(B("Selected class"), BR(), cls.get_name())),
+            _class='col-md-12'
+        ),
+        _class='col-md-12'
+    )
+
+    return info
+
+
 def membership_get_info(sm):
     """
     :param sm: SchoolMembership object
@@ -1212,14 +1271,25 @@ def membership_order():
 
     smID = request.vars['smID']
     coID = request.vars['coID']
-    scd = SchoolMembership(smID)
+    ccdID = request.vars['ccdID']
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    date = None
+    if date_formatted:
+        date = datestr_to_python(DATE_FORMAT, date_formatted)
+
+    sm = SchoolMembership(smID)
     order = Order(coID)
     # Set status awaiting payment
     order.set_status_awaiting_payment()
 
     # Add items to order
     customer = Customer(auth.user.id)
-    checkout_order_membership(smID, order)
+    checkout_order_membership(order=order,
+                              smID=smID,
+                              ccdID=ccdID,
+                              clsID=clsID,
+                              class_date=date)
 
     # mail order to customer
     order_received_mail_customer(coID)
@@ -1255,7 +1325,7 @@ def membership_order():
             _class='col-md-6'
         ),
         DIV(H4(T("Order summary")),
-            order.get_order_items_summary_display(),
+            order.get_order_items_summary_display(with_class_info=True),
             _class="col-md-6"),
         _class='row')
 
@@ -1493,8 +1563,6 @@ def subscription_get_info(ssu):
     :param ssu: SchoolSubscription object
     :return: UL with subscription info
     """
-    print(ssu)
-
     months_text = T("months")
     if ssu.MinDuration == 1:
         months_text = T("month")
@@ -1614,7 +1682,9 @@ def subscription_order():
     customer = Customer(auth.user.id)
     checkout_order_subscription(ssuID, order)
     if ssu.school_memberships_id and not customer.has_given_membership_on_date(ssu.school_memberships_id, TODAY_LOCAL):
-        checkout_order_membership(ssu.school_memberships_id, order)
+        checkout_order_membership(smID=ssu.school_memberships_id, order=order)
+
+
 
     # Check registration fee
     if ssu.RegistrationFee:
@@ -1998,8 +2068,10 @@ def classcard_order():
     # Add items to order
     customer = Customer(auth.user.id)
     checkout_order_classcard(scdID, order)
-    if scd.row.school_memberships_id and not customer.has_given_membership_on_date(scd.row.school_memberships_id, TODAY_LOCAL):
-        checkout_order_membership(scd.row.school_memberships_id, order)
+    if (scd.row.school_memberships_id
+            and not customer.has_given_membership_on_date(scd.row.school_memberships_id, TODAY_LOCAL)):
+        checkout_order_membership(order=order,
+                                  smID=scd.row.school_memberships_id)
 
 
     # mail order to customer
@@ -2783,8 +2855,16 @@ def class_book():
 
         # Redirect back to book options page in case class booking in advance isn't allowed on this card
         if not int(clsID) in ccd.get_allowed_classes_booking():
-
             redirect(url_booking_options)
+
+        # Check for required membership here.
+        if not ccd.customer_has_required_membership_on_date(date):
+            # Redirect to the shop membership page (with expired param set to "True")
+            redirect(URL('shop', 'membership', vars={'smID': ccd.school_classcard.school_memberships_id,
+                                                     'ccdID': ccdID,
+                                                     'clsID': clsID,
+                                                     'date': date_formatted,
+                                                     'expired': True}))
 
         result = ah.attendance_sign_in_classcard(cuID, clsID, ccdID, date, online_booking=True)
         if result['status'] == 'fail':
@@ -3277,6 +3357,3 @@ def check_add_to_cart_requires_complete_profile(auID, _next=''):
                 T('After completing your profile information you will be redirected to the next step.')
             )
             redirect(URL('profile', 'me', vars={'_next': _next}))
-
-
-    #TODO: The rest of the code...

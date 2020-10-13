@@ -241,7 +241,13 @@ class Order:
         return coiID
 
 
-    def order_item_add_membership(self, school_memberships_id, startdate):
+    def order_item_add_membership(self,
+                                  school_memberships_id,
+                                  startdate,
+                                  customers_classcards_id=None,
+                                  classes_id=None,
+                                  class_date=None,
+                                  attendance_type=None):
         """
             :param school_memberships_id: db.school_memberships.id
             :return : db.customers_orders_items.id of inserted item
@@ -263,6 +269,10 @@ class Order:
             tax_rates_id = sme.row.tax_rates_id,
             accounting_glaccounts_id = sme.row.accounting_glaccounts_id,
             accounting_costcenters_id = sme.row.accounting_costcenters_id,
+            customers_classcards_id=customers_classcards_id,
+            classes_id=classes_id,
+            ClassDate=class_date,
+            AttendanceType=attendance_type,
         )
 
         self.set_amounts()
@@ -460,6 +470,7 @@ class Order:
 
         :return: html table with simple order summary
         """
+        from .os_class import Class
         from .os_mail import OsMail
 
         represent_decimal_as_amount = current.globalenv['represent_decimal_as_amount']
@@ -495,10 +506,10 @@ class Order:
             )
 
         # Check if a class was ordered
-
         class_info = ''
         if with_class_info:
             # Do we have a class in the order items?
+            # If so, look in classes attendance and show a confirmation if found.
             rows = self.get_order_items_rows()
             for row in rows:
                 if row.customers_orders_items.classes_id:
@@ -507,13 +518,16 @@ class Order:
 
                     clatt = db.classes_attendance(classes_id=clsID, ClassDate=class_date)
                     if clatt:
+                        cls = Class(clsID, class_date)
                         os_mail = OsMail()
                         result = os_mail._render_email_class_info_mail(clatt.id)
                         info = result.get('content', "")
 
                         class_info = DIV(
                             B(T("Class booking information"), ':'), BR(), BR(),
-                            P("Your spot in this class has been reserved!"), BR(),
+                            P(T("Your spot in this class has been reserved!"), BR(),
+                              B(cls.get_name())),
+                            BR(),
                             info,
                             _class='well'
                         )
@@ -753,6 +767,9 @@ class Order:
                     if sme.row.Price:
                         iiID = invoice.item_add_membership(cmID)
 
+                if row.customers_orders_items.customers_classcards_id:
+                    ccdID = row.customers_orders_items.customers_classcards_id
+
             # Check for workshop
             if row.customers_orders_items.workshops_products_id:
                 # Deliver workshop product
@@ -806,7 +823,7 @@ class Order:
                         booking_status="booked"
                     )
                 elif attendance_type == 3 and ccdID:
-                    # classcard checkin
+                    # class card checkin
                     result = ah.attendance_sign_in_classcard(
                         self.order.auth_customer_id,
                         row.customers_orders_items.classes_id,
