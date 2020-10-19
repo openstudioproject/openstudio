@@ -2213,12 +2213,14 @@ def classes():
 
             book = classes_get_button_book(c)
 
+            level = SPAN(" (%s)" % c['Level'], _class="text-muted small") if c['Level'] else ""
+
             table_row = DIV(
                 DIV(time,
                     _class='col-md-2'),
                 DIV(c['Location'],
                     _class='col-md-2'),
-                DIV(c['ClassType'],
+                DIV(c['ClassType'], level,
                     _class='col-md-3'),
                 DIV(c['Teacher'], ' ', sub,
                     _class='col-md-2'),
