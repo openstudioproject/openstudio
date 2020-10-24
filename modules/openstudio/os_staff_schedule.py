@@ -107,7 +107,7 @@ class StaffSchedule:
 
         # check permissions to change this class
         if auth.has_membership(group_id='Admins') or \
-                auth.has_permission('create', 'shifts_otc'):
+                auth.has_permission('update', 'shifts_otc'):
             links.append(A(os_gui.get_fa_icon('fa-pencil'),
                            T('Edit'),
                            _href=URL('shift_edit_on_date', vars=vars)))
