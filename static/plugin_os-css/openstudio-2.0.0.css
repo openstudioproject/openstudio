@@ -1211,6 +1211,10 @@ a {
     color: #ABABAB;
 }
 
+.datepicker {
+    z-index: 1100 !important;
+}
+
 input.datepicker {
     padding: 6px 12px 6px 12px;
 }
