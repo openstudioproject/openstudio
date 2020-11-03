@@ -178,9 +178,12 @@ def index_get_upcoming_classes(customer):
                        _href=URL('shop', 'classes')), ' ',
                      T("to book a class."))
     else:
-        header = THEAD(TR(TH(T('Time')),
-                          TH(T('Class')),
-                          TH()))
+        header = THEAD(
+            TR(TH(T('Time')),
+            TH(T('Class')),
+            TH(SPAN(T("Actions"), _class="pull-right")), # Actions
+          )
+        )
 
         table = TABLE(header, _class='table table-condensed')
 
@@ -288,7 +291,7 @@ def index_get_classcards(customer):
             DIV(T("Card"), _class='col-md-1'),
             DIV(T("Expires"), _class='col-md-5'),
             DIV(T("Classes"), _class='col-md-4'),
-            DIV(T(""), _class='col-md-2'), # Actions
+            DIV(SPAN(T("Actions"), _class="pull-right"), _class='col-md-2'), # Actions
             _class="row bold hidden-sm hidden-xs"
         )
 
@@ -342,8 +345,8 @@ def index_get_subscriptions(customer):
         header = DIV(
             DIV(T("#"), _class='col-md-1'),
             DIV(T("Subscription"), _class='col-md-6'),
-            DIV(T("Credits"), _class='col-md-4'),
-            DIV(T(""), _class='col-md-1'), # Actions
+            DIV(T("Credits"), _class='col-md-3'),
+            DIV(SPAN(T("Actions"), _class="pull-right"), _class='col-md-2'), # Actions
             _class="row bold hidden-sm hidden-xs"
         )
 
