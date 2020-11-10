@@ -278,7 +278,7 @@ def order_received_mail_customer(coID):
     osmail.send_and_archive(msgID, auth.user.id)
 
 
-def checkout_order_membership(order, smID, ccdID=None, clsID=None, class_date=None):
+def checkout_order_membership(order, smID, csID=None, ccdID=None, clsID=None, class_date=None):
     """
         Add class card to order
     """
@@ -297,6 +297,7 @@ def checkout_order_membership(order, smID, ccdID=None, clsID=None, class_date=No
         order.order_item_add_membership(
             school_memberships_id=smID,
             startdate=TODAY_LOCAL,
+            customers_subscriptions_id=csID,
             customers_classcards_id=ccdID,
             classes_id=clsID,
             class_date=class_date,
@@ -1083,6 +1084,7 @@ def membership():
     response.view = 'shop/index.html'
 
     smID = request.vars['smID']
+    csID = request.vars['csID']
     ccdID = request.vars['ccdID']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
@@ -1131,6 +1133,9 @@ def membership():
     if form.process().accepted:
         vars = {'coID': form.vars.id,
                 'smID': smID}
+
+        if csID:
+            vars['csID'] = csID
 
         if ccdID:
             vars['ccdID'] = ccdID
@@ -1222,7 +1227,7 @@ def membership_get_expired_info(clsID, date):
 
     info = DIV(
         DIV(H4(T('Your membership has expired')),
-            T("In order to continue using your class card, your membership needs to be renewed."), BR(),
+            T("In order to continue using your subscription or class card, your membership needs to be renewed."), BR(),
             T("After completing the order process for your new membership, you'll be checked in to the following class:"),
             BR(),BR(),
             UL(LI(B("Selected class"), BR(), cls.get_name())),
@@ -1271,6 +1276,7 @@ def membership_order():
 
     smID = request.vars['smID']
     coID = request.vars['coID']
+    csID = request.vars['csID']
     ccdID = request.vars['ccdID']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
@@ -1287,6 +1293,7 @@ def membership_order():
     customer = Customer(auth.user.id)
     checkout_order_membership(order=order,
                               smID=smID,
+                              csID=csID,
                               ccdID=ccdID,
                               clsID=clsID,
                               class_date=date)
@@ -2836,6 +2843,15 @@ def class_book():
 
         if not (cs.cs.auth_customer_id == auth.user.id):
             wrong_user()
+
+        # Check for required membership here.
+        if not cs.customer_has_required_membership_on_date(date):
+            # Redirect to the shop membership page (with expired param set to "True")
+            redirect(URL('shop', 'membership', vars={'smID': ccd.school_classcard.school_memberships_id,
+                                                     'csID': csID,
+                                                     'clsID': clsID,
+                                                     'date': date_formatted,
+                                                     'expired': True}))
 
         result = ah.attendance_sign_in_subscription(cuID,
                                                     clsID,
