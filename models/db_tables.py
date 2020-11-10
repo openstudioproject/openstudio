@@ -5843,6 +5843,10 @@ def define_customers_orders_items():
         Field('school_classcards_id', db.school_classcards,
             readable=False,
             writable=False),
+        Field('customers_subscriptions_id', db.customers_subscriptions,
+            # Used to store subscription check-in data when a customer renews a membership
+            readable=False,
+            writable=False),
         Field('customers_classcards_id', db.customers_classcards,
             # Used to store card check-in data when a customer renews a membership
             readable=False,
