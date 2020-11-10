@@ -767,6 +767,10 @@ class Order:
                     if sme.row.Price:
                         iiID = invoice.item_add_membership(cmID)
 
+                # Check for subscription
+                if row.customers_orders_items.customers_subscriptions_id:
+                    csID = row.customers_orders_items.customers_subscriptions_id
+                # Check for card
                 if row.customers_orders_items.customers_classcards_id:
                     ccdID = row.customers_orders_items.customers_classcards_id
 
