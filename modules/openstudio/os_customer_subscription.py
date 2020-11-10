@@ -667,7 +667,7 @@ class CustomerSubscription:
 
         return_value = False
         for membership in memberships:
-            if membership.id == self.ssu.auth_customer_id:
+            if membership.id == self.ssu.school_memberships_id:
                 return_value = True
                 break
 
