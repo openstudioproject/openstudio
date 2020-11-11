@@ -659,7 +659,7 @@ class CustomerSubscription:
         if not self.ssu.school_memberships_id:
             return True
 
-        customer = Customer(self.classcard.auth_customer_id)
+        customer = Customer(self.cs.auth_customer_id)
 
         memberships = customer.get_memberships_on_date(date)
         if not memberships:

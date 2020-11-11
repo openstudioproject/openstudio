@@ -2847,7 +2847,7 @@ def class_book():
         # Check for required membership here.
         if not cs.customer_has_required_membership_on_date(date):
             # Redirect to the shop membership page (with expired param set to "True")
-            redirect(URL('shop', 'membership', vars={'smID': ccd.school_classcard.school_memberships_id,
+            redirect(URL('shop', 'membership', vars={'smID': cs.ssu.school_memberships_id,
                                                      'csID': csID,
                                                      'clsID': clsID,
                                                      'date': date_formatted,
