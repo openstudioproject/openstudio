@@ -518,7 +518,9 @@ class Order:
                     clsID = row.customers_orders_items.classes_id
                     class_date = row.customers_orders_items.ClassDate
 
-                    clatt = db.classes_attendance(classes_id=clsID, ClassDate=class_date)
+                    clatt = db.classes_attendance(classes_id=clsID,
+                                                  ClassDate=class_date,
+                                                  auth_customer_id=self.order.auth_customer_id)
                     if clatt:
                         cls = Class(clsID, class_date)
                         os_mail = OsMail()
