@@ -149,6 +149,8 @@ def edit():
     """
         :return: shows order
     """
+    from openstudio.os_class import Class
+
     response.title = T('Order #') + request.vars['coID']
     response.subtitle = T('Edit')
     response.view = 'general/only_content.html'
@@ -162,6 +164,7 @@ def edit():
     info = TABLE(THEAD(TR(TH(T('Customer')),
                           TH(T('Ordered on')),
                           TH(T('Status')),
+                          TH(),
                           )),
                  _class='table')
 
@@ -194,7 +197,8 @@ def edit():
     info.append(TR(
         TD(customer_link),
         TD(ordered_on),
-        TD(form)
+        TD(form),
+        TD()
     ))
 
     # Info content
@@ -208,6 +212,7 @@ def edit():
                       TH(SPAN(T('Amount incl. VAT'), _class='right')),
                       TH(T("G/L Account")),
                       TH(T("Cost center")),
+                      TH(T("Class check-in")),
                       TH(),
                         )
                      )
@@ -217,12 +222,20 @@ def edit():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
+        class_name = ""
+        if row.customers_orders_items.classes_id and row.customers_orders_items.ClassDate:
+            cls = Class(row.customers_orders_items.classes_id,
+                        row.customers_orders_items.ClassDate)
+            class_name = cls.get_name()
+
+
         table.append(TR(
             TD(repr_row.customers_orders_items.ProductName),
             TD(repr_row.customers_orders_items.Description),
             TD(SPAN(repr_row.customers_orders_items.TotalPriceVAT, _class='right')),
             TD(repr_row.customers_orders_items.accounting_glaccounts_id),
             TD(repr_row.customers_orders_items.accounting_costcenters_id),
+            TD(class_name),
             TD(),
         ))
 

@@ -244,6 +244,7 @@ class Order:
     def order_item_add_membership(self,
                                   school_memberships_id,
                                   startdate,
+                                  customers_subscriptions_id=None,
                                   customers_classcards_id=None,
                                   classes_id=None,
                                   class_date=None,
@@ -269,6 +270,7 @@ class Order:
             tax_rates_id = sme.row.tax_rates_id,
             accounting_glaccounts_id = sme.row.accounting_glaccounts_id,
             accounting_costcenters_id = sme.row.accounting_costcenters_id,
+            customers_subscriptions_id=customers_subscriptions_id,
             customers_classcards_id=customers_classcards_id,
             classes_id=classes_id,
             ClassDate=class_date,
@@ -516,7 +518,9 @@ class Order:
                     clsID = row.customers_orders_items.classes_id
                     class_date = row.customers_orders_items.ClassDate
 
-                    clatt = db.classes_attendance(classes_id=clsID, ClassDate=class_date)
+                    clatt = db.classes_attendance(classes_id=clsID,
+                                                  ClassDate=class_date,
+                                                  auth_customer_id=self.order.auth_customer_id)
                     if clatt:
                         cls = Class(clsID, class_date)
                         os_mail = OsMail()
@@ -767,6 +771,10 @@ class Order:
                     if sme.row.Price:
                         iiID = invoice.item_add_membership(cmID)
 
+                # Check for subscription
+                if row.customers_orders_items.customers_subscriptions_id:
+                    csID = row.customers_orders_items.customers_subscriptions_id
+                # Check for card
                 if row.customers_orders_items.customers_classcards_id:
                     ccdID = row.customers_orders_items.customers_classcards_id
 
