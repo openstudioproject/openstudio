@@ -1007,6 +1007,115 @@ def test_class_book_subscription(client, web2py):
     web2py.db.commit()
 
 
+def test_class_book_subscription_no_valid_membership(client, web2py):
+    """
+        Can we actually book a class?
+    """
+    url = '/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_profile_tests(web2py)
+    prepare_classes(web2py)
+    populate_school_subscriptions(web2py)
+    populate_school_memberships(web2py)
+
+    # Add membership to school subscription(s)
+    query = (web2py.db.school_subscriptions.id > 0)
+    web2py.db(query).update(school_memberships_id=1)
+    web2py.db.commit()
+
+    csID = web2py.db.customers_subscriptions.insert(
+        auth_customer_id = 300,
+        school_subscriptions_id = 1,
+        Startdate = '2014-01-01',
+        payment_methods_id = 1
+    )
+
+    web2py.db.customers_subscriptions_credits.insert(
+        customers_subscriptions_id = csID,
+        MutationDateTime = datetime.datetime.now(),
+        MutationType = 'add',
+        MutationAmount = '200',
+        Description = 'Plenty of credits to book a class'
+    )
+
+    web2py.db.commit()
+
+    next_monday = next_weekday(datetime.date.today(), 0)
+
+    # check subscription booking
+    url = '/shop/class_book?clsID=1&date=' + str(next_monday) + '&csID=' + str(csID)
+    client.get(url)
+    assert client.status == 200
+
+    # Customer shouldn't be checked in
+    query = (web2py.db.classes_attendance.auth_customer_id == 300)
+    assert web2py.db(query).count() == 0
+
+    # Customer should have been redirected to /shop/membership?smID=1
+    # and the "expired" text should be shown.
+    assert 'Your membership has expired' in client.text
+
+
+def test_class_book_subscription_valid_membership(client, web2py):
+    """
+        Can we actually book a class?
+    """
+    url = '/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_profile_tests(web2py)
+    prepare_classes(web2py)
+    populate_school_subscriptions(web2py)
+    populate_school_memberships(web2py)
+
+    # Add membership to school subscription(s)
+    query = (web2py.db.school_subscriptions.id > 0)
+    web2py.db(query).update(school_memberships_id=1)
+    web2py.db.commit()
+
+    # Add membership to customer
+    web2py.db.customers_memberships.insert(
+        auth_customer_id = 300,
+        school_memberships_id = 1,
+        payment_methods_id = 3,
+        Startdate='2014-01-01',
+        Enddate='2099-12-31'
+    )
+
+    csID = web2py.db.customers_subscriptions.insert(
+        auth_customer_id = 300,
+        school_subscriptions_id = 1,
+        Startdate = '2014-01-01',
+        payment_methods_id = 1
+    )
+
+    web2py.db.customers_subscriptions_credits.insert(
+        customers_subscriptions_id = csID,
+        MutationDateTime = datetime.datetime.now(),
+        MutationType = 'add',
+        MutationAmount = '200',
+        Description = 'Plenty of credits to book a class'
+    )
+
+    web2py.db.commit()
+
+    next_monday = next_weekday(datetime.date.today(), 0)
+
+    # check subscription booking
+    url = '/shop/class_book?clsID=1&date=' + str(next_monday) + '&csID=' + str(csID)
+    client.get(url)
+    assert client.status == 200
+
+    # Class should be booked as usual, as the customer has a valid membership
+    query = (web2py.db.classes_attendance.auth_customer_id == 300)
+    assert web2py.db(query).count() == 1
+
+    assert 'reserved' in client.text # Check redirection after booking a class using a card
+
+
 def test_class_book_subscription_no_credits(client, web2py):
     """
         Is a message shown to the customer when there are no classes remaining
