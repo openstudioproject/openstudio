@@ -662,7 +662,6 @@ class CustomerSubscription:
         customer = Customer(self.cs.auth_customer_id)
 
         customer_memberships = customer.get_memberships_on_date(date, from_cache=False)
-        print(customer_memberships)
         if not customer_memberships:
             return False
 
