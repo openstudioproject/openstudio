@@ -335,14 +335,14 @@ class OsSchedulerTasks:
             row.Enddate = row.Enddate + datetime.timedelta(days=int(days_to_add))
             row.update_record()
 
-            nr_cards_updated += 1
+            nr_memberships_updated += 1
 
         ##
         # For scheduled tasks db connection has to be committed manually
         ##
         db.commit()
 
-        return "Updated the expiration date for %s memberships" % nr_membership_updated
+        return "Updated the expiration date for %s memberships" % nr_memberships_updated
 
 
     def email_teachers_sub_requests_daily_summary(self):
