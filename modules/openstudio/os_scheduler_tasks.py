@@ -308,6 +308,43 @@ class OsSchedulerTasks:
         return T("Memberships renewed") + ': ' + str(renewed)
 
 
+    def customers_memberships_extend_validity(self, valid_on, days_to_add):
+        """
+        Add "days_to_add" days to cards valid on "valid_on".
+        :param valid_on: datetime.date
+        :param days_to_add: int
+        :return: String: How many cards were updated
+        """
+        from general_helpers import datestr_to_python
+
+        db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
+        # convert input string to date obj
+        valid_on = datestr_to_python(DATE_FORMAT, valid_on)
+
+        left = [
+            db.school_memberships.on(db.customers_memberships.school_memberships_id ==
+                                     db.school_memberships.id)
+        ]
+
+        query = (db.customers_memberships.Enddate >= valid_on)
+
+        nr_memberships_updated = 0
+        rows = db(query).select(db.customers_memberships.ALL)
+        for row in rows:
+            row.Enddate = row.Enddate + datetime.timedelta(days=int(days_to_add))
+            row.update_record()
+
+            nr_cards_updated += 1
+
+        ##
+        # For scheduled tasks db connection has to be committed manually
+        ##
+        db.commit()
+
+        return "Updated the expiration date for %s memberships" % nr_membership_updated
+
+
     def email_teachers_sub_requests_daily_summary(self):
         """
         Send a daily summary of open sub requests to each teacher for the classtypes

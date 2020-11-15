@@ -164,6 +164,7 @@ os_scheduler_tasks = OsSchedulerTasks()
 scheduler_tasks = {
     'daily': task_openstudio_daily,
     'customers_classcards_extend_validity': os_scheduler_tasks.customers_classcards_extend_validity,
+    'customers_memberships_extend_validity': os_scheduler_tasks.customers_memberships_extend_validity,
     'customers_subscriptions_create_invoices_for_month': os_scheduler_tasks.customers_subscriptions_create_invoices_for_month,
     'customers_subscriptions_add_credits_for_month': os_scheduler_tasks.customers_subscriptions_add_credits_for_month,
     'customers_membership_renew_expired': os_scheduler_tasks.customers_memberships_renew_expired,
