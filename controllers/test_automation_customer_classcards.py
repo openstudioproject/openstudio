@@ -19,4 +19,4 @@ def test_extend_validity():
     valid_on = request.vars['valid_on']
     days_to_add = request.vars['days_to_add']
 
-    ost.customers_classcards_extend_validity(valid_on, days_to_add)
+    return ost.customers_classcards_extend_validity(valid_on, days_to_add)
