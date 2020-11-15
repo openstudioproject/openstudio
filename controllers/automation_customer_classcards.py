@@ -111,12 +111,13 @@ def extend_validity():
     months = get_months_list()
 
     form = SQLFORM.factory(
-        Field('valid_on',
+        Field('valid_on', 'date',
               requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
                                         minimum=datetime.date(1900, 1, 1),
                                         maximum=datetime.date(2999, 1, 1)),
-               default=TODAY_LOCAL,
-               label=T("For cards valid on")),
+              default=TODAY_LOCAL,
+              widget=os_datepicker_widget,
+              label=T("For cards valid on")),
         Field('days_to_add', 'integer',
               default=1,
               requires=IS_INT_IN_RANGE(1, 5000),
