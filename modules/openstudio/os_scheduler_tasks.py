@@ -538,6 +538,13 @@ class OsSchedulerTasks:
         :param days_to_add: int
         :return: String: How many cards were updated
         """
+        from general_helpers import datestr_to_python
+
+        db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
+        # convert input string to date obj
+        valid_on = datestr_to_python(DATE_FORMAT, valid_on)
+
         left = [
             db.school_classcards.on(db.customers_classcards.school_classcards_id ==
                                     db.school_classcards.id)
@@ -548,6 +555,17 @@ class OsSchedulerTasks:
             (db.customers_classcards.ClassesTaken < db.school_classcards.Classes)
         )
 
+        nr_cards_updated = 0
         rows = db(query).select(db.customers_classcards.ALL)
         for row in rows:
-            print(row)
+            row.Enddate = row.Enddate + datetime.timedelta(days=int(days_to_add))
+            row.update_record()
+
+            nr_cards_updated += 1
+
+        ##
+        # For scheduled tasks db connection has to be committed manually
+        ##
+        db.commit()
+
+        return "Updated the expiration date for %s cards" % nr_cards_updated
