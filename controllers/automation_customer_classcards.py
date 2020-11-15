@@ -98,7 +98,7 @@ def index_get_extend_validity(table):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('create', 'invoices'))
+               auth.has_permission('update', 'customers_classcards'))
 def extend_validity():
     """
 
