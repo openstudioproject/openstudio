@@ -529,3 +529,25 @@ class OsSchedulerTasks:
         db.commit()
 
         return "Generated thumbnails for %s pictures, %s pictures were not found" % (rows_processed, errors)
+
+
+    def customers_classcards_extend_validity(self, valid_on, days_to_add):
+        """
+        Add "days_to_add" days to cards valid on "valid_on".
+        :param valid_on: datetime.date
+        :param days_to_add: int
+        :return: String: How many cards were updated
+        """
+        left = [
+            db.school_classcards.on(db.customers_classcards.school_classcards_id ==
+                                    db.school_classcards.id)
+        ]
+
+        query = (
+            (db.customers_classcards.Enddate >= valid_on) &
+            (db.customers_classcards.ClassesTaken < db.school_classcards.Classes)
+        )
+
+        rows = db(query).select(db.customers_classcards.ALL)
+        for row in rows:
+            print(row)
