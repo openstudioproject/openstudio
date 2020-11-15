@@ -661,13 +661,14 @@ class CustomerSubscription:
 
         customer = Customer(self.cs.auth_customer_id)
 
-        memberships = customer.get_memberships_on_date(date)
-        if not memberships:
+        customer_memberships = customer.get_memberships_on_date(date, from_cache=False)
+        print(customer_memberships)
+        if not customer_memberships:
             return False
 
         return_value = False
-        for membership in memberships:
-            if membership.id == self.ssu.school_memberships_id:
+        for customer_membership in customer_memberships:
+            if customer_membership.school_memberships_id == self.ssu.school_memberships_id:
                 return_value = True
                 break
 

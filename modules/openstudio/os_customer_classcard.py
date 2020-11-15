@@ -399,13 +399,13 @@ class CustomerClasscard:
 
         customer = Customer(self.classcard.auth_customer_id)
 
-        memberships = customer.get_memberships_on_date(date, from_cache=False)
-        if not memberships:
+        customer_memberships = customer.get_memberships_on_date(date, from_cache=False)
+        if not customer_memberships:
             return False
 
         return_value = False
-        for membership in memberships:
-            if membership.school_memberships_id == self.school_classcard.school_memberships_id:
+        for customer_membership in customer_memberships:
+            if customer_membership.school_memberships_id == self.school_classcard.school_memberships_id:
                 return_value = True
                 break
 
