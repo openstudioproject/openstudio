@@ -286,7 +286,7 @@ def class_edit_on_date_get_link_remove(cotcID, clsID, date_formatted):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('update', 'classes'))
+               auth.has_permission('update', 'classes_otc'))
 def class_edit_on_date():
     """
         Edit class on a selected date without editing other classes in range
