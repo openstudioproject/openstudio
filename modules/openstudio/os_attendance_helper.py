@@ -347,8 +347,6 @@ class AttendanceHelper:
                     if (auth.has_membership(group_id='Admins') or
                         auth.has_permission('update', 'classes_attendance')):
 
-                        links = []
-
                         if row.classes_attendance.AttendanceType == 6:
                             links.append(['header', T('Booking actions')])
                             links.append(A(os_gui.get_fa_icon('fa-check-circle-o'),
@@ -398,12 +396,12 @@ class AttendanceHelper:
                 else:
                     attending = SPAN(_class='glyphicon glyphicon-ok grey-light very_big_check hidden-xs')
                     btn = ''
+                    checkin = ''
                     links = []
                     # Check update permission
                     if (auth.has_membership(group_id='Admins') or
                         auth.has_permission('update', 'classes_attendance')):
 
-                        checkin = ''
                         if not class_full:
                             checkin = os_gui.get_button('noicon',
                                                         URL('classes', 'attendance_set_status',
@@ -438,8 +436,8 @@ class AttendanceHelper:
                         btn_text='',
                         btn_size='btn-sm',
                         btn_icon='actions',
-                        menu_class='btn-group pull-right')
-
+                        menu_class='btn-group pull-right'
+                    )
 
                     if not manage_checkin:
                         # Remove additional options on check-in button for self checkin

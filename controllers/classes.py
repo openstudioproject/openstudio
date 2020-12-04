@@ -2604,9 +2604,7 @@ def waitinglist_edit():
     return dict(back=back, content=content)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-                auth.has_permission('update', 'classes_attendance'))
-def attendance_get_chart_title():
+def attendance_get_chart_title(var=None):
     """
         This function returns the title for the attendance chart
     """
@@ -2690,7 +2688,6 @@ def attendance():
         request.vars['date']  is expected to be the class date
             formatted using DATE_FORMAT
     """
-    
     # set classes ID
     if 'clsID' in request.vars:
         clsID = request.vars['clsID']
