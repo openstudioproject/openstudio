@@ -143,6 +143,9 @@ def shift_edit():
 def shift_edit_on_date():
     """
         Edit class on a selected date without editing other classes in range
+
+        Both create and update permissions for shifts_otc are required for this function
+        The form can be either
     """
     shID = request.vars['shID']
     date_formatted = request.vars['date']
