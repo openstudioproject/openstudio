@@ -78,7 +78,7 @@ const Customerclasses = ({clattID, status, onClick=f=>f, onClickRemove=f=>f}) =>
 }
 
 
-const AttendanceList = ({attendance_items, intl, title="", onClick=f=>f, onClickRemove=f=>f}) => 
+const AttendanceList = ({attendance_items, intl, history, title="", onClick=f=>f, onClickRemove=f=>f, onClickNotes=f=>f}) => 
     <div className="box box-default"> 
         <div className="box-header">
             <h3 className="box-title">{title}</h3>
@@ -123,10 +123,12 @@ const AttendanceList = ({attendance_items, intl, title="", onClick=f=>f, onClick
                                     {(item.classes_attendance.AttendanceType === 6) ? "Drop-in (pay later)": ""}
                                 </td>
                                 <td>
-                                    <span>
+                                    <button className="btn btn-default"
+                                        onClick={() => onClickNotes(item.auth_user.id)}
+                                    >
                                         {item.auth_user.teacher_notes_count_unprocessed} { " " }
                                         {(item.auth_user.teacher_notes_count_unprocessed == 1) ? "Note" : "Notes" }
-                                    </span>
+                                    </button>
                                 </td>
                                 <td><Customerclasses clattID={item.classes_attendance.id}
                                                      status={item.classes_attendance.BookingStatus}

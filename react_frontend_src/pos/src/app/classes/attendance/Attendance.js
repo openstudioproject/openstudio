@@ -159,6 +159,19 @@ class Attendance extends Component {
         
         this.props.deleteClassAttendance(clattID, cuID)
     }
+
+    onClickAttendanceButtonNotes(cuID) {
+      console.log("Notes button clicked")
+      console.log(cuID)
+
+      this.props.setDisplayCustomerID(cuID)
+      this.props.clearNotes()
+      this.props.fetchNotes(cuID)
+      this.props.clearCustomerSchoolInfo()
+      this.props.fetchCustomerSchoolInfo(cuID)
+
+      this.props.history.push("/")
+    }
     
     render() {
         const attendance = this.props.attendance
@@ -228,11 +241,15 @@ class Attendance extends Component {
                               {console.log('attendance count')}
                               {console.log(this.props.attendance.data)}
                               {console.log(this.props.attendance.data.length)}
-                              <AttendanceList attendance_items={this.props.attendance.data}
-                                              intl={intl}
-                                              title="Attendance"
-                                              onClick={this.onClickAttendanceButtonManageStatus.bind(this)}
-                                              onClickRemove={this.onClickAttendanceButtonRemove.bind(this)} />
+                              <AttendanceList 
+                                attendance_items={this.props.attendance.data}
+                                intl={intl}
+                                history={this.props.history}
+                                title="Attendance"
+                                onClick={this.onClickAttendanceButtonManageStatus.bind(this)}
+                                onClickRemove={this.onClickAttendanceButtonRemove.bind(this)} 
+                                onClickNotes={this.onClickAttendanceButtonNotes.bind(this)}
+                              />
                           </div>
                         </div>
                       </section>
