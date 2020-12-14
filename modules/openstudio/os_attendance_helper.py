@@ -48,6 +48,7 @@ class AttendanceHelper:
                 db.classes_attendance.SentInfoMail,
                 db.classes_attendance.CreatedOn,
                 db.auth_user.teacher_notes_count,  # Holds count of recent teacher notes
+                db.auth_user.teacher_notes_count_unprocessed,  # Holds count of unprocessed teacher notes
                 db.auth_user.teacher_notes_count_injuries
             ]
 
@@ -82,6 +83,11 @@ class AttendanceHelper:
                          WHERE cn.TeacherNote = 'T' AND 
                                cn.auth_customer_id = au.id AND
                                cn.NoteDate >= '{filter_date_teacher_notes}' ),
+                       ( SELECT COUNT(*) FROM customers_notes cn 
+                         WHERE cn.TeacherNote = 'T' AND 
+                               cn.auth_customer_id = au.id AND
+                               cn.NoteDate >= '{filter_date_teacher_notes}' AND
+                               cn.Processed = 'F'),
                        ( SELECT COUNT(*) FROM customers_notes cn 
                          WHERE cn.TeacherNote = 'T' AND 
                                cn.auth_customer_id = au.id AND
