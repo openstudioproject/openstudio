@@ -134,6 +134,8 @@ class ClassAttendance:
                 invoice = Invoice(item.invoices_id)
                 invoice.set_status('cancelled')
 
+            self.set_status_cancelled(force=True)
+
         # Clear api cache to refresh available spaces
         ocm = OsCacheManager()
         ocm.clear_classschedule_api()
