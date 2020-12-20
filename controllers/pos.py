@@ -1209,7 +1209,6 @@ def update_class_attendance():
 
     from openstudio.os_class_attendance import ClassAttendance
 
-    print(request.vars)
     clattID = request.vars['id']
     status = request.vars['status']
 
