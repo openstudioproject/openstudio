@@ -61,6 +61,13 @@ const Buttonclasses = ({clattID, onClick=f=>f}) =>
     </button>
 
 
+// Used instead of regular cleck-in button in case unprocessed notes are found
+const ButtonGoToNotes = ({customerId, onClick=f=>f}) =>
+    <button className='btn btn-default pull-right' onClick={() => onClick(customerId)}>
+        Check-in
+    </button>
+
+
 const Customerclasses = ({clattID, status, onClick=f=>f, onClickRemove=f=>f}) => {
     console.log(status)
     switch (status) {
@@ -132,7 +139,7 @@ const AttendanceList = ({attendance_items, intl, history, title="", onClick=f=>f
                                 </td>
                                 <td>
                                   {(item.auth_user.teacher_notes_count_unprocessed) ? 
-                                    "go to notes" 
+                                    <ButtonGoToNotes onClick={() => onClickNotes(item.auth_user.id)} />
                                     :
                                     <Customerclasses 
                                       clattID={item.classes_attendance.id}
