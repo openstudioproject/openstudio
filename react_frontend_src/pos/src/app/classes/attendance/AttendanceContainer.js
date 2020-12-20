@@ -6,6 +6,8 @@ import Attendance from "./Attendance"
 import { appOperations } from '../../duck'
 import { classesAttendanceOperations } from './duck'
 import { classesClassesOperations } from "../classes/duck"
+import { customersListOperations } from '../../customers/list/duck'
+import { customersSchoolInfoOperations } from '../../customers/school_info/duck'
 
 
 const mapStateToProps = state => 
@@ -37,6 +39,21 @@ const mapDispatchToProps = dispatch =>
         fetchClasses(obj) {
             dispatch(classesClassesOperations.fetchClasses(obj))
         },
+        setDisplayCustomerID(cuID) {
+            dispatch(customersListOperations.setDisplayCustomerID(cuID))
+        },
+        clearNotes() {
+            dispatch(customersListOperations.clearNotes())
+        },
+        fetchNotes(cuID) {
+            dispatch(customersListOperations.fetchNotes(cuID))
+        },
+        clearCustomerSchoolInfo() {
+            dispatch(customersSchoolInfoOperations.clearSchoolInfo())
+        },
+        fetchCustomerSchoolInfo(cuID) {
+            dispatch(customersSchoolInfoOperations.fetchSchoolInfo(cuID))
+        }
         // clearSearchTimeout() {
         //     dispatch(classesAttendanceOperations.clearclassesAttendanceSearchTimeout())
         // },

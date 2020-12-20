@@ -61,6 +61,13 @@ const Buttonclasses = ({clattID, onClick=f=>f}) =>
     </button>
 
 
+// Used instead of regular cleck-in button in case unprocessed notes are found
+const ButtonGoToNotes = ({customerId, onClick=f=>f}) =>
+    <button className='btn btn-default pull-right' onClick={() => onClick(customerId)}>
+        Check-in
+    </button>
+
+
 const Customerclasses = ({clattID, status, onClick=f=>f, onClickRemove=f=>f}) => {
     console.log(status)
     switch (status) {
@@ -78,7 +85,7 @@ const Customerclasses = ({clattID, status, onClick=f=>f, onClickRemove=f=>f}) =>
 }
 
 
-const AttendanceList = ({attendance_items, intl, title="", onClick=f=>f, onClickRemove=f=>f}) => 
+const AttendanceList = ({attendance_items, intl, history, title="", onClick=f=>f, onClickRemove=f=>f, onClickNotes=f=>f}) => 
     <div className="box box-default"> 
         <div className="box-header">
             <h3 className="box-title">{title}</h3>
@@ -92,6 +99,7 @@ const AttendanceList = ({attendance_items, intl, title="", onClick=f=>f, onClick
                             <th>Customer</th>
                             <th>Check-in status</th>
                             <th>Info</th>
+                            <th>Notes</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -121,10 +129,26 @@ const AttendanceList = ({attendance_items, intl, title="", onClick=f=>f, onClick
                                     {(item.classes_attendance.AttendanceType === 4) ? "Complementary": ""}
                                     {(item.classes_attendance.AttendanceType === 6) ? "Drop-in (pay later)": ""}
                                 </td>
-                                <td><Customerclasses clattID={item.classes_attendance.id}
-                                                     status={item.classes_attendance.BookingStatus}
-                                                     onClick={onClick}
-                                                     onClickRemove={() => onClickRemove(item.classes_attendance.id, item.auth_user.id)} /></td>
+                                <td>
+                                    <button className="btn btn-default"
+                                        onClick={() => onClickNotes(item.auth_user.id)}
+                                    >
+                                        {item.auth_user.teacher_notes_count_unprocessed} { " " }
+                                        {(item.auth_user.teacher_notes_count_unprocessed == 1) ? "Note" : "Notes" }
+                                    </button>
+                                </td>
+                                <td>
+                                  {(item.auth_user.teacher_notes_count_unprocessed) ? 
+                                    <ButtonGoToNotes onClick={() => onClickNotes(item.auth_user.id)} />
+                                    :
+                                    <Customerclasses 
+                                      clattID={item.classes_attendance.id}
+                                      status={item.classes_attendance.BookingStatus}
+                                      onClick={onClick}
+                                      onClickRemove={() => onClickRemove(item.classes_attendance.id, item.auth_user.id)} 
+                                    />
+                                  }
+                                </td>
                             </tr>
                         )}
                     </tbody>
