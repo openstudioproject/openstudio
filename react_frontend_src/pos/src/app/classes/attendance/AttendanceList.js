@@ -130,10 +130,18 @@ const AttendanceList = ({attendance_items, intl, history, title="", onClick=f=>f
                                         {(item.auth_user.teacher_notes_count_unprocessed == 1) ? "Note" : "Notes" }
                                     </button>
                                 </td>
-                                <td><Customerclasses clattID={item.classes_attendance.id}
-                                                     status={item.classes_attendance.BookingStatus}
-                                                     onClick={onClick}
-                                                     onClickRemove={() => onClickRemove(item.classes_attendance.id, item.auth_user.id)} /></td>
+                                <td>
+                                  {(item.auth_user.teacher_notes_count_unprocessed) ? 
+                                    "go to notes" 
+                                    :
+                                    <Customerclasses 
+                                      clattID={item.classes_attendance.id}
+                                      status={item.classes_attendance.BookingStatus}
+                                      onClick={onClick}
+                                      onClickRemove={() => onClickRemove(item.classes_attendance.id, item.auth_user.id)} 
+                                    />
+                                  }
+                                </td>
                             </tr>
                         )}
                     </tbody>

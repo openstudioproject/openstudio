@@ -17,7 +17,6 @@ def set_headers(var=None):
     # response.headers["Access-Control-Allow-Headers"] = "*"
     # response.headers["Access-Control-Allow-Origin"] = '*'
     response.headers['Access-Control-Max-Age'] = 86400
-    # response.headers['Access-Control-Allow-Headers'] = '*'
     response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
     response.headers['Access-Control-Allow-Methods'] = '*'
     response.headers['Access-Control-Allow-Content-Type'] = 'application/json'
@@ -1209,7 +1208,6 @@ def update_class_attendance():
         return return_json_permissions_error()
 
     from openstudio.os_class_attendance import ClassAttendance
-
 
     print(request.vars)
     clattID = request.vars['id']
