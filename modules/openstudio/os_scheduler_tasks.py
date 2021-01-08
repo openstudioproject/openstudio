@@ -589,11 +589,13 @@ class OsSchedulerTasks:
 
         query = (
             (db.customers_classcards.Enddate >= valid_on) &
-            (db.customers_classcards.ClassesTaken < db.school_classcards.Classes)
+            ((db.customers_classcards.ClassesTaken < db.school_classcards.Classes) |
+             (db.school_classcards.Unlimited == True))
         )
 
         nr_cards_updated = 0
-        rows = db(query).select(db.customers_classcards.ALL)
+        rows = db(query).select(db.customers_classcards.ALL, left=left)
+
         for row in rows:
             row.Enddate = row.Enddate + datetime.timedelta(days=int(days_to_add))
             row.update_record()
