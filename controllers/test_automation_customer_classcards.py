@@ -31,12 +31,14 @@ def test_fix_extend_validity_with_bad_query():
     from general_helpers import datestr_to_python
 
     valid_on = request.vars['valid_on']
+    dont_process_after = request.vars['dont_process_after']
     days_to_subtract = request.vars['days_to_subtract']
 
     db = current.db
     DATE_FORMAT = current.DATE_FORMAT
     # convert input string to date obj
     valid_on = datestr_to_python(DATE_FORMAT, valid_on)
+    dont_process_after = datestr_to_python(DATE_FORMAT, dont_process_after)
 
     left = [
         db.school_classcards.on(db.customers_classcards.school_classcards_id ==
@@ -45,6 +47,7 @@ def test_fix_extend_validity_with_bad_query():
 
     query = (
         (db.customers_classcards.Enddate >= valid_on) &
+        (db.customers_classcards.Startdate < dont_process_after) &
         (db.customers_classcards.ClassesTaken < db.school_classcards.Classes)
     )
 
