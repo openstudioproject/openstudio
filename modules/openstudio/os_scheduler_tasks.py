@@ -322,11 +322,6 @@ class OsSchedulerTasks:
         # convert input string to date obj
         valid_on = datestr_to_python(DATE_FORMAT, valid_on)
 
-        left = [
-            db.school_memberships.on(db.customers_memberships.school_memberships_id ==
-                                     db.school_memberships.id)
-        ]
-
         query = (db.customers_memberships.Enddate >= valid_on)
 
         nr_memberships_updated = 0
