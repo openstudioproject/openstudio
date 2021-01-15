@@ -208,6 +208,13 @@ def _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, Level
                             cache=caching).as_list()
     data['levels'] = rows
 
+    # Tags
+    rows = db().select(db.schedule_tags.ALL,
+                       cache=caching).as_list()
+
+    data['tags'] = rows
+
+
     return data
 
 
@@ -543,8 +550,6 @@ def schedule_get_days():
 
     data['teachers'] = teachers
 
-
-
     # Locations
     query = (db.school_locations.AllowAPI == True) & \
             (db.school_locations.Archived == False) & \
@@ -561,6 +566,11 @@ def schedule_get_days():
                             db.school_levels.Name,
                             cache=caching).as_list()
     data['levels'] = rows
+
+    # Tags
+    rows = db().select(db.schedule_tags.ALL,
+                       cache=caching).as_list()
+    data['tags'] = rows
 
     return dict(data=data)
 

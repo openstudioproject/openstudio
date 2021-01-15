@@ -1115,12 +1115,20 @@ class ClassSchedule:
         date_formatted = self.date.strftime(DATE_FORMAT)
 
         rows = self.get_day_rows()
+        # Fetch class tags
+        classes_tags = self._get_classes_tags_dict()
 
         get_status = self._get_day_row_status
 
         classes = []
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i+1].render())[0]
+
+            # process tags (if any)
+            tags = []
+            if clsID in classes_tags:
+                for tag in classes_tags[clsID]:
+                    tags.append(tag['Name'])
 
             # get status
             status_result = get_status(row)
@@ -1197,6 +1205,7 @@ class ClassSchedule:
             data['BookingStatus'] = self._get_day_list_booking_status(row)
             data['BookingOpen'] = self.bookings_open
             data['LinkShop'] = shop_url
+            data['Tags'] = tags
 
             classes.append(data)
 
