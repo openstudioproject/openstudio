@@ -212,8 +212,6 @@ class ClassSchedule:
                 'Name': row.schedule_tags.Name
             })
 
-        print(classes_tags)
-
         return classes_tags
 
     def _get_day_get_table_class_trend_data(self):
@@ -1021,14 +1019,16 @@ class ClassSchedule:
                 if filter_id_status and status != filter_id_status:
                     continue
 
-                # Don't show this class when it doesn't match the tag filter
+                # Check tag filter
+                tag_found = False
                 if self.filter_id_schedule_tag:
-                    tag_found = False
-                    for tag in classes_tags[clsID]:
-                        if int(tag['schedule_tags_id']) == int(self.filter_id_schedule_tag):
-                            tag_found = True
+                    if clsID in classes_tags:
+                        for tag in classes_tags[clsID]:
+                            if int(tag['schedule_tags_id']) == int(self.filter_id_schedule_tag):
+                                tag_found = True
 
                     if not tag_found:
+                        # continue loop if class doesn't have the active filter tag
                         continue
 
                 result = get_teacher_roles(row, repr_row)
@@ -1136,6 +1136,7 @@ class ClassSchedule:
         classes = []
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i+1].render())[0]
+            clsID = row.classes.id
 
             # process tags (if any)
             tags = []
@@ -1161,17 +1162,19 @@ class ClassSchedule:
                 filter_check = (teacher_filter_id == teacher_id or
                                 teacher_filter_id == teacher_id2)
                 if not filter_check:
-                    # break loop if it's not the teacher searched for
+                    # contine loop if it's not the teacher searched for
                     continue
 
             # Check tag filter
+            tag_found = False
             if self.filter_id_schedule_tag:
-                tag_found = False
-                for tag in classes_tags[clsID]:
-                    if int(tag['schedule_tags_id']) == int(self.filter_id_schedule_tag):
-                        tag_found = True
+                if clsID in classes_tags:
+                    for tag in classes_tags[clsID]:
+                        if int(tag['schedule_tags_id']) == int(self.filter_id_schedule_tag):
+                            tag_found = True
 
                 if not tag_found:
+                    # continue loop if class doesn't have the active filter tag
                     continue
 
             # set holidays

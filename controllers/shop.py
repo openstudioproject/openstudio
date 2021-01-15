@@ -2163,6 +2163,7 @@ def classes():
     filter_id_school_classtype = ''
     filter_id_school_level = ''
     filter_id_teacher = ''
+    filter_id_schedule_tag = ''
 
     if 'location' in request.vars:
         filter_id_school_location = request.vars['location']
@@ -2170,12 +2171,15 @@ def classes():
         filter_id_teacher = request.vars['teacher']
     if 'classtype' in request.vars:
         filter_id_school_classtype = request.vars['classtype']
+    if 'tag' in request.vars:
+        filter_id_schedule_tag = request.vars['tag']
 
     filter = classes_get_filter(start_date,
                                 filter_id_school_classtype=filter_id_school_classtype,
                                 filter_id_school_location=filter_id_school_location,
                                 filter_id_school_level='',
-                                filter_id_teacher=filter_id_teacher)
+                                filter_id_teacher=filter_id_teacher,
+                                filter_id_schedule_tag=filter_id_schedule_tag)
 
     days = []
     for day in range(0, 7):
@@ -2184,7 +2188,8 @@ def classes():
                                        filter_id_school_classtype=filter_id_school_classtype,
                                        filter_id_school_location=filter_id_school_location,
                                        filter_id_school_level='',
-                                       filter_id_teacher=filter_id_teacher)
+                                       filter_id_teacher=filter_id_teacher,
+                                       filter_id_schedule_tag=filter_id_schedule_tag)
 
         days.append(dict(date=date, weekday=date.isoweekday(), classes=classes_list))
 
@@ -2270,7 +2275,8 @@ def classes_get_filter(date,
                        filter_id_school_classtype='',
                        filter_id_school_location='',
                        filter_id_school_level='',
-                       filter_id_teacher=''):
+                       filter_id_teacher='',
+                       filter_id_schedule_tag=''):
     """
         :param filter_id_school_classtype: db.school_classtypes.id
         :param filter_id_school_location: db.school_locations.id
@@ -2308,6 +2314,11 @@ def classes_get_filter(date,
                               zero=T('All classtypes')),
             default=filter_id_school_classtype,
             label=""),
+        Field('tag',
+            requires=IS_IN_DB(db,'schedule_tags.id', '%(Name)s',
+                              zero=T('All tags')),
+            default=filter_id_schedule_tag,
+            label=""),
         # Field('level',
         #     requires=IS_IN_DB(db(sle_query),'school_levels.id', '%(Name)s',
         #                       zero=T('All levels')),
@@ -2325,14 +2336,15 @@ def classes_get_filter(date,
     div = DIV(
         form.custom.begin,
         DIV(form.custom.widget.location,
-            _class='col-md-3'),
+            _class='col-md-2'),
         DIV(form.custom.widget.teacher,
-            _class='col-md-3'),
+            _class='col-md-2'),
         DIV(form.custom.widget.classtype,
-            _class='col-md-3'),
-        # form.custom.widget.level,
+            _class='col-md-2'),
+        DIV(form.custom.widget.tag,
+            _class='col-md-2'),
         DIV(classes_get_week_browser(date),
-            _class='col-md-3'),
+            _class='col-md-4'),
         form.custom.end,
         _class='row'
         )
@@ -2387,7 +2399,8 @@ def classes_get_day(date,
                     filter_id_school_classtype,
                     filter_id_school_location,
                     filter_id_school_level,
-                    filter_id_teacher):
+                    filter_id_teacher,
+                    filter_id_schedule_tag):
     """
         :param weekday: ISO weekday (1-7)
         :return: List of classes for day
@@ -2400,6 +2413,7 @@ def classes_get_day(date,
         filter_id_school_location = filter_id_school_location,
         filter_id_school_level = filter_id_school_level,
         filter_id_teacher = filter_id_teacher,
+        filter_id_schedule_tag = filter_id_schedule_tag,
         filter_public = True,
         sorting = 'starttime' )
 

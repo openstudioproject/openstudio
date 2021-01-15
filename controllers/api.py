@@ -483,7 +483,6 @@ def schedule_get_days():
             if 'LevelID' in cls and cls['LevelID'] not in level_ids:
                 level_ids.append(cls['LevelID'])
 
-
     # ClassTypes
     classtypes = []
     query = (db.school_classtypes.Archived == False) & \
