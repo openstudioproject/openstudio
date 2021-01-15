@@ -38,7 +38,7 @@ def index():
         details=False,
         searchable=False,
         csv=False,
-        orderby=~db.schedule_tags.Name,
+        orderby=db.schedule_tags.Name,
         field_id=db.schedule_tags.id,
         ui = grid_ui)
     grid.element('.web2py_counter', replace=None) # remove the counter
