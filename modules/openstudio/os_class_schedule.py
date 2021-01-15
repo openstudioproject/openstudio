@@ -564,7 +564,7 @@ class ClassSchedule:
         return tools
 
 
-    def _get_day_table_get_class_messages(self, row, clsID, date_formatted):
+    def _get_day_table_get_class_messages(self, row, clsID, date_formatted, classes_tags):
         """
             Returns messages for a class
         """
@@ -573,6 +573,15 @@ class ClassSchedule:
         T = current.T
 
         class_messages = []
+
+        # process tags (if any)
+        tags = SPAN()
+        if clsID in classes_tags:
+            for tag in classes_tags[clsID]:
+                tags.append(SPAN(os_gui.get_fa_icon('fa-tag'), ' ', tag['Name'], _class="text-muted"))
+                tags.append(" ")
+
+            class_messages.append(tags)
 
         if row.school_holidays.Description:
             class_messages.append(
@@ -1005,13 +1014,6 @@ class ClassSchedule:
                 repr_row = list(rows[i:i+1].render())[0]
                 clsID = row.classes.id
 
-                # process tags (if any)
-                tags = SPAN()
-                if clsID in classes_tags:
-                    for tag in classes_tags[clsID]:
-                        tags.append(SPAN(tag['Name'] ,_class="label label-info"))
-                        tags.append(" ")
-
                 status_result = get_status(row)
                 status = status_result['status']
                 status_marker = status_result['marker']
@@ -1043,7 +1045,7 @@ class ClassSchedule:
                 trend = get_trend_data(row.classes.id, '')
                 buttons = get_buttons(clsID, date_formatted, button_permissions)
                 reservations = get_reservations(clsID, date_formatted, row, button_permissions)
-                class_messages = get_class_messages(row, clsID, date_formatted)
+                class_messages = get_class_messages(row, clsID, date_formatted, classes_tags)
 
                 if multiple_organizations:
                     organization = DIV(repr_row.classes.sys_organizations_id or '',
@@ -1066,7 +1068,7 @@ class ClassSchedule:
                    _class='os-schedule_class')
                 row_tools = TR(
                     TD(' '),
-                    TD(tags, class_messages, _colspan=3, _class='grey'),
+                    TD(class_messages, _colspan=3, _class='grey'),
                     TD(teacher2 if not status == 'open' else ''),
                     TD(),
                     TD(),

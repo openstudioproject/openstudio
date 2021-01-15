@@ -2140,16 +2140,8 @@ def classes():
     if not features.Classes:
         return T('This feature is disabled')
 
-    # if 'year' in request.vars:
-    #     year = int(request.vars['year'])
-    # else:
-    #     year = TODAY_LOCAL.year
-    # if 'week' in request.vars:
-    #     week = int(request.vars['week'])
-    # else:
-    #     week = TODAY_LOCAL.isocalendar()[1]
-    #     if week == 0:
-    #         week = 1
+    from openstudio.os_gui import OsGui
+    os_gui = OsGui()
 
     if 'date' in request.vars:
         start_date = datestr_to_python(DATE_FORMAT, request.vars['date'])
@@ -2226,9 +2218,15 @@ def classes():
             book = classes_get_button_book(c)
 
             level = SPAN(" (%s)" % c['Level'], _class="text-muted small") if c['Level'] else ""
+            # process tags (if any)
+            tags = SPAN(" ")
+            if c['Tags']:
+                for tag in c['Tags']:
+                    tags.append(SPAN(os_gui.get_fa_icon('fa-tag'), ' ', tag, _class="text-muted"))
+                    tags.append(" ")
 
             table_row = DIV(
-                DIV(time,
+                DIV(time, BR(), tags,
                     _class='col-md-2'),
                 DIV(c['Location'],
                     _class='col-md-2'),
