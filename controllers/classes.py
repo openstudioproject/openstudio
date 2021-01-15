@@ -929,10 +929,9 @@ def class_schedule_tags():
     response.subtitle = classname
     response.view = 'general/tabs_menu.html'
 
-    query = (db.classes_teachers.classes_id == clsID)
-    left = (db.schedule_tags.on(db.classes_schedule_tags.schedule_tags_id == db.schedule_tags.id))
-
+    query = (db.classes_schedule_tags.classes_id == clsID)
     fields = [db.schedule_tags.Name]
+    left = (db.schedule_tags.on(db.classes_schedule_tags.schedule_tags_id == db.schedule_tags.id))
 
     delete_permission = auth.has_membership(group_id='Admins') or \
                         auth.has_permission('delete', 'classes_schedule_tags')
@@ -947,9 +946,10 @@ def class_schedule_tags():
                         create=False,
                         editable=False,
                         ondelete=cache_clear_classschedule,
-                        orderby=~db.classes_teachers.Startdate,
-                        field_id=db.classes_teachers.id,
+                        orderby=db.schedule_tags.Name,
+                        field_id=db.classes_schedule_tags.id,
                         ui = grid_ui)
+
     grid.element('.web2py_counter', replace=None) # remove the counter
     grid.elements('span[title=Delete]', replace=None) # remove text from delete button
 
