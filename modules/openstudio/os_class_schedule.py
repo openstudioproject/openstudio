@@ -188,6 +188,31 @@ class ClassSchedule:
         return dict(teacher_role=teacher_role,
                     teacher_role2=teacher_role2)
 
+    def _get_classes_tags_dict(self):
+        """
+        :return: a dictionary containing all tags keyed using class id
+        """
+        db = current.db
+
+        left = (db.schedule_tags.on(db.classes_schedule_tags.schedule_tags_id == db.schedule_tags.id))
+        rows = db().select(db.classes_schedule_tags.ALL,
+                           db.schedule_tags.Name,
+                           left=left,
+                           )
+        classes_tags = {}
+
+        for row in rows:
+            if row.classes_schedule_tags.classes_id not in classes_tags:
+                classes_tags[row.classes_schedule_tags.classes_id] = []
+
+            classes_tags[row.classes_schedule_tags.classes_id].append({
+                'schedule_tags_id': row.classes_schedule_tags.schedule_tags_id,
+                'Name': row.schedule_tags.Name
+            })
+
+        print(classes_tags)
+
+        return classes_tags
 
     def _get_day_get_table_class_trend_data(self):
         """
@@ -959,6 +984,9 @@ class ClassSchedule:
             trend_data = self._get_day_get_table_class_trend()
             get_trend_data = trend_data.get
 
+            # Fetch class tags
+            classes_tags = self._get_classes_tags_dict()
+
             # avoiding some dots in the loop
             get_status = self._get_day_row_status
             get_teacher_roles = self._get_day_row_teacher_roles
@@ -976,6 +1004,13 @@ class ClassSchedule:
             for i, row in enumerate(rows):
                 repr_row = list(rows[i:i+1].render())[0]
                 clsID = row.classes.id
+
+                # process tags (if any)
+                tags = SPAN()
+                if clsID in classes_tags:
+                    for tag in classes_tags[clsID]:
+                        tags.append(SPAN(tag['Name'] ,_class="label label-info"))
+                        tags.append(" ")
 
                 status_result = get_status(row)
                 status = status_result['status']
@@ -1019,7 +1054,7 @@ class ClassSchedule:
                    _class='os-schedule_class')
                 row_tools = TR(
                     TD(' '),
-                    TD(class_messages, _colspan=3, _class='grey'),
+                    TD(tags, class_messages, _colspan=3, _class='grey'),
                     TD(teacher2 if not status == 'open' else ''),
                     TD(),
                     TD(),
