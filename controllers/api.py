@@ -406,6 +406,11 @@ def schedule_get_days():
     if 'LevelID' in request.vars:
         LevelID = int(request.vars['LevelID'])
 
+    # check for ScheduleTagID
+    ScheduleTagID = None
+    if 'ScheduleTagID' in request.vars:
+        ScheduleTagID = int(request.vars['ScheduleTagID'])
+
     # check for SortBy
     sorting = 'location'
     if 'SortBy' in request.vars:
@@ -425,6 +430,7 @@ def schedule_get_days():
             filter_id_school_location = LocationID,
             filter_id_school_level = LevelID,
             filter_id_teacher = TeacherID,
+            filter_id_schedule_tag = ScheduleTagID,
             filter_public = True,
             sorting=sorting,
         )
@@ -438,7 +444,8 @@ def schedule_get_days():
                         'TeacherID_' + str(TeacherID) + '_' + \
                         'ClassTypeID_' + str(ClassTypeID) + '_' + \
                         'LocationID_' + str(LocationID) + '_' + \
-                        'LevelID_' + str(LevelID)
+                        'LevelID_' + str(LevelID) + '_' + \
+                        'ScheduleTagID_' + str(ScheduleTagID)
             classes = cache.ram(cache_key,
                              lambda: class_schedule.get_day_list(),
                              time_expire=cache_2_min)
