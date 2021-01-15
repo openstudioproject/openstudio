@@ -555,13 +555,17 @@ def class_edit_get_menu(page, clsID):
                         T('Class cards'),
                        URL('class_classcards', vars=vars)])
 
-
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('update', 'classes_mail'):
         pages.append(['class_info_mail',
                      T("Online info mail"),
                      URL('class_info_mail', vars=vars)])
 
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('view', 'classes_schedule_tags'):
+        pages.append(['class_schedule_tags',
+                     T("Tags"),
+                     URL('class_schedule_tags', vars=vars)])
 
     return get_submenu(pages, page, horizontal=True, htype='tabs')
 
