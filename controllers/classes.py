@@ -913,6 +913,123 @@ def class_teachers_check_classtype(form):
         session.classes_teachers_msg = None
 
 
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('view', 'classes_schedule_tags'))
+def class_schedule_tags():
+    """
+        Overview with teachers for a class
+        request.vars[clsID] is required to be classes_id
+    """
+    clsID = request.vars['clsID']
+
+    response.title = T("Edit class")
+    classname = get_classname(clsID)
+    response.subtitle = classname
+    response.view = 'general/tabs_menu.html'
+
+    query = (db.classes_teachers.classes_id == clsID)
+    left = (db.schedule_tags.on(db.classes_schedule_tags.schedule_tags_id == db.schedule_tags.id))
+
+    fields = [db.schedule_tags.Name]
+
+    delete_permission = auth.has_membership(group_id='Admins') or \
+                        auth.has_permission('delete', 'classes_schedule_tags')
+
+    grid = SQLFORM.grid(query,
+                        fields=fields,
+                        left=left,
+                        details=False,
+                        searchable=False,
+                        deletable=delete_permission,
+                        csv=False,
+                        create=False,
+                        editable=False,
+                        ondelete=cache_clear_classschedule,
+                        orderby=~db.classes_teachers.Startdate,
+                        field_id=db.classes_teachers.id,
+                        ui = grid_ui)
+    grid.element('.web2py_counter', replace=None) # remove the counter
+    grid.elements('span[title=Delete]', replace=None) # remove text from delete button
+
+    add_permission = (auth.has_membership(group_id='Admins') or
+                      auth.has_permission('create', 'classes_schedule_tags'))
+    if add_permission:
+        add = os_gui.get_button('add', URL('class_schedule_tag_add',
+                                           vars={'clsID':clsID}))
+    else:
+        add = ''
+
+    # msg = session.classes_teachers_msg or ''
+    menu = class_edit_get_menu(request.function, clsID)
+    back = class_get_back()
+
+    content = grid
+
+    # reset message panel
+    # session.classes_teachers_msg = None
+
+    return dict(content=content,
+                menu=menu,
+                back=back,
+                add=add)
+
+
+@auth.requires_login()
+def class_schedule_tag_add():
+    """
+        This function shows an add page for classes_teachers
+    """
+    clsID = request.vars['clsID']
+    wizzard = True if 'wiz' in request.vars else False
+
+    response.title = T("Add teacher")
+    classname = get_classname(clsID)
+    response.subtitle = classname
+
+    if wizzard:
+        response.view = 'general/tabs_menu.html'
+        return_url = URL('class_price_add', vars={'clsID': clsID,
+                                                  'wiz': True})
+        menu = class_add_get_menu(request.function)
+        back = ''
+    else:
+        response.view = 'general/only_content.html'
+        return_url = class_teachers_add_edit_get_return_url(clsID)
+        menu = ''
+        back = os_gui.get_button('back', return_url)
+
+    query = (db.classes_teachers.classes_id == clsID)
+    teachers_count = db(query).count()
+    if teachers_count == 0:
+        startdate = db.classes(clsID).Startdate
+        enddate = db.classes(clsID).Enddate
+        db.classes_teachers.Startdate.default = startdate
+        db.classes_teachers.Enddate.default = enddate
+
+    db.classes_teachers.classes_id.default = clsID
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_created = T("Added teacher")
+    crud.settings.formstyle = 'bootstrap3_stacked'
+    crud.settings.create_next = return_url
+    crud.settings.create_onaccept = [ class_teachers_check_classtype, cache_clear_classschedule ]
+    form = crud.create(db.classes_teachers)
+
+    form_id = "MainForm"
+    form_element = form.element('form')
+    form['_id'] = form_id
+
+    elements = form.elements('input, select, textarea')
+    for element in elements:
+        element['_form'] = form_id
+
+    submit = form.element('input[type=submit]')
+
+    return dict(content=form, back=back, menu=menu, save=submit)
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('delete', 'classes'))
 def class_delete():
