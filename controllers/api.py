@@ -56,7 +56,7 @@ def call_check_extension(var=None):
     return dict(view=view, error=error, error_msg=error_msg)
 
 
-def _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, LevelID):
+def _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, LevelID, ScheduleTagID):
     # classes
     data = dict()
     data['classes'] = dict()
@@ -69,6 +69,7 @@ def _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, Level
             filter_id_school_location=LocationID,
             filter_id_school_level=LevelID,
             filter_id_teacher=TeacherID,
+            filter_id_schedule_tag=ScheduleTagID,
             filter_public=True,
             sorting=sorting
         )
@@ -276,6 +277,11 @@ def schedule_get():
             if 'LevelID' in request.vars:
                 LevelID = int(request.vars['LevelID'])
 
+            # check for ScheduleTagID
+            ScheduleTagID = None
+            if 'ScheduleTagID' in request.vars:
+                ScheduleTagID = int(request.vars['ScheduleTagID'])
+
 
             # Don't cache when running tests
             if web2pytest.is_running_under_test(request, request.application):
@@ -287,9 +293,17 @@ def schedule_get():
                             'TeacherID_' + str(TeacherID) + '_' + \
                             'ClassTypeID_' + str(ClassTypeID) + '_' + \
                             'LocationID_' + str(LocationID) + '_' + \
-                            'LevelID_' + str(LevelID)
+                            'LevelID_' + str(LevelID), '_' + \
+                            'ScheduleTagID_' + str(ScheduleTagID)
                 data = cache.ram(cache_key,
-                                 lambda: _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, LevelID),
+                                 lambda: _schedule_get(year,
+                                                       week,
+                                                       sorting,
+                                                       TeacherID,
+                                                       ClassTypeID,
+                                                       LocationID,
+                                                       LevelID,
+                                                       ScheduleTagID),
                                  time_expire=cache_2_min)
 
         except ValueError:
