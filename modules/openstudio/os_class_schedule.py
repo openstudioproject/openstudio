@@ -16,6 +16,7 @@ class ClassSchedule:
                        filter_id_school_level = None,
                        filter_id_teacher = None,
                        filter_id_status = None,
+                       filter_id_schedule_tag = None,
                        filter_public = False,
                        filter_starttime_from = None,
                        attendance_count = "attending_and_booked",
@@ -31,6 +32,7 @@ class ClassSchedule:
         self.filter_id_teacher = filter_id_teacher
         self.filter_id_school_level = filter_id_school_level
         self.filter_id_status = filter_id_status
+        self.filter_id_schedule_tag = filter_id_schedule_tag
         self.filter_public = filter_public
         self.filter_starttime_from = filter_starttime_from
         self.attendance_count = attendance_count
@@ -1018,6 +1020,16 @@ class ClassSchedule:
 
                 if filter_id_status and status != filter_id_status:
                     continue
+
+                # Don't show this class when it doesn't match the tag filter
+                if self.filter_id_schedule_tag:
+                    tag_found = False
+                    for tag in classes_tags[clsID]:
+                        if int(tag['schedule_tags_id']) == int(self.filter_id_schedule_tag):
+                            tag_found = True
+
+                    if not tag_found:
+                        continue
 
                 result = get_teacher_roles(row, repr_row)
                 teacher = result['teacher_role']
