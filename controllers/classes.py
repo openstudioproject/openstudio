@@ -1197,6 +1197,7 @@ def schedule():
             filter_id_school_level = session.schedule_filter_level,
             filter_id_teacher = session.schedule_filter_teacher,
             filter_id_status = session.schedule_filter_status,
+            filter_id_schedule_tag = session.schedule_filter_tag,
             sorting = session.classes_schedule_sort,
             trend_medium = trend_medium,
             trend_high = trend_high)
