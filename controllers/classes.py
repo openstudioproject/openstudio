@@ -1296,22 +1296,26 @@ def schedule():
         teacher = request.vars['teacher']
         classtype = request.vars['classtype']
         level = request.vars['level']
+        tag = request.vars['tag']
         status = request.vars['status']
         filter_form = schedule_get_filter_form(request.vars['location'],
                                                 request.vars['teacher'],
                                                 request.vars['classtype'],
                                                 request.vars['level'],
+                                                request.vars['tag'],
                                                 request.vars['status'])
         session.schedule_filter_location = location
         session.schedule_filter_teacher = teacher
         session.schedule_filter_classtype = classtype
         session.schedule_filter_level = level
+        session.schedule_filter_tag = tag
         session.schedule_filter_status = status
     elif not session.schedule_filter_location is None:
         filter_form = schedule_get_filter_form(session.schedule_filter_location,
                                                session.schedule_filter_teacher,
                                                session.schedule_filter_classtype,
                                                session.schedule_filter_level,
+                                               session.schedule_filter_tag,
                                                session.schedule_filter_status)
     else:
         filter_form = schedule_get_filter_form()
@@ -1319,6 +1323,7 @@ def schedule():
         session.schedule_filter_teacher = None
         session.schedule_filter_classtype = None
         session.schedule_filter_level = None
+        session.schedule_filter_tag = None
         session.schedule_filter_status = None
 
     title = T('Classes')
