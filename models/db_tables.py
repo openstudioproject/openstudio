@@ -2130,6 +2130,32 @@ def define_employee_claims():
         )
 
 
+def define_schedule_tags():
+    db.define_table('schedule_tags',
+        Field('Archived', 'boolean',
+            readable=False,
+            writable=False,
+            default=False,
+            label=T("Archived")),
+        Field('Name', required=True,
+            requires=IS_NOT_EMPTY(),
+            label=T("Name")),
+        format='%(Name)s')
+
+
+def define_classes_schedule_tags():
+    db.define_table('classes_schedule_tags',
+        Field('classes_id', db.classes,
+              readable=False,
+              writable=False,
+              label=T("Class")),
+        Field('schedule_tags_id', db.schedule_tags,
+              readable=False,
+              writable=False,
+              label=T("Tag"))
+    )
+
+
 def define_classes():
     weekdays = [('1',T('Monday')),
                 ('2',T('Tuesday')),
@@ -6824,6 +6850,8 @@ define_accounting_glaccounts()
 define_accounting_expenses()
 define_accounting_cashbooks_cash_count()
 
+define_schedule_tags()
+
 define_school_memberships()
 define_school_subscriptions()
 #mstypes_dict = create_mstypes_dict()
@@ -6873,6 +6901,7 @@ define_classes()
 
 define_customers_shoppingcart()
 #classes_dict = create_classes_dict()
+define_classes_schedule_tags()
 define_classes_otc()
 define_classes_otc_mail()
 define_classes_otc_sub_avail()
