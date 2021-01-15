@@ -913,8 +913,6 @@ def class_teachers_check_classtype(form):
         session.classes_teachers_msg = None
 
 
-
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('view', 'classes_schedule_tags'))
 def class_schedule_tags():
@@ -1020,6 +1018,7 @@ def class_schedule_tag_add():
     crud.messages.record_created = T("Added tag")
     crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.create_next = return_url
+    crud.settings.create_onaccept = [cache_clear_classschedule]
     form = crud.create(db.classes_schedule_tags)
 
     form_id = "MainForm"
