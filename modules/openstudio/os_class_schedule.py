@@ -1163,6 +1163,16 @@ class ClassSchedule:
                     # break loop if it's not the teacher searched for
                     continue
 
+            # Check tag filter
+            if self.filter_id_schedule_tag:
+                tag_found = False
+                for tag in classes_tags[clsID]:
+                    if int(tag['schedule_tags_id']) == int(self.filter_id_schedule_tag):
+                        tag_found = True
+
+                if not tag_found:
+                    continue
+
             # set holidays
             holiday = False
             holiday_description = ''
