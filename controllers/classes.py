@@ -1495,8 +1495,15 @@ def schedule_get_schedule_tools(var=None):
                                   _title=T('Set percentage colors for trend column'))
         schedule_tools.append(set_trend_percentages)
 
-
-
+    # List of tags
+    permission = auth.has_membership(group_id='Admins') or \
+                 auth.has_permission('view', 'schedule_tags')
+    if permission:
+        schedule_tags = A(os_gui.get_fa_icon('fa-tag'), ' ',
+                                  T('Tags'),
+                                  _href=URL('schedule_tags', 'index'),
+                                  _title=T('Update the list of available tags'))
+        schedule_tools.append(schedule_tags)
 
     # get menu
     tools = os_gui.get_dropdown_menu(schedule_tools,
