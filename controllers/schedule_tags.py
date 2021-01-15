@@ -60,18 +60,18 @@ def index():
 @auth.requires_login()
 def add():
     """
-        This function shows an add page for an announcement
+        This function shows an add page for a tag
     """
-    response.title = T("Pinboard")
-    response.subtitle = T("New announcement")
+    response.title = T("Schedule")
+    response.subtitle = T("New tag")
     response.view = 'general/only_content.html'
 
     return_url = URL('index')
 
     crud.messages.submit_button = T("Save")
-    crud.messages.record_created = T("Added announcement")
+    crud.messages.record_created = T("Added atag")
     crud.settings.create_next = return_url
-    form = crud.create(db.announcements)
+    form = crud.create(db.schedule_tags)
 
     result = set_form_id_and_get_submit_button(form, 'MainForm')
     form = result['form']
@@ -85,12 +85,12 @@ def add():
 @auth.requires_login()
 def edit():
     """
-        Shows edit page for an announcement
-        request.vars['aID'] is expected to be announcements.id
+        Shows edit page for a tag
+        request.vars['stID'] is expected to be schedule_tags.id
     """
-    aID = request.vars['aID']
-    response.title = T("Pinboard")
-    response.subtitle = T("Edit announcement")
+    stID = request.vars['stID']
+    response.title = T("Schedule")
+    response.subtitle = T("Edit tag")
     response.view = 'general/only_content.html'
 
     return_url = URL('index')
@@ -99,7 +99,7 @@ def edit():
     crud.messages.record_updated = T("Saved")
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
-    form = crud.update(db.announcements, aID)
+    form = crud.update(db.schedule_tags, stID)
 
     result = set_form_id_and_get_submit_button(form, 'MainForm')
     form = result['form']
