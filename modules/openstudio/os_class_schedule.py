@@ -1107,6 +1107,7 @@ class ClassSchedule:
                         str(self.filter_id_teacher) + '_' + \
                         str(self.filter_id_school_level) + '_' + \
                         str(self.filter_id_status) + '_' + \
+                        str(self.filter_id_schedule_tag) + '_' + \
                         str(self.filter_public) + '_' + \
                         self.sorting + '_' + \
                         str(self.trend_medium) + '_' + \
