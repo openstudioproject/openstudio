@@ -975,6 +975,19 @@ def class_schedule_tags():
                 back=back,
                 add=add)
 
+def class_schedule_tag_add_get_already_added(clsID):
+    """
+    :param clsID: db.classes.id
+    :return: List of tag ids already added to this class
+    """
+    query = (db.classes_schedule_tags.classes_id == clsID)
+    rows = db(query).select(db.classes_schedule_tags.schedule_tags_id)
+
+    ids_already_added = []
+    for row in rows:
+        ids_already_added.append(row.schedule_tags_id)
+
+    return ids_already_added
 
 @auth.requires_login()
 def class_schedule_tag_add():
@@ -982,40 +995,32 @@ def class_schedule_tag_add():
         This function shows an add page for classes_teachers
     """
     clsID = request.vars['clsID']
-    wizzard = True if 'wiz' in request.vars else False
 
-    response.title = T("Add teacher")
+    response.title = T("Add tag")
     classname = get_classname(clsID)
     response.subtitle = classname
 
-    if wizzard:
-        response.view = 'general/tabs_menu.html'
-        return_url = URL('class_price_add', vars={'clsID': clsID,
-                                                  'wiz': True})
-        menu = class_add_get_menu(request.function)
-        back = ''
-    else:
-        response.view = 'general/only_content.html'
-        return_url = class_teachers_add_edit_get_return_url(clsID)
-        menu = ''
-        back = os_gui.get_button('back', return_url)
+    response.view = 'general/only_content.html'
+    return_url = URL('class_schedule_tags', vars={'clsID': clsID})
+    menu = ''
+    back = os_gui.get_button('back', return_url)
 
-    query = (db.classes_teachers.classes_id == clsID)
-    teachers_count = db(query).count()
-    if teachers_count == 0:
-        startdate = db.classes(clsID).Startdate
-        enddate = db.classes(clsID).Enddate
-        db.classes_teachers.Startdate.default = startdate
-        db.classes_teachers.Enddate.default = enddate
+    db.classes_schedule_tags.classes_id.default = clsID
 
-    db.classes_teachers.classes_id.default = clsID
+    # Begin duplicate tag prevention:
+    ids = class_schedule_tag_add_get_already_added(clsID)
+    query = (~db.schedule_tags.id.belongs(ids))
+
+    db.classes_schedule_tags.schedule_tags_id.requires = IS_IN_DB(
+        db(query), 'schedule_tags.id', '%(Name)s'
+    )
+    # End duplicate prevention
 
     crud.messages.submit_button = T("Save")
-    crud.messages.record_created = T("Added teacher")
+    crud.messages.record_created = T("Added tag")
     crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.create_next = return_url
-    crud.settings.create_onaccept = [ class_teachers_check_classtype, cache_clear_classschedule ]
-    form = crud.create(db.classes_teachers)
+    form = crud.create(db.classes_schedule_tags)
 
     form_id = "MainForm"
     form_element = form.element('form')
@@ -5265,10 +5270,9 @@ def class_classcard_group_add():
     response.subtitle = classname
     response.view = 'general/tabs_menu.html'
 
-    # Requires to prevent adding the same group twice
+    # To prevent adding the same group twice:
     ids = class_classcard_group_add_get_already_added(clsID)
     query = (~db.school_classcards_groups.id.belongs(ids))
-
 
     db.classes_school_classcards_groups.school_classcards_groups_id.requires = IS_IN_DB(
         db(query), 'school_classcards_groups.id', '%(Name)s'

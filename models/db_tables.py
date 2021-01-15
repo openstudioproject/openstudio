@@ -2150,8 +2150,6 @@ def define_classes_schedule_tags():
               writable=False,
               label=T("Class")),
         Field('schedule_tags_id', db.schedule_tags,
-              readable=False,
-              writable=False,
               label=T("Tag"))
     )
 
