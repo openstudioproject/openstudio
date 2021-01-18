@@ -285,7 +285,7 @@ def schedule_get():
 
             # Don't cache when running tests
             if web2pytest.is_running_under_test(request, request.application):
-                data = _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, LevelID)
+                data = _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, LevelID, ScheduleTagID)
             else:
                 cache_key = 'openstudio_api_schedule_get_' + str(year) + '_' + \
                             'week_' + str(week) + '_' + \
