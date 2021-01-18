@@ -295,7 +295,6 @@ def schedule_get():
                             'LocationID_' + str(LocationID) + '_' + \
                             'LevelID_' + str(LevelID) + '_' + \
                             'ScheduleTagID_' + str(ScheduleTagID)
-                print(cache_key)
                 data = cache.ram(cache_key,
                                  lambda: _schedule_get(year,
                                                        week,
