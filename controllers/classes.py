@@ -555,13 +555,17 @@ def class_edit_get_menu(page, clsID):
                         T('Class cards'),
                        URL('class_classcards', vars=vars)])
 
-
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('update', 'classes_mail'):
         pages.append(['class_info_mail',
                      T("Online info mail"),
                      URL('class_info_mail', vars=vars)])
 
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('view', 'classes_schedule_tags'):
+        pages.append(['class_schedule_tags',
+                     T("Tags"),
+                     URL('class_schedule_tags', vars=vars)])
 
     return get_submenu(pages, page, horizontal=True, htype='tabs')
 
@@ -910,6 +914,127 @@ def class_teachers_check_classtype(form):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('view', 'classes_schedule_tags'))
+def class_schedule_tags():
+    """
+        Overview with teachers for a class
+        request.vars[clsID] is required to be classes_id
+    """
+    clsID = request.vars['clsID']
+
+    response.title = T("Edit class")
+    classname = get_classname(clsID)
+    response.subtitle = classname
+    response.view = 'general/tabs_menu.html'
+
+    query = (db.classes_schedule_tags.classes_id == clsID)
+    fields = [db.schedule_tags.Name]
+    left = (db.schedule_tags.on(db.classes_schedule_tags.schedule_tags_id == db.schedule_tags.id))
+
+    delete_permission = auth.has_membership(group_id='Admins') or \
+                        auth.has_permission('delete', 'classes_schedule_tags')
+
+    grid = SQLFORM.grid(query,
+                        fields=fields,
+                        left=left,
+                        details=False,
+                        searchable=False,
+                        deletable=delete_permission,
+                        csv=False,
+                        create=False,
+                        editable=False,
+                        ondelete=cache_clear_classschedule,
+                        orderby=db.schedule_tags.Name,
+                        field_id=db.classes_schedule_tags.id,
+                        ui = grid_ui)
+
+    grid.element('.web2py_counter', replace=None) # remove the counter
+    grid.elements('span[title=Delete]', replace=None) # remove text from delete button
+
+    add_permission = (auth.has_membership(group_id='Admins') or
+                      auth.has_permission('create', 'classes_schedule_tags'))
+    if add_permission:
+        add = os_gui.get_button('add', URL('class_schedule_tag_add',
+                                           vars={'clsID':clsID}))
+    else:
+        add = ''
+
+    # msg = session.classes_teachers_msg or ''
+    menu = class_edit_get_menu(request.function, clsID)
+    back = class_get_back()
+
+    content = grid
+
+    # reset message panel
+    # session.classes_teachers_msg = None
+
+    return dict(content=content,
+                menu=menu,
+                back=back,
+                add=add)
+
+def class_schedule_tag_add_get_already_added(clsID):
+    """
+    :param clsID: db.classes.id
+    :return: List of tag ids already added to this class
+    """
+    query = (db.classes_schedule_tags.classes_id == clsID)
+    rows = db(query).select(db.classes_schedule_tags.schedule_tags_id)
+
+    ids_already_added = []
+    for row in rows:
+        ids_already_added.append(row.schedule_tags_id)
+
+    return ids_already_added
+
+@auth.requires_login()
+def class_schedule_tag_add():
+    """
+        This function shows an add page for classes_teachers
+    """
+    clsID = request.vars['clsID']
+
+    response.title = T("Add tag")
+    classname = get_classname(clsID)
+    response.subtitle = classname
+
+    response.view = 'general/only_content.html'
+    return_url = URL('class_schedule_tags', vars={'clsID': clsID})
+    menu = ''
+    back = os_gui.get_button('back', return_url)
+
+    db.classes_schedule_tags.classes_id.default = clsID
+
+    # Begin duplicate tag prevention:
+    ids = class_schedule_tag_add_get_already_added(clsID)
+    query = (~db.schedule_tags.id.belongs(ids))
+
+    db.classes_schedule_tags.schedule_tags_id.requires = IS_IN_DB(
+        db(query), 'schedule_tags.id', '%(Name)s'
+    )
+    # End duplicate prevention
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_created = T("Added tag")
+    crud.settings.formstyle = 'bootstrap3_stacked'
+    crud.settings.create_next = return_url
+    crud.settings.create_onaccept = [cache_clear_classschedule]
+    form = crud.create(db.classes_schedule_tags)
+
+    form_id = "MainForm"
+    form_element = form.element('form')
+    form['_id'] = form_id
+
+    elements = form.elements('input, select, textarea')
+    for element in elements:
+        element['_form'] = form_id
+
+    submit = form.element('input[type=submit]')
+
+    return dict(content=form, back=back, menu=menu, save=submit)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('delete', 'classes'))
 def class_delete():
     """
@@ -1072,6 +1197,7 @@ def schedule():
             filter_id_school_level = session.schedule_filter_level,
             filter_id_teacher = session.schedule_filter_teacher,
             filter_id_status = session.schedule_filter_status,
+            filter_id_schedule_tag = session.schedule_filter_tag,
             sorting = session.classes_schedule_sort,
             trend_medium = trend_medium,
             trend_high = trend_high)
@@ -1171,22 +1297,26 @@ def schedule():
         teacher = request.vars['teacher']
         classtype = request.vars['classtype']
         level = request.vars['level']
+        tag = request.vars['tag']
         status = request.vars['status']
         filter_form = schedule_get_filter_form(request.vars['location'],
                                                 request.vars['teacher'],
                                                 request.vars['classtype'],
                                                 request.vars['level'],
+                                                request.vars['tag'],
                                                 request.vars['status'])
         session.schedule_filter_location = location
         session.schedule_filter_teacher = teacher
         session.schedule_filter_classtype = classtype
         session.schedule_filter_level = level
+        session.schedule_filter_tag = tag
         session.schedule_filter_status = status
     elif not session.schedule_filter_location is None:
         filter_form = schedule_get_filter_form(session.schedule_filter_location,
                                                session.schedule_filter_teacher,
                                                session.schedule_filter_classtype,
                                                session.schedule_filter_level,
+                                               session.schedule_filter_tag,
                                                session.schedule_filter_status)
     else:
         filter_form = schedule_get_filter_form()
@@ -1194,6 +1324,7 @@ def schedule():
         session.schedule_filter_teacher = None
         session.schedule_filter_classtype = None
         session.schedule_filter_level = None
+        session.schedule_filter_tag = None
         session.schedule_filter_status = None
 
     title = T('Classes')
@@ -1495,8 +1626,15 @@ def schedule_get_schedule_tools(var=None):
                                   _title=T('Set percentage colors for trend column'))
         schedule_tools.append(set_trend_percentages)
 
-
-
+    # List of tags
+    permission = auth.has_membership(group_id='Admins') or \
+                 auth.has_permission('view', 'schedule_tags')
+    if permission:
+        schedule_tags = A(os_gui.get_fa_icon('fa-tag'), ' ',
+                                  T('Tags'),
+                                  _href=URL('schedule_tags', 'index'),
+                                  _title=T('Update the list of available tags'))
+        schedule_tools.append(schedule_tags)
 
     # get menu
     tools = os_gui.get_dropdown_menu(schedule_tools,
@@ -1870,6 +2008,7 @@ def schedule_get_filter_form(school_locations_id='',
                              teachers_id='',
                              school_classtypes_id='',
                              school_levels_id='',
+                             schedule_tags_id='',
                              status=''):
 
     ct_query = (db.school_classtypes.Archived == False)
@@ -1901,6 +2040,11 @@ def schedule_get_filter_form(school_locations_id='',
                               zero=T('All levels')),
             default=school_levels_id,
             label=""),
+        Field('tag',
+            requires=IS_IN_DB(db(),'schedule_tags.id', '%(Name)s',
+                              zero=T('All tags')),
+            default=schedule_tags_id,
+            label=""),
         Field('status',
             requires=IS_IN_SET(session.class_status,
                                zero=T('All statuses')),
@@ -1929,12 +2073,14 @@ def schedule_get_filter_form(school_locations_id='',
             _class='col-md-2'),
         DIV(form.custom.widget.level,
             _class='col-md-2'),
+        DIV(form.custom.widget.tag,
+            _class='col-md-2'),
         DIV(form.custom.widget.status,
             _class='col-md-2'),
         DIV(DIV(form.custom.submit,
                 clear,
                 _class="pull-right"),
-            _class='col-md-2'),
+            _class='col-md-12'),
         form.custom.end,
         _id="schedule_filter_form")
 
@@ -5137,10 +5283,9 @@ def class_classcard_group_add():
     response.subtitle = classname
     response.view = 'general/tabs_menu.html'
 
-    # Requires to prevent adding the same group twice
+    # To prevent adding the same group twice:
     ids = class_classcard_group_add_get_already_added(clsID)
     query = (~db.school_classcards_groups.id.belongs(ids))
-
 
     db.classes_school_classcards_groups.school_classcards_groups_id.requires = IS_IN_DB(
         db(query), 'school_classcards_groups.id', '%(Name)s'

@@ -16,6 +16,7 @@ class ClassSchedule:
                        filter_id_school_level = None,
                        filter_id_teacher = None,
                        filter_id_status = None,
+                       filter_id_schedule_tag = None,
                        filter_public = False,
                        filter_starttime_from = None,
                        attendance_count = "attending_and_booked",
@@ -31,6 +32,7 @@ class ClassSchedule:
         self.filter_id_teacher = filter_id_teacher
         self.filter_id_school_level = filter_id_school_level
         self.filter_id_status = filter_id_status
+        self.filter_id_schedule_tag = filter_id_schedule_tag
         self.filter_public = filter_public
         self.filter_starttime_from = filter_starttime_from
         self.attendance_count = attendance_count
@@ -188,6 +190,29 @@ class ClassSchedule:
         return dict(teacher_role=teacher_role,
                     teacher_role2=teacher_role2)
 
+    def _get_classes_tags_dict(self):
+        """
+        :return: a dictionary containing all tags keyed using class id
+        """
+        db = current.db
+
+        left = (db.schedule_tags.on(db.classes_schedule_tags.schedule_tags_id == db.schedule_tags.id))
+        rows = db().select(db.classes_schedule_tags.ALL,
+                           db.schedule_tags.Name,
+                           left=left,
+                           )
+        classes_tags = {}
+
+        for row in rows:
+            if row.classes_schedule_tags.classes_id not in classes_tags:
+                classes_tags[row.classes_schedule_tags.classes_id] = []
+
+            classes_tags[row.classes_schedule_tags.classes_id].append({
+                'schedule_tags_id': row.classes_schedule_tags.schedule_tags_id,
+                'Name': row.schedule_tags.Name
+            })
+
+        return classes_tags
 
     def _get_day_get_table_class_trend_data(self):
         """
@@ -539,7 +564,7 @@ class ClassSchedule:
         return tools
 
 
-    def _get_day_table_get_class_messages(self, row, clsID, date_formatted):
+    def _get_day_table_get_class_messages(self, row, clsID, date_formatted, classes_tags):
         """
             Returns messages for a class
         """
@@ -548,6 +573,15 @@ class ClassSchedule:
         T = current.T
 
         class_messages = []
+
+        # process tags (if any)
+        tags = SPAN()
+        if clsID in classes_tags:
+            for tag in classes_tags[clsID]:
+                tags.append(SPAN(os_gui.get_fa_icon('fa-tag'), ' ', tag['Name'], _class="text-muted"))
+                tags.append(" ")
+
+            class_messages.append(tags)
 
         if row.school_holidays.Description:
             class_messages.append(
@@ -959,6 +993,9 @@ class ClassSchedule:
             trend_data = self._get_day_get_table_class_trend()
             get_trend_data = trend_data.get
 
+            # Fetch class tags
+            classes_tags = self._get_classes_tags_dict()
+
             # avoiding some dots in the loop
             get_status = self._get_day_row_status
             get_teacher_roles = self._get_day_row_teacher_roles
@@ -984,6 +1021,18 @@ class ClassSchedule:
                 if filter_id_status and status != filter_id_status:
                     continue
 
+                # Check tag filter
+                tag_found = False
+                if self.filter_id_schedule_tag:
+                    if clsID in classes_tags:
+                        for tag in classes_tags[clsID]:
+                            if int(tag['schedule_tags_id']) == int(self.filter_id_schedule_tag):
+                                tag_found = True
+
+                    if not tag_found:
+                        # continue loop if class doesn't have the active filter tag
+                        continue
+
                 result = get_teacher_roles(row, repr_row)
                 teacher = result['teacher_role']
                 teacher2 = result['teacher_role2']
@@ -996,7 +1045,7 @@ class ClassSchedule:
                 trend = get_trend_data(row.classes.id, '')
                 buttons = get_buttons(clsID, date_formatted, button_permissions)
                 reservations = get_reservations(clsID, date_formatted, row, button_permissions)
-                class_messages = get_class_messages(row, clsID, date_formatted)
+                class_messages = get_class_messages(row, clsID, date_formatted, classes_tags)
 
                 if multiple_organizations:
                     organization = DIV(repr_row.classes.sys_organizations_id or '',
@@ -1060,6 +1109,7 @@ class ClassSchedule:
                         str(self.filter_id_teacher) + '_' + \
                         str(self.filter_id_school_level) + '_' + \
                         str(self.filter_id_status) + '_' + \
+                        str(self.filter_id_schedule_tag) + '_' + \
                         str(self.filter_public) + '_' + \
                         self.sorting + '_' + \
                         str(self.trend_medium) + '_' + \
@@ -1080,12 +1130,21 @@ class ClassSchedule:
         date_formatted = self.date.strftime(DATE_FORMAT)
 
         rows = self.get_day_rows()
+        # Fetch class tags
+        classes_tags = self._get_classes_tags_dict()
 
         get_status = self._get_day_row_status
 
         classes = []
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i+1].render())[0]
+            clsID = row.classes.id
+
+            # process tags (if any)
+            tags = []
+            if clsID in classes_tags:
+                for tag in classes_tags[clsID]:
+                    tags.append(tag['Name'])
 
             # get status
             status_result = get_status(row)
@@ -1105,7 +1164,19 @@ class ClassSchedule:
                 filter_check = (teacher_filter_id == teacher_id or
                                 teacher_filter_id == teacher_id2)
                 if not filter_check:
-                    # break loop if it's not the teacher searched for
+                    # contine loop if it's not the teacher searched for
+                    continue
+
+            # Check tag filter
+            tag_found = False
+            if self.filter_id_schedule_tag:
+                if clsID in classes_tags:
+                    for tag in classes_tags[clsID]:
+                        if int(tag['schedule_tags_id']) == int(self.filter_id_schedule_tag):
+                            tag_found = True
+
+                if not tag_found:
+                    # continue loop if class doesn't have the active filter tag
                     continue
 
             # set holidays
@@ -1162,6 +1233,7 @@ class ClassSchedule:
             data['BookingStatus'] = self._get_day_list_booking_status(row)
             data['BookingOpen'] = self.bookings_open
             data['LinkShop'] = shop_url
+            data['Tags'] = tags
 
             classes.append(data)
 

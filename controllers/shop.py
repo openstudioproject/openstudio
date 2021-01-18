@@ -2140,16 +2140,8 @@ def classes():
     if not features.Classes:
         return T('This feature is disabled')
 
-    # if 'year' in request.vars:
-    #     year = int(request.vars['year'])
-    # else:
-    #     year = TODAY_LOCAL.year
-    # if 'week' in request.vars:
-    #     week = int(request.vars['week'])
-    # else:
-    #     week = TODAY_LOCAL.isocalendar()[1]
-    #     if week == 0:
-    #         week = 1
+    from openstudio.os_gui import OsGui
+    os_gui = OsGui()
 
     if 'date' in request.vars:
         start_date = datestr_to_python(DATE_FORMAT, request.vars['date'])
@@ -2163,6 +2155,7 @@ def classes():
     filter_id_school_classtype = ''
     filter_id_school_level = ''
     filter_id_teacher = ''
+    filter_id_schedule_tag = ''
 
     if 'location' in request.vars:
         filter_id_school_location = request.vars['location']
@@ -2170,12 +2163,15 @@ def classes():
         filter_id_teacher = request.vars['teacher']
     if 'classtype' in request.vars:
         filter_id_school_classtype = request.vars['classtype']
+    if 'tag' in request.vars:
+        filter_id_schedule_tag = request.vars['tag']
 
     filter = classes_get_filter(start_date,
                                 filter_id_school_classtype=filter_id_school_classtype,
                                 filter_id_school_location=filter_id_school_location,
                                 filter_id_school_level='',
-                                filter_id_teacher=filter_id_teacher)
+                                filter_id_teacher=filter_id_teacher,
+                                filter_id_schedule_tag=filter_id_schedule_tag)
 
     days = []
     for day in range(0, 7):
@@ -2184,7 +2180,8 @@ def classes():
                                        filter_id_school_classtype=filter_id_school_classtype,
                                        filter_id_school_location=filter_id_school_location,
                                        filter_id_school_level='',
-                                       filter_id_teacher=filter_id_teacher)
+                                       filter_id_teacher=filter_id_teacher,
+                                       filter_id_schedule_tag=filter_id_schedule_tag)
 
         days.append(dict(date=date, weekday=date.isoweekday(), classes=classes_list))
 
@@ -2221,9 +2218,15 @@ def classes():
             book = classes_get_button_book(c)
 
             level = SPAN(" (%s)" % c['Level'], _class="text-muted small") if c['Level'] else ""
+            # process tags (if any)
+            tags = SPAN(" ")
+            if c['Tags']:
+                for tag in c['Tags']:
+                    tags.append(SPAN(os_gui.get_fa_icon('fa-tag'), ' ', tag, _class="text-muted"))
+                    tags.append(" ")
 
             table_row = DIV(
-                DIV(time,
+                DIV(time, BR(), tags,
                     _class='col-md-2'),
                 DIV(c['Location'],
                     _class='col-md-2'),
@@ -2270,7 +2273,8 @@ def classes_get_filter(date,
                        filter_id_school_classtype='',
                        filter_id_school_location='',
                        filter_id_school_level='',
-                       filter_id_teacher=''):
+                       filter_id_teacher='',
+                       filter_id_schedule_tag=''):
     """
         :param filter_id_school_classtype: db.school_classtypes.id
         :param filter_id_school_location: db.school_locations.id
@@ -2308,6 +2312,11 @@ def classes_get_filter(date,
                               zero=T('All classtypes')),
             default=filter_id_school_classtype,
             label=""),
+        Field('tag',
+            requires=IS_IN_DB(db,'schedule_tags.id', '%(Name)s',
+                              zero=T('All tags')),
+            default=filter_id_schedule_tag,
+            label=""),
         # Field('level',
         #     requires=IS_IN_DB(db(sle_query),'school_levels.id', '%(Name)s',
         #                       zero=T('All levels')),
@@ -2325,14 +2334,15 @@ def classes_get_filter(date,
     div = DIV(
         form.custom.begin,
         DIV(form.custom.widget.location,
-            _class='col-md-3'),
+            _class='col-md-2'),
         DIV(form.custom.widget.teacher,
-            _class='col-md-3'),
+            _class='col-md-2'),
         DIV(form.custom.widget.classtype,
-            _class='col-md-3'),
-        # form.custom.widget.level,
+            _class='col-md-2'),
+        DIV(form.custom.widget.tag,
+            _class='col-md-2'),
         DIV(classes_get_week_browser(date),
-            _class='col-md-3'),
+            _class='col-md-4'),
         form.custom.end,
         _class='row'
         )
@@ -2387,7 +2397,8 @@ def classes_get_day(date,
                     filter_id_school_classtype,
                     filter_id_school_location,
                     filter_id_school_level,
-                    filter_id_teacher):
+                    filter_id_teacher,
+                    filter_id_schedule_tag):
     """
         :param weekday: ISO weekday (1-7)
         :return: List of classes for day
@@ -2400,6 +2411,7 @@ def classes_get_day(date,
         filter_id_school_location = filter_id_school_location,
         filter_id_school_level = filter_id_school_level,
         filter_id_teacher = filter_id_teacher,
+        filter_id_schedule_tag = filter_id_schedule_tag,
         filter_public = True,
         sorting = 'starttime' )
 

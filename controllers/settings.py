@@ -1479,6 +1479,15 @@ def access_group_permissions():
             ['classes-delete', T('Delete classes')],
             ['schedule_classes_status-read', T("View weekly schedule status"), [
                 ['schedule_classes_status-update', T("Edit weekly schedule status")]]],
+            ['schedule_tags-read', T("View list of tags"), [
+                ['schedule_tags-create', T("Add tags")],
+                ['schedule_tags-update', T("Edit tags")],
+                ['schedule_tags-delete', T("Delete tags")],
+            ]],
+            ['classes_schedule_tags-read', T("View list of tags assigned to a class"), [
+                ['classes_schedule_tags-create', T("Add tags to a class")],
+                ['classes_schedule_tags-delete', T("Remove tags from a class")],
+            ]],
             ['classes_reservation-read', T("View enrollments"), [
                 ['classes_reservation-create', T('Add enrollments')],
                 ['classes_reservation-update', T('Edit enrollments')],

@@ -56,7 +56,7 @@ def call_check_extension(var=None):
     return dict(view=view, error=error, error_msg=error_msg)
 
 
-def _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, LevelID):
+def _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, LevelID, ScheduleTagID):
     # classes
     data = dict()
     data['classes'] = dict()
@@ -69,6 +69,7 @@ def _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, Level
             filter_id_school_location=LocationID,
             filter_id_school_level=LevelID,
             filter_id_teacher=TeacherID,
+            filter_id_schedule_tag=ScheduleTagID,
             filter_public=True,
             sorting=sorting
         )
@@ -208,6 +209,13 @@ def _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, Level
                             cache=caching).as_list()
     data['levels'] = rows
 
+    # Tags
+    rows = db().select(db.schedule_tags.ALL,
+                       cache=caching).as_list()
+
+    data['tags'] = rows
+
+
     return data
 
 
@@ -269,10 +277,15 @@ def schedule_get():
             if 'LevelID' in request.vars:
                 LevelID = int(request.vars['LevelID'])
 
+            # check for ScheduleTagID
+            ScheduleTagID = None
+            if 'ScheduleTagID' in request.vars:
+                ScheduleTagID = int(request.vars['ScheduleTagID'])
+
 
             # Don't cache when running tests
             if web2pytest.is_running_under_test(request, request.application):
-                data = _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, LevelID)
+                data = _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, LevelID, ScheduleTagID)
             else:
                 cache_key = 'openstudio_api_schedule_get_' + str(year) + '_' + \
                             'week_' + str(week) + '_' + \
@@ -280,9 +293,17 @@ def schedule_get():
                             'TeacherID_' + str(TeacherID) + '_' + \
                             'ClassTypeID_' + str(ClassTypeID) + '_' + \
                             'LocationID_' + str(LocationID) + '_' + \
-                            'LevelID_' + str(LevelID)
+                            'LevelID_' + str(LevelID) + '_' + \
+                            'ScheduleTagID_' + str(ScheduleTagID)
                 data = cache.ram(cache_key,
-                                 lambda: _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, LevelID),
+                                 lambda: _schedule_get(year,
+                                                       week,
+                                                       sorting,
+                                                       TeacherID,
+                                                       ClassTypeID,
+                                                       LocationID,
+                                                       LevelID,
+                                                       ScheduleTagID),
                                  time_expire=cache_2_min)
 
         except ValueError:
@@ -385,6 +406,11 @@ def schedule_get_days():
     if 'LevelID' in request.vars:
         LevelID = int(request.vars['LevelID'])
 
+    # check for ScheduleTagID
+    ScheduleTagID = None
+    if 'ScheduleTagID' in request.vars:
+        ScheduleTagID = int(request.vars['ScheduleTagID'])
+
     # check for SortBy
     sorting = 'location'
     if 'SortBy' in request.vars:
@@ -404,6 +430,7 @@ def schedule_get_days():
             filter_id_school_location = LocationID,
             filter_id_school_level = LevelID,
             filter_id_teacher = TeacherID,
+            filter_id_schedule_tag = ScheduleTagID,
             filter_public = True,
             sorting=sorting,
         )
@@ -417,7 +444,8 @@ def schedule_get_days():
                         'TeacherID_' + str(TeacherID) + '_' + \
                         'ClassTypeID_' + str(ClassTypeID) + '_' + \
                         'LocationID_' + str(LocationID) + '_' + \
-                        'LevelID_' + str(LevelID)
+                        'LevelID_' + str(LevelID) + '_' + \
+                        'ScheduleTagID_' + str(ScheduleTagID)
             classes = cache.ram(cache_key,
                              lambda: class_schedule.get_day_list(),
                              time_expire=cache_2_min)
@@ -454,7 +482,6 @@ def schedule_get_days():
             # check levels
             if 'LevelID' in cls and cls['LevelID'] not in level_ids:
                 level_ids.append(cls['LevelID'])
-
 
     # ClassTypes
     classtypes = []
@@ -543,8 +570,6 @@ def schedule_get_days():
 
     data['teachers'] = teachers
 
-
-
     # Locations
     query = (db.school_locations.AllowAPI == True) & \
             (db.school_locations.Archived == False) & \
@@ -561,6 +586,11 @@ def schedule_get_days():
                             db.school_levels.Name,
                             cache=caching).as_list()
     data['levels'] = rows
+
+    # Tags
+    rows = db().select(db.schedule_tags.ALL,
+                       cache=caching).as_list()
+    data['tags'] = rows
 
     return dict(data=data)
 
