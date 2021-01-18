@@ -293,8 +293,9 @@ def schedule_get():
                             'TeacherID_' + str(TeacherID) + '_' + \
                             'ClassTypeID_' + str(ClassTypeID) + '_' + \
                             'LocationID_' + str(LocationID) + '_' + \
-                            'LevelID_' + str(LevelID), '_' + \
+                            'LevelID_' + str(LevelID) + '_' + \
                             'ScheduleTagID_' + str(ScheduleTagID)
+                print(cache_key)
                 data = cache.ram(cache_key,
                                  lambda: _schedule_get(year,
                                                        week,
