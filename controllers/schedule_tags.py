@@ -69,7 +69,8 @@ def add():
     return_url = URL('index')
 
     crud.messages.submit_button = T("Save")
-    crud.messages.record_created = T("Added atag")
+    crud.messages.record_created = T("Added tag")
+    crud.settings.formstyle = "divs"
     crud.settings.create_next = return_url
     form = crud.create(db.schedule_tags)
 
@@ -99,6 +100,7 @@ def edit():
     crud.messages.record_updated = T("Saved")
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
+    crud.settings.formstyle = "divs"
     form = crud.update(db.schedule_tags, stID)
 
     result = set_form_id_and_get_submit_button(form, 'MainForm')
