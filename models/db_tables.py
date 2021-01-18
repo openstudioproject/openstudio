@@ -2132,11 +2132,11 @@ def define_employee_claims():
 
 def define_schedule_tags():
     db.define_table('schedule_tags',
-        Field('Archived', 'boolean',
-            readable=False,
-            writable=False,
-            default=False,
-            label=T("Archived")),
+        # Field('Archived', 'boolean',
+        #     readable=False,
+        #     writable=False,
+        #     default=False,
+        #     label=T("Archived")),
         Field('Name', required=True,
             requires=IS_NOT_EMPTY(),
             label=T("Name")),
