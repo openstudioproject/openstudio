@@ -241,7 +241,8 @@ class Reports:
         db = current.db
 
         query = (db.invoices_payments.payment_methods_id == 100) & \
-                (db.classes_attendance.ClassDate == date)
+                (db.classes_attendance.ClassDate == date) & \
+                (db.classes_attendance.BookingStatus != "cancelled")
 
         left = [
             db.invoices.on(db.invoices.id == db.invoices_payments.invoices_id),
