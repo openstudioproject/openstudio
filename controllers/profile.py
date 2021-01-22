@@ -278,6 +278,8 @@ def index_get_classcards(customer):
     """
     :return: list of current classcards for a customer
     """
+    from openstudio.os_customer_classcard import CustomerClasscard
+
     rows = customer.get_classcards(TODAY_LOCAL, from_cache=False)
 
     if not rows:
@@ -299,15 +301,16 @@ def index_get_classcards(customer):
 
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i+1].render())[0]
-            remaining = classcard_get_remaining(row)
+            ccdID = row.customers_classcards.id
+            ccd = CustomerClasscard(ccdID)
 
             row = DIV(
                 DIV(SPAN('# ', _class="bold hidden-md hidden-lg"),
-                    row.customers_classcards.id,
+                    ccdID,
                     _class='col-md-1 mobile-bold'),
                 DIV(row.school_classcards.Name,
                     _class='col-md-5'),
-                DIV(classcard_get_remaining(row),
+                DIV(ccd.get_classes_remaining_formatted(),
                     _class='col-md-4'),
                 DIV(classcard_get_dropdown(row),
                     _class='col-md-2'),
@@ -858,6 +861,8 @@ def classcards():
     """
         Lists classcards for a customer
     """
+    from openstudio.os_customer_classcard import CustomerClasscard
+
     response.title = T('Profile')
     response.subtitle = T('Class cards')
 
@@ -887,14 +892,14 @@ def classcards():
     tbody = TBODY()
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i+1].render())[0]
+        ccdID = row.customers_classcards.id
+        ccd = CustomerClasscard(ccdID)
 
-        remaining = classcard_get_remaining(row)
-
-        tr = TR(TD(row.customers_classcards.id),
+        tr = TR(TD(ccdID),
                 TD(repr_row.customers_classcards.school_classcards_id),
                 TD(repr_row.customers_classcards.Startdate),
                 TD(repr_row.customers_classcards.Enddate),
-                TD(remaining),
+                TD(ccd.get_classes_remaining_formatted()),
                 TD(classcard_get_dropdown(row)))
 
         tbody.append(tr)
@@ -910,22 +915,6 @@ def classcards():
     back = os_gui.get_button('back', URL('profile', 'index'))
 
     return dict(content=table, back=back)
-
-
-def classcard_get_remaining(row):
-    total_classes = row.school_classcards.Classes
-    if total_classes == 0 or row.school_classcards.Unlimited:
-        remaining = T('Unlimited')
-    else:
-        taken_classes = row.customers_classcards.ClassesTaken
-        remaining = total_classes - taken_classes
-
-        if remaining == 1:
-            remaining = SPAN(remaining, ' ', T('Class remaining'))
-        else:
-            remaining = SPAN(remaining, ' ', T('Classes remaining'))
-
-    return remaining
 
 
 def classcard_get_dropdown(row):
