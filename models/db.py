@@ -128,6 +128,22 @@ crud.messages.submit_button = T('Save')
 # -------------------------------------------------------------------------
 # auth.define_tables(username=False, signature=False)
 
+### SAML2 has user mappings here
+if configuration.get('auth.saml2_auth'):
+    from gluon.contrib.login_methods.saml2_auth import Saml2Auth
+    auth.settings.login_form=Saml2Auth(
+        config_file = os.path.join(request.folder,'private','sp_conf'),
+        maps=dict(
+            email=lambda v: v['urn:oid:1.2.840.113549.1.9.1'][0],
+            first_name = lambda v: v['urn:oid:2.5.4.42'][0],
+            last_name = lambda v: v['urn:oid:2.5.4.4'][0],
+            enabled=lambda v: True,
+            last_login=lambda v: datetime.datetime.now(),
+        ),
+    )
+
+
+
 # -------------------------------------------------------------------------
 # configure email
 # -------------------------------------------------------------------------
@@ -149,16 +165,18 @@ if web2pytest.is_running_under_test(request, request.application):
 # configure auth policy
 # -------------------------------------------------------------------------
 # Log failed login attempts
-from openstudio_sec.oss_auth_user_login_attempts import OSSAULA
-ossaula = OSSAULA()
+if not configuration.get('auth.saml2_auth'):
+    from openstudio_sec.oss_auth_user_login_attempts import OSSAULA
+    ossaula = OSSAULA()
+    auth.settings.login_onfail.append(ossaula.update_login_attempts)
+    auth.settings.login_onvalidation = [ossaula.login_check_lockout]
+    auth.settings.login_onaccept = [ossaula.login_reset_failed_attempts]
+
 # Clear PoS customers cache after a user registers
 from openstudio.os_cache_manager import OsCacheManager
 ocm = OsCacheManager()
 
 
-auth.settings.login_onfail.append(ossaula.update_login_attempts)
-auth.settings.login_onvalidation = [ossaula.login_check_lockout]
-auth.settings.login_onaccept = [ossaula.login_reset_failed_attempts]
 auth.settings.register_onaccept = [ocm.clear_customers]
 auth.settings.create_user_groups = None # Don't create groups for individual users
 auth.settings.expiration = configuration.get('auth.session_expiration') or 1800

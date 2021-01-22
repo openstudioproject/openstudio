@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+## SP CONFIGURATION ##
+from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT
+import os.path
+import requests
+import tempfile
+
+#
+# This is tested with keycloak IdP, with email nameid format
+# Make SP metadata with make_metadata private/sp_conf.py > private/sp.xml
+#
+# Make sure the entity ID matches. Use pysaml2 > 6.4.
+#
+# Change appconfig.ini to contain saml2_auth = true in the [auth] section
+#
+
+idp = 'https://idp.tld/url/to/metadata'
+rv = requests.get(idp)
+tmp = tempfile.NamedTemporaryFile()
+f = open(tmp.name, 'w')
+f.write(rv.text)
+f.close()
+
+BASEDIR = os.path.abspath(os.path.dirname(__file__))
+
+def full_path(local_file):
+    return os.path.join(BASEDIR, local_file)
+
+
+CONFIG = {
+    'entityid': 'https://my.openstudio.tld/saml_metadata',
+    'service': {
+        'sp' : {
+            'name': 'openstudio',
+            'endpoints': {
+                'assertion_consumer_service': [
+                    ('https://my.openstudio.tld/user/login', BINDING_HTTP_REDIRECT),
+                    ('https://my.openstudio.tld/user/login', BINDING_HTTP_POST),
+                ],
+                "single_logout_service": [
+                    ("https://my.openstudio.tld/user/logout", BINDING_HTTP_REDIRECT),
+                ],
+            },
+            'authn_requests_signed': True,
+        },
+    },
+    'key_file': full_path('pki/mykey.pem'),
+    'cert_file': full_path('pki/mycert.pem'),
+    # where the remote metadata is stored
+    'metadata': {
+         'local': [tmp.name],
+    },
+}

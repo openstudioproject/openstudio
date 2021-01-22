@@ -17,6 +17,86 @@ from openstudio.os_mail import OsMail
 
 import datetime
 
+
+
+from saml2 import BINDING_HTTP_REDIRECT
+from saml2 import BINDING_HTTP_POST
+from saml2.client import Saml2Client
+from saml2.cache import Cache
+
+# SAML2 function override for login/logout
+def saml_user():
+    if 'login' in request.args:
+        print("saml user/login",file=sys.stderr)
+        return dict(form = auth())
+
+    if 'logout' in request.args:
+        print("saml user/logout",file=sys.stderr)
+        return saml_logout()
+
+
+# SAML2 logout
+def saml_logout():
+    if not auth.user:
+        print("Not logged in",file=sys.stderr)
+        return "You are not logged in."
+
+    config_filename = os.path.join(request.folder,'private','sp_conf')
+    client = Saml2Client(config_file=config_filename, identity_cache=session.saml2_cache)
+
+    name_id = None
+    for subject in client.users.subjects():
+        if (subject.text == auth.user.registration_id):
+            name_id = subject
+            break
+    if not name_id:
+        print("SAML entity not found in identity cache",file=sys.stderr)
+        current.session.saml2_cache = None
+        current.session.saml2_info = None
+        current.session.auth = None
+        current.auth = None
+        redirect("/")
+
+    idps = client.users.issuers_of_info(name_id)
+    current.session.saml2_cache = None
+    current.session.saml2_info = None
+    current.session.auth = None
+    current.auth = None
+    logout_urls = client.do_logout(name_id=name_id,
+                                   entity_ids=idps,
+                                   reason="Logout request",
+                                   expire=None,
+                                   sign=True,
+                                   expected_binding=BINDING_HTTP_REDIRECT)
+    # We can only redirect once so uh.. out of luck for the next one
+    idp = idps[0]
+
+    # To get to the URL, look up idp, then tuple index 1,
+    # then 'headers', then list index 0, then tuple index 1
+    #{'https://login.yogahour.eu/auth/realms/Yoga%20Hour': (
+    #   'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect', {
+    #       'headers': [
+    #           ('Location', 'http://idp/endpoint?SAMLRequest=YADAYADAYADA')
+    #       ],
+    #       'data': [],
+    #       'status': 303,
+    #       'url': 'https://idp/endpoint',
+    #       'method': 'GET'
+    #   }
+    print(logout_urls,file=sys.stderr)
+    return redirect(logout_urls[idp][1]['headers'][0][1])
+
+# SAML2 SP metadata
+def saml_metadata():
+    import os.path
+    sp_path = os.path.join(request.folder, "private", "sp.xml")
+    if not os.path.exists(sp_path):
+        return sp_path
+    f = open(sp_path, 'r')
+    response.headers['Content-Type']='application/xml'
+    return f.read()
+
+
 @auth.requires_login()
 def index():
     # if not request.user_agent()['is_mobile']:
@@ -52,7 +132,6 @@ def blank():
 
     return dict(content = T('Welcome to OpenStudio'))
 
-
 ####### Don't mess with the functions below ##########
 
 def user():
@@ -70,6 +149,11 @@ def user():
         @auth.requires_permission('read','table name',record_id)
     to decorate functions that need access control
     """
+
+    # If saml2 is enabled, use that one
+    if configuration.get('auth.saml2_auth'):
+        return saml_user()
+
     # check if someone is looking for profile
     if 'profile' in request.args:
         redirect(URL('profile', 'index'))
