@@ -144,9 +144,17 @@ class CustomersSubscriptionsCredits:
             weeks_in_month = round(t_days.days / float(7), 1)
             credits = round((weeks_in_month * (classes or 0)) * percent, 1)
 
+        mutation_datetime = now
+        # Check if credits have already been added for this subscription.
+        query = (db.customers_subscriptions_credits.MutationType == "add") & \
+                (db.customers_subscriptions_credits.customers_subscriptions_id == csID)
+        if not db(query).count():
+            # No credits found yet, so add on the start of the subscription
+            mutation_datetime = p_start
+
         db.customers_subscriptions_credits.insert(
             customers_subscriptions_id=csID,
-            MutationDateTime=now,
+            MutationDateTime=mutation_datetime,
             MutationType='add',
             MutationAmount=credits,
             Description=T('Credits') + ' ' + first_day.strftime('%B %Y'),
