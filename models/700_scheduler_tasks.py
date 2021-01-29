@@ -172,5 +172,7 @@ scheduler_tasks = {
     'customers_recreate_thumbnails': os_scheduler_tasks.recreate_customer_thumbnails,
     'email_reminders_teachers_sub_request_open': os_scheduler_tasks.email_reminders_teachers_sub_request_open,
     'email_teachers_sub_requests_daily_summary': os_scheduler_tasks.email_teachers_sub_requests_daily_summary,
+    'email_trailcard_follow_up': os_scheduler_tasks.email_trailcard_follow_up,
+    'email_trailclass_follow_up': os_scheduler_tasks.email_trailclass_follow_up,
     'openstudio_test_task': task_openstudio_test
 }
