@@ -2255,7 +2255,7 @@ def define_classes():
         Field('AllowAPI', 'boolean', required=True,
             default=False,
             label=T("Public"),
-            comment=T("When the API is in use, this checkbox defines whether \
+            comment=T("Shop class in the online shop & when the API is in use, this checkbox defines whether \
                 a class is passed to the website.")),
         Field('AllowShopTrial', 'boolean',
             default=False,
