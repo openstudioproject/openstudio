@@ -1250,19 +1250,22 @@ def orders():
     if not features.Orders:
         redirect(URL('profile', 'index'))
 
-    orders = orders_display()
+    orders = orders_display(features)
 
-    link_invoices = A(T('All invoices'),
-                     _href=URL('profile','invoices'),
-                     _title=T('All invoices'),
-                     _class='btn btn-link')
+    link_invoices = ""
+    if features.Invoices:
+        link_invoices = A(T('All invoices'),
+                         _href=URL('profile','invoices'),
+                         _title=T('All invoices'),
+                         _class='btn btn-link')
 
 
     return dict(orders=orders, link_invoices=link_invoices)
 
 
-def orders_display(var=None):
+def orders_display(features):
     """
+        :param features: row of db.customers_profile_features
         Returns orders display
     """
     from openstudio.os_customer import Customer
@@ -1298,7 +1301,7 @@ def orders_display(var=None):
                         _class='btn btn-success btn-xs pull-right')
 
         invoice = ''
-        if order['row'].invoices.id:
+        if order['row'].invoices.id and features.Invoices:
             invoice = A(I(_class="fa fa-file-pdf-o"), ' ', order['row'].invoices.InvoiceID,
                         _href=URL('invoices', 'pdf', vars={'iID':order['row'].invoices.id}),
                         _title=T('Save invoice as PDF'))
