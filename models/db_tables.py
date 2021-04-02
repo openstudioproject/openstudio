@@ -1534,7 +1534,7 @@ def define_school_subscriptions():
               represent=represent_subscription_cancellation_period_units,
               label=T('Cancellation period in')),
         Field('Classes', 'integer', required=False,
-            requires=IS_INT_IN_RANGE(1, 99999999, error_message=T("Please enter a number between 1 and 99999999")),
+            requires=IS_INT_IN_RANGE(0, 99999999, error_message=T("Please enter a number between 0 and 99999999")),
             represent=represent_school_subscriptions_classes, # return Unlimited instead of number if row.Unlimited
             label=T("Classes")),
         Field('SubscriptionUnit',
