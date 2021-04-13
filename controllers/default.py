@@ -14,10 +14,9 @@ from general_helpers import User_helpers
 from general_helpers import max_string_length
 
 from openstudio.os_mail import OsMail
+from openstudio.tools import OsTools
 
 import datetime
-
-
 
 from saml2 import BINDING_HTTP_REDIRECT
 from saml2 import BINDING_HTTP_POST
@@ -214,14 +213,14 @@ def user():
     register_link = ''
     register_title = ''
     reset_passwd = ''
-
+    _next = request.vars['_next'] or ""
 
     self_checkin  = ''
     error_msg = ''
 
     try:
         organization = ORGANIZATIONS[ORGANIZATIONS['default']]
-        company_name = organization['Name']
+        company_name = B(organization['Name'])
         has_terms = True if organization['TermsConditionsURL'] else False
         has_privacy_notice = True if organization['PrivacyNoticeURL'] else False
     except:
@@ -264,7 +263,7 @@ def user():
         register_title = T("Create your account")
         login_title = T("Already have an account?")
         login_link = A(T("Click here to log in"),
-                       _href=URL(args='login'))
+                       _href=URL(args='login', vars=request.vars))
         login_message = DIV(
             B("Can't register?"), BR(),
             T("In case you can't register because your email address already has an account, click"), ' ',
@@ -564,6 +563,28 @@ def user():
 
         form_login = form
         login_title = T("Change password")
+
+    if "/shop/subscription" in _next:
+        os_tools = OsTools()
+        login_message_subscription = os_tools.get_sys_property("shop_login_message_subscription") or ""
+
+        if login_message_subscription:
+            company_name = SPAN(
+                company_name, BR(), BR(),
+                XML(login_message_subscription),
+                _class='center'
+            )
+
+    if "/shop/classcard" in _next:
+        os_tools = OsTools()
+        login_message_classcard = os_tools.get_sys_property("shop_login_message_classcard") or ""
+
+        if login_message_classcard:
+            company_name = SPAN(
+                company_name, BR(), BR(),
+                XML(login_message_classcard),
+                _class='center'
+            )
 
 
     return dict(form=form,
