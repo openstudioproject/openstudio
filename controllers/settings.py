@@ -3699,6 +3699,70 @@ def shop_settings():
                 save=submit)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
+def shop_login_messages():
+    """
+        Page for general shop settings
+    """
+    response.title = T('Settings')
+    response.subtitle = T('Shop Login messages')
+    response.view = 'general/tabs_menu.html'
+
+    shop_login_message_subscription = get_sys_property('shop_login_message_subscription')
+    shop_login_message_classcard = get_sys_property('shop_login_message_classcard')
+
+
+    form = SQLFORM.factory(
+        Field('shop_login_message_subscription', 'text',
+              default=shop_login_message_subscription,
+              label=T('Login message subscription'),
+              comment=T('Message on login & create account pages when coming from subscriptions in the online shop')),
+        Field('shop_login_message_classcard', 'text',
+              default=shop_login_message_classcard,
+              label=T('Login message classcard'),
+              comment=T('Message on login & create account pages when coming from classcards in the online shop')),
+        submit_button=T("Save"),
+        separator=' ',
+        formstyle='bootstrap3_stacked'
+    )
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    textareas = form.elements('textarea')
+    for textarea in textareas:
+        textarea['_class'] += ' tmced'
+
+    if form.accepts(request.vars, session):
+        value_names = [
+            'shop_login_message_subscription',
+            'shop_login_message_classcard'
+        ]
+
+        # process vars
+        for value_name in value_names:
+            value = request.vars[value_name]
+            set_sys_property(value_name, value)
+
+        # Clear cache
+        cache_clear_sys_properties()
+        # User feedback
+        session.flash = T('Saved')
+        # reload so the user sees how the values are stored in the db now
+        redirect(URL('shop_login_messages'))
+
+    content = DIV(DIV(form, _class="col-md-12"),
+                  _class='row')
+
+    menu = shop_get_menu(request.function)
+
+    return dict(content=content,
+                menu=menu,
+                save=submit)
+
+
 def shop_get_menu(page):
     """
         Menu for system settings pages
@@ -3727,6 +3791,9 @@ def shop_get_menu(page):
              ['shop_donations',
               T('Donations'),
               URL('shop_donations')],
+             ['shop_login_messages',
+              T('Login messages'),
+              URL('shop_login_messages')],
              ['shop_links',
               T('Links'),
               'shop_links']
