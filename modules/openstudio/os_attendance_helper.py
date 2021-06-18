@@ -1418,7 +1418,7 @@ class AttendanceHelper:
                                 # No trial class booking option if over limit
                                 return
 
-                price = prices['trial'] or 0
+                price = prices.get('trial', 0)
                 has_membership = False
                 if prices['school_memberships_id']:
                     has_membership = customer.has_given_membership_on_date(prices['school_memberships_id'], date)

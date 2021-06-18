@@ -2951,6 +2951,7 @@ def class_checkout():
         Buy class confirmation page
     """
     from general_helpers import datestr_to_python
+    from openstudio.os_attendance_helper import AttendanceHelper
     from openstudio.os_customer import Customer
     from openstudio.os_class import Class
 
@@ -3019,6 +3020,23 @@ def class_checkout():
             _class='col-md-12'
         ),
     _class="row")
+
+    # Check if we should show the regular content, or block this customer from booking another trial class
+    if trial:
+        prices = cls.get_prices()
+        ah = AttendanceHelper()
+        trial_option = ah._get_customer_class_booking_option_trial(
+            clsID=clsID,
+            date=date,
+            customer=customer,
+            prices=prices,
+            list_type="shop",
+            trial=trial
+        )
+
+        if not trial_option:
+            content = DIV("Unable to check out your trial class booking, please contact us", BR(), BR(),
+                          _class="text-center bold")
 
     back = os_gui.get_button(
         'back',
