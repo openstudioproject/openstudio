@@ -14,7 +14,7 @@ from populate_os_tables import populate_school_subscriptions
 from populate_os_tables import populate_school_classcards
 
 
-base_url = 'http://dev.openstudioproject.com:8000'
+base_url = 'http://dev.openstudioproject.com:8001'
 
 def populate_schedule(web2py):
     """
@@ -265,7 +265,7 @@ def test_schedule_get_json(client, web2py):
 
     assert json['data']['classes']['Monday']['classes'][0]['BookingStatus'] == 'finished'
     assert json['data']['classes']['Monday']['classes'][0]['LinkShop'] == \
-           'http://dev.openstudioproject.com:8000/shop/classes_book_options?clsID=1&date=2014-01-06'
+           'http://dev.openstudioproject.com:8001/shop/classes_book_options?clsID=1&date=2014-01-06'
 
     # check classes_subteachers
     url = base_url + \
