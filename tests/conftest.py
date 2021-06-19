@@ -23,7 +23,7 @@ def baseurl(appname):
     Change you port number as necessary.
     '''
 
-    return 'http://localhost:8000/%s' % appname
+    return 'http://localhost:8001/%s' % appname
 
 
 @pytest.fixture(scope='session')

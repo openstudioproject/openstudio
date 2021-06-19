@@ -70,20 +70,20 @@ def test_user_register_log_acceptance_documents(client, web2py):
     assert log_tc.DocumentName == 'Terms and Conditions'
     assert log_tc.DocumentDescription == org.TermsConditionsURL
     assert log_tc.DocumentVersion == org.TermsConditionsVersion
-    assert log_tc.DocumentURL == 'http://localhost:8000/user/register'
+    assert log_tc.DocumentURL == 'http://localhost:8001/user/register'
     assert log_tc.OpenStudioVersion == os_version
 
     # Check logging of privacy notice
     assert log_pp.DocumentName == 'Privacy Notice'
     assert log_pp.DocumentDescription == org.PrivacyNoticeURL
     assert log_pp.DocumentVersion == org.PrivacyNoticeVersion
-    assert log_pp.DocumentURL == 'http://localhost:8000/user/register'
+    assert log_pp.DocumentURL == 'http://localhost:8001/user/register'
     assert log_pp.OpenStudioVersion == os_version
 
     # Check logging of true and complete data acceptance
     assert log_td.DocumentName == 'Registration form'
     assert log_td.DocumentDescription == 'True and complete data'
-    assert log_td.DocumentURL == 'http://localhost:8000/user/register'
+    assert log_td.DocumentURL == 'http://localhost:8001/user/register'
     assert log_td.OpenStudioVersion == os_version
 
 
