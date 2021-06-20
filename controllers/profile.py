@@ -605,12 +605,12 @@ def me():
     if me_requires_complete_profile(auth.user.id):
         dis_query = dis_query = (db.school_discovery.Archived == False)
 
-        db.auth_user.gender.requires=IS_IN_SET(GENDERS, error_message=T("Cannot be empty"))
+        # db.auth_user.gender.requires=IS_IN_SET(GENDERS, error_message=T("Cannot be empty"))
         db.auth_user.school_discovery_id.requires=IS_IN_DB(db(dis_query),
                                                            'school_discovery.id',
                                                            '%(Name)s',
                                                            error_message="Cannot be empty")
-        db.auth_user.date_of_birth.requires=IS_DATE(format=DATE_FORMAT, error_message=T('Cannot be empty'))
+        # db.auth_user.date_of_birth.requires=IS_DATE(format=DATE_FORMAT, error_message=T('Cannot be empty'))
         db.auth_user.address.requires=IS_NOT_EMPTY(error_message=T("Cannot be empty"))
         db.auth_user.city.requires=IS_NOT_EMPTY(error_message=T("Cannot be empty"))
         db.auth_user.postcode.requires=IS_NOT_EMPTY(error_message=T("Cannot be empty"))

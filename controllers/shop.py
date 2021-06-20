@@ -3381,7 +3381,7 @@ def donate_get_form(var=None):
 
 def check_add_to_cart_requires_complete_profile(auID, _next=''):
     """
-        Checks if a completed profile is required, if so and it isn't complete, redirect to the profile edit page
+        Checks if a complete profile is required, if so and it isn't complete, redirect to the profile edit page
     """
     user = db.auth_user(auID)
 
@@ -3389,8 +3389,8 @@ def check_add_to_cart_requires_complete_profile(auID, _next=''):
         user.first_name,
         user.last_name,
         user.email,
-        user.gender,
-        user.date_of_birth,
+        # user.gender,
+        # user.date_of_birth,
         user.address,
         user.city,
         user.postcode,
