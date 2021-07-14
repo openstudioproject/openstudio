@@ -392,7 +392,7 @@ def staff_holidays_choose_status():
     """
         Page to choose status for all classes in period
     """
-    response.view = 'general/content_left_sidebar.html'
+    response.view = 'general/only_content.html'
     response.title = T("Staff holiday")
     response.subtitle = T('Choose class & shift status')
 
@@ -414,9 +414,13 @@ def staff_holidays_choose_status():
 
     if form.process().accepted:
         staff_holidays_set_status(sthID,
-                                    form.vars.status,
-                                    form.vars.apply_teacher2)
+                                  form.vars.status,
+                                  form.vars.apply_teacher2)
         redirect(URL('staff_holidays'))
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
 
     query = (db.teachers_holidays.id == sthID)
     left  = [ db.auth_user.on(db.teachers_holidays.auth_teacher_id ==
@@ -436,9 +440,9 @@ def staff_holidays_choose_status():
                   BR(), BR(),
                   DIV(form, _class='col-md-6 no_padding-left'))
 
-    back = os_gui.get_button('back', URL('staff_holidays'), _class='full-width')
+    back = os_gui.get_button('back', URL('staff_holidays'))
 
-    return dict(content=content, back=back)
+    return dict(content=content, back=back, save=submit)
 
 
 def staff_holidays_set_status(sthID, status, apply_teacher2):
