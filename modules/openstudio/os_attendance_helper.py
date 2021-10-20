@@ -1315,34 +1315,6 @@ class AttendanceHelper:
             if trial_option:
                 options['trial'] = trial_option
 
-            # system_enable_class_checkin_trialclass = get_sys_property('system_enable_class_checkin_trialclass')
-            # shop_allow_trial_classes_for_existing_customers = get_sys_property('shop_allow_trial_classes_for_existing_customers')
-            #
-            # if trial and system_enable_class_checkin_trialclass:
-            #     if list_type == 'shop':
-            #         if shop_allow_trial_classes_for_existing_customers:
-            #             # Check if customer has or had a card or subscription
-            #             has_or_had_subscription = customer.get_has_or_had_subscription()
-            #             has_or_had_card = customer.get_has_or_had_classcard()
-            #
-            #             if has_or_had_card or has_or_had_subscription:
-            #
-            #
-            #
-            #     price = prices['trial'] or 0
-            #     membership_price = has_membership and prices['trial_membership']
-            #     if membership_price:
-            #         price = prices['trial_membership']
-            #
-            #     options['trial'] = {
-            #         'clsID': clsID,
-            #         "Type": "trial",
-            #         "Name": T('Trial'),
-            #         "Price": price,
-            #         "MembershipPrice": membership_price,
-            #         "Message": get_sys_property('shop_classes_trial_message') or ''
-            #     }
-
             # Request review
             options['under_review'] = False
             if request_review:
@@ -1400,6 +1372,17 @@ class AttendanceHelper:
 
             if trial and system_enable_class_checkin_trialclass == "on":
                 if list_type == 'shop':
+                    # Check trial class booking limit for shop
+                    shop_classes_trial_limit = os_tools.get_sys_property('shop_classes_trial_limit')
+
+                    if shop_classes_trial_limit:
+                        # A limit has been set, count trial classes taken
+                        trial_class_count = customer.get_trialclass_count()
+                        if trial_class_count >= int(shop_classes_trial_limit):
+                            # No trial class booking option if over limit
+                            return
+
+                    # Check if trial classes are allowed for existing customers
                     if not shop_allow_trial_classes_for_existing_customers == "on":
                         # Check if customer has or had a card or subscription
                         has_or_had_subscription = customer.get_has_or_had_subscription()
@@ -1407,16 +1390,6 @@ class AttendanceHelper:
 
                         if has_or_had_card or has_or_had_subscription:
                             return
-
-                    else:
-                        # Check trial class booking limit for shop
-                        shop_classes_trial_limit = os_tools.get_sys_property('shop_classes_trial_limit')
-                        if shop_classes_trial_limit:
-                            # A limit has been set, count trial classes taken
-                            trial_class_count = customer.get_trialclass_count()
-                            if trial_class_count >= int(shop_classes_trial_limit):
-                                # No trial class booking option if over limit
-                                return
 
                 price = prices.get('trial', 0)
                 has_membership = False
