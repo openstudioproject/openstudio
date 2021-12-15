@@ -1,3 +1,13 @@
+# End of life announcement
+
+The recent corona situation has had it's impact on many of OpenStudio's commercial users. This in turn has also has a huge impacte on this project. To make a long story short, due to a big drop in commercial requests, OpenStudio is currently in maintenance mode. No new features will be added and no major updates will be released. From 31-03-2022 all hosting and support services for OpenStudio will come to an end and this project will be archived.
+
+For smaller organizations though, there is also some good news. The Costasiella project has been started. This project aims to offer a modern implementation of a subset of OpenStudio's features. This new platform is clearly aimed at smaller operations and might not suit all current OpenStudio users. That being said, there will be a migration path which can import most of the data from OpenStudio. 
+
+Development on this new project can be followed here:
+https://github.com/costasiella/costasiella
+
+
 # OpenStudio
 
 OpenStudio is freely distributed open source web based software built for Yoga, Dance, Karate/Martial Arts, and Fitness Studios/Schools. Here just a sample of the types of businesses OpenStudio serves:
