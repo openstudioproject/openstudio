@@ -1,3 +1,8 @@
+# End of life
+
+As of 31-03-2023 OpenStudio is end of life and won't receive any updates or security fixes. All development has been stopped. 
+It is no longer recommended to run this software.
+
 # End of life announcement
 
 The recent corona situation has had it's impact on many of OpenStudio's commercial users. This in turn has also had a big impact on this project. In short, due to a big drop in commercial requests, OpenStudio is currently in maintenance mode. No new features will be added and no major updates will be released. From 31-03-2023 all hosting and support services for OpenStudio will come to an end and this project will be archived.
